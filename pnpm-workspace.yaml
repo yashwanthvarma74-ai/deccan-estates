@@ -1,0 +1,8 @@
+packages:
+  - 'apps/*'
+  - 'services/*'
+  - 'packages/*'
+
+allowBuilds:
+  sharp: false
+  unrs-resolver: false
