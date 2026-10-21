@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { HeroVideo } from "@/components/hero-video";
 import { ListingCard } from "@/components/listing-card";
 import { buttonVariants } from "@/components/ui/button";
 import { typeLabels } from "@/lib/api";
@@ -56,7 +57,7 @@ export default function Home() {
   return (
     <>
       <section className="relative isolate overflow-hidden bg-navy text-white">
-        <Image src="https://picsum.photos/seed/hyderabad-skyline/1920/900" alt="" fill priority sizes="100vw" className="-z-10 object-cover opacity-40" />
+        <HeroVideo />
         <div className="mx-auto max-w-[1800px] px-6 py-28 md:py-36">
           <p className="label text-white/80">Plots · Villas · Gated communities</p>
           <h1 className="mt-4 max-w-3xl text-5xl leading-tight md:text-6xl">Find your place in Hyderabad</h1>
