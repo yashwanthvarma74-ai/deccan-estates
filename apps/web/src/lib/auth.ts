@@ -27,7 +27,7 @@ export const auth = betterAuth({
   plugins: [
     // Issues short-lived JWTs that the NestJS API verifies via /api/auth/jwks.
     jwt({ jwt: { issuer: baseURL, audience: undefined, expirationTime: "15m" } }),
-    passkey({ rpID: new URL(baseURL).hostname, rpName: "Hyderabad Homes", origin: baseURL }),
+    passkey({ rpID: new URL(baseURL).hostname, rpName: "Deccan Estates", origin: baseURL }),
     nextCookies(),
   ],
 });

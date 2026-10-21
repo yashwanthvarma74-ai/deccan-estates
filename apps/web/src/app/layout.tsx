@@ -9,7 +9,7 @@ const franklin = Libre_Franklin({ variable: "--font-franklin", subsets: ["latin"
 const sourceSerif = Source_Serif_4({ variable: "--font-source-serif", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Hyderabad Homes — plots, villas and gated communities",
+  title: "Deccan Estates — plots, villas and gated communities",
   description: "Search RERA-registered plots, villas and gated communities in Hyderabad with an AI assistant.",
 };
 

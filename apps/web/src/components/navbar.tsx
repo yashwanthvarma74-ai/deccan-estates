@@ -35,7 +35,7 @@ export function Navbar() {
       </div>
       <nav className="mx-auto flex h-20 max-w-[1800px] items-center px-6" aria-label="Main">
         <Link href="/" className="leading-none">
-          <span className="font-display block text-[1.7rem] tracking-tight">Hyderabad Homes</span>
+          <span className="font-display block text-[1.7rem] tracking-tight">Deccan Estates</span>
           <span className="label mt-1 block text-[0.6rem] text-white/70">Plots · Villas · Gated communities</span>
         </Link>
         <div className="ml-auto flex items-center gap-10">

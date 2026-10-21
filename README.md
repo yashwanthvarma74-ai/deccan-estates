@@ -1,4 +1,6 @@
-# Hyderabad Real Estate Platform
+# Deccan Estates
+
+Hyderabad real estate platform.
 
 AI-powered platform for buying, selling and managing real estate in Hyderabad.
 
