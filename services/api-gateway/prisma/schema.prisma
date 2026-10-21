@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PropertyType {
+  PLOT
+  VILLA
+  APARTMENT
+  GATED_COMMUNITY
+}
+
+enum ListingStatus {
+  ACTIVE
+  SOLD
+  DRAFT
+}
+
+model Locality {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  zone      String
+  avgPricePerSqft Int
+  listings  Listing[]
+}
+
+model Agent {
+  id       String    @id @default(cuid())
+  name     String
+  phone    String
+  reraId   String    @unique
+  listings Listing[]
+}
+
+model Listing {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  type        PropertyType
+  status      ListingStatus @default(ACTIVE)
+  priceInr    BigInt
+  areaSqft    Int
+  bedrooms    Int?
+  reraNumber  String?
+  imageUrl    String
+  localityId  String
+  locality    Locality      @relation(fields: [localityId], references: [id])
+  agentId     String
+  agent       Agent         @relation(fields: [agentId], references: [id])
+  createdAt   DateTime      @default(now())
+  saved       SavedListing[]
+
+  @@index([localityId, priceInr])
+  @@index([type, status])
+}
+
+// userId is the Better Auth user id (JWT `sub`); users live in the web app's auth tables.
+model SavedListing {
+  userId    String
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, listingId])
+}

@@ -1,0 +1,61 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  js:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env: { POSTGRES_USER: hyd, POSTGRES_PASSWORD: hyd_dev_password, POSTGRES_DB: hyd_realestate }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hyd" --health-interval 5s --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+    env:
+      DATABASE_URL: postgresql://hyd:hyd_dev_password@localhost:5432/hyd_realestate
+      BETTER_AUTH_SECRET: ci-only-secret-ci-only-secret-ci-only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: API typecheck, unit tests, build
+        working-directory: services/api-gateway
+        run: |
+          pnpm prisma generate
+          pnpm lint
+          pnpm test
+          pnpm build
+      - name: Web typecheck, unit tests
+        working-directory: apps/web
+        run: |
+          pnpm typecheck
+          pnpm test
+      - name: Migrate and seed
+        working-directory: services/api-gateway
+        run: pnpm prisma migrate deploy && pnpm prisma:seed
+      - name: Auth tables
+        working-directory: apps/web
+        run: |
+          psql "$DATABASE_URL" -c 'CREATE SCHEMA IF NOT EXISTS auth'
+          pnpm dlx auth@latest migrate --config src/lib/auth.ts -y
+      - name: E2E (Playwright)
+        run: |
+          (cd services/api-gateway && pnpm build && node dist/main &)
+          (cd apps/web && pnpm exec playwright install --with-deps chromium && pnpm next build && (pnpm next start & ) && sleep 5 && E2E_BASE_URL=http://localhost:3000 pnpm test:e2e)
+
+  ai:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: services/ai } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest -q

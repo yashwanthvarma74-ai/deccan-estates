@@ -1,0 +1,50 @@
+"use client";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [error, setError] = useState<string | null>(null);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const email = String(f.get("email"));
+    const password = String(f.get("password"));
+    const res =
+      mode === "signup"
+        ? await authClient.signUp.email({ email, password, name: String(f.get("name") || email) })
+        : await authClient.signIn.email({ email, password });
+    if (res.error) return setError(res.error.message ?? "Something went wrong");
+    router.push("/");
+    router.refresh();
+  }
+
+  async function passkeySignIn() {
+    const res = await authClient.signIn.passkey();
+    if (res?.error) return setError(res.error.message ?? "Passkey sign-in failed");
+    router.push("/");
+    router.refresh();
+  }
+
+  return (
+    <div className="mx-auto max-w-sm space-y-4">
+      <h1 className="text-2xl font-bold">{mode === "signin" ? "Sign in" : "Create account"}</h1>
+      <form onSubmit={onSubmit} className="space-y-3">
+        {mode === "signup" && <Input name="name" placeholder="Full name" required aria-label="Full name" />}
+        <Input name="email" type="email" placeholder="Email" required aria-label="Email" />
+        <Input name="password" type="password" placeholder="Password (8+ chars)" minLength={8} required aria-label="Password" />
+        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+        <Button type="submit" className="w-full">{mode === "signin" ? "Sign in" : "Sign up"}</Button>
+      </form>
+      <Button variant="outline" className="w-full" onClick={passkeySignIn}>Sign in with a passkey</Button>
+      <button className="text-sm underline" onClick={() => setMode(mode === "signin" ? "signup" : "signin")}>
+        {mode === "signin" ? "New here? Create an account" : "Have an account? Sign in"}
+      </button>
+    </div>
+  );
+}
