@@ -19,11 +19,11 @@ export function Navbar() {
   return (
     <header className="bg-navy text-white">
       <nav className="mx-auto flex h-20 max-w-[1800px] items-center px-6" aria-label="Main">
-        <Link href="/" className="shrink-0 whitespace-nowrap leading-none">
-          <span className="font-display block text-[1.7rem] tracking-tight">Deccan Estates</span>
+        <Link href="/" className="mr-6 shrink-0 whitespace-nowrap leading-none">
+          <span className="font-display block text-2xl tracking-tight xl:text-[1.7rem]">Deccan Estates</span>
           <span className="label mt-1 hidden text-[0.6rem] text-white/70 xl:block">Plots · Villas · Gated communities</span>
         </Link>
-        <div className="ml-auto flex items-center gap-4 whitespace-nowrap lg:gap-8">
+        <div className="ml-auto flex items-center gap-4 whitespace-nowrap lg:gap-5 xl:gap-8">
           {links.map((l) => (
             <Link key={l.label} href={l.href} className="label hidden hover:underline lg:block">
               {l.label}
