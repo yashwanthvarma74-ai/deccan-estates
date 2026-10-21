@@ -1,29 +1,25 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import { HeroVideo } from "@/components/hero-video";
+import { HeroCarousel } from "@/components/hero-carousel";
+import { SearchBand } from "@/components/search-band";
 import { ListingCard } from "@/components/listing-card";
-import { buttonVariants } from "@/components/ui/button";
 import { typeLabels } from "@/lib/api";
 import { getListings, getLocalities } from "@/lib/data";
-import { cn } from "@/lib/utils";
 
-async function Hero() {
-  const localities = await getLocalities();
-  const field = "h-14 w-full border border-white/40 bg-white px-4 text-sm text-ink";
-  return (
-    <form action="/listings" role="search" className="mt-10 grid max-w-4xl gap-3 md:grid-cols-[1fr_1fr_auto]">
-      <select name="locality" aria-label="Locality" className={field} defaultValue="">
-        <option value="">All localities</option>
-        {localities.map((l) => <option key={l.id} value={l.slug}>{l.name}</option>)}
-      </select>
-      <select name="type" aria-label="Property type" className={field} defaultValue="">
-        <option value="">Any type</option>
-        {Object.entries(typeLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-      </select>
-      <button type="submit" className={cn(buttonVariants(), "h-14 border-white px-10 hover:bg-white hover:text-navy")}>Search</button>
-    </form>
-  );
+async function Band() {
+  return <SearchBand localities={await getLocalities()} />;
+}
+
+async function Slides() {
+  const { items } = await getListings({ sort: "price_desc", page: "1" });
+  const slides = items.slice(0, 5).map((l) => ({
+    id: l.id,
+    place: l.locality.name,
+    subtitle: `${typeLabels[l.type]}, Hyderabad`,
+    price: l.priceInr,
+  }));
+  return <HeroCarousel slides={slides} />;
 }
 
 async function Featured() {
@@ -56,14 +52,8 @@ async function Localities() {
 export default function Home() {
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-navy text-white">
-        <HeroVideo />
-        <div className="mx-auto max-w-[1800px] px-6 py-28 md:py-36">
-          <p className="label text-white/80">Plots · Villas · Gated communities</p>
-          <h1 className="mt-4 max-w-3xl text-5xl leading-tight md:text-6xl">Find your place in Hyderabad</h1>
-          <Suspense fallback={<div className="mt-10 h-14" />}><Hero /></Suspense>
-        </div>
-      </section>
+      <Suspense fallback={<div className="h-40 bg-navy" />}><Band /></Suspense>
+      <Suspense fallback={<div className="h-[calc(100vh-15rem)] bg-navy-deep" />}><Slides /></Suspense>
 
       <section className="mx-auto max-w-[1800px] px-6 py-20">
         <div className="mb-8 flex items-end justify-between">
