@@ -6,7 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import { PUBLIC_API_URL, listingSchema } from "@/lib/api";
 import { z } from "zod";
 
-async function authedFetch(path: string, init?: RequestInit) {
+export async function authedFetch(path: string, init?: RequestInit) {
   const { data } = await authClient.token();
   if (!data) throw new Error("unauthenticated");
   const res = await fetch(`${PUBLIC_API_URL}${path}`, {

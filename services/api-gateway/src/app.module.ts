@@ -9,11 +9,12 @@ import { HealthController } from './health.controller';
 import { ListingsController } from './listings/listings.controller';
 import { ListingsService } from './listings/listings.service';
 import { LocalitiesController } from './localities/localities.controller';
+import { AgentsController } from './agents.controller';
 import { SavedController } from './saved/saved.controller';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true })],
-  controllers: [HealthController, ListingsController, LocalitiesController, SavedController],
+  controllers: [HealthController, ListingsController, LocalitiesController, SavedController, AgentsController],
   providers: [
     PrismaService,
     RedisService,

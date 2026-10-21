@@ -9,7 +9,9 @@ export const listingQuery = z.object({
   type: z.enum(['PLOT', 'VILLA', 'APARTMENT', 'GATED_COMMUNITY']).optional(),
   minPrice: z.coerce.number().int().nonnegative().optional(),
   maxPrice: z.coerce.number().int().positive().optional(),
+  minBeds: z.coerce.number().int().min(0).max(10).optional(),
   q: z.string().max(100).optional(),
+  sort: z.enum(['newest', 'price_asc', 'price_desc']).default('newest'),
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(50).default(12),
 });
@@ -26,33 +28,56 @@ export function toDto(l: ListingRow) {
 export class ListingsService {
   constructor(private prisma: PrismaService, private redis: RedisService) {}
 
+  private where(query: ListingQuery): Prisma.ListingWhereInput {
+    return {
+      status: 'ACTIVE',
+      type: query.type,
+      locality: query.locality ? { slug: query.locality } : undefined,
+      priceInr: { gte: query.minPrice, lte: query.maxPrice },
+      bedrooms: query.minBeds ? { gte: query.minBeds } : undefined,
+      ...(query.q
+        ? {
+            OR: [
+              { title: { contains: query.q, mode: 'insensitive' } },
+              { description: { contains: query.q, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+  }
+
   list(query: ListingQuery) {
     return this.redis.cached(`listings:${JSON.stringify(query)}`, 60, async () => {
-      const where: Prisma.ListingWhereInput = {
-        status: 'ACTIVE',
-        type: query.type,
-        locality: query.locality ? { slug: query.locality } : undefined,
-        priceInr: { gte: query.minPrice, lte: query.maxPrice },
-        ...(query.q
-          ? {
-              OR: [
-                { title: { contains: query.q, mode: 'insensitive' } },
-                { description: { contains: query.q, mode: 'insensitive' } },
-              ],
-            }
-          : {}),
-      };
+      const where = this.where(query);
+      const orderBy: Prisma.ListingOrderByWithRelationInput =
+        query.sort === 'price_asc'
+          ? { priceInr: 'asc' }
+          : query.sort === 'price_desc'
+            ? { priceInr: 'desc' }
+            : { createdAt: 'desc' };
       const [items, total] = await this.prisma.$transaction([
         this.prisma.listing.findMany({
           where,
           include,
-          orderBy: { createdAt: 'desc' },
+          orderBy,
           skip: (query.page - 1) * query.pageSize,
           take: query.pageSize,
         }),
         this.prisma.listing.count({ where }),
       ]);
       return { items: items.map(toDto), total, page: query.page, pageSize: query.pageSize };
+    });
+  }
+
+  /** Lightweight points for the map: every match, no pagination. */
+  mapPoints(query: ListingQuery) {
+    return this.redis.cached(`map:${JSON.stringify({ ...query, page: 1, sort: 'newest' })}`, 60, async () => {
+      const rows = await this.prisma.listing.findMany({
+        where: this.where(query),
+        select: { id: true, title: true, lat: true, lng: true, priceInr: true, imageUrl: true },
+        take: 500,
+      });
+      return rows.map((r) => ({ ...r, priceInr: Number(r.priceInr) }));
     });
   }
 

@@ -32,13 +32,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto max-w-sm space-y-4">
-      <h1 className="text-2xl font-bold">{mode === "signin" ? "Sign in" : "Create account"}</h1>
+    <div className="mx-auto max-w-sm space-y-4 px-6 py-16">
+      <h1 className="text-4xl">{mode === "signin" ? "Sign in" : "Create account"}</h1>
       <form onSubmit={onSubmit} className="space-y-3">
         {mode === "signup" && <Input name="name" placeholder="Full name" required aria-label="Full name" />}
         <Input name="email" type="email" placeholder="Email" required aria-label="Email" />
         <Input name="password" type="password" placeholder="Password (8+ chars)" minLength={8} required aria-label="Password" />
-        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+        {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
         <Button type="submit" className="w-full">{mode === "signin" ? "Sign in" : "Sign up"}</Button>
       </form>
       <Button variant="outline" className="w-full" onClick={passkeySignIn}>Sign in with a passkey</Button>

@@ -13,10 +13,17 @@ export class ListingsController {
   @ApiQuery({ name: 'type', required: false })
   @ApiQuery({ name: 'minPrice', required: false })
   @ApiQuery({ name: 'maxPrice', required: false })
+  @ApiQuery({ name: 'minBeds', required: false })
+  @ApiQuery({ name: 'sort', required: false })
   @ApiQuery({ name: 'q', required: false })
   @ApiQuery({ name: 'page', required: false })
   list(@Query() query: Record<string, unknown>) {
     return this.listings.list(parse(listingQuery, query));
+  }
+
+  @Get('map')
+  map(@Query() query: Record<string, unknown>) {
+    return this.listings.mapPoints(parse(listingQuery, query));
   }
 
   @Get(':id')

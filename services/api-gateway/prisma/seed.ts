@@ -3,16 +3,16 @@ import { PrismaClient, PropertyType } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const localities = [
-  { name: 'Gachibowli', zone: 'West', avg: 9500 },
-  { name: 'Kondapur', zone: 'West', avg: 8200 },
-  { name: 'Kokapet', zone: 'West', avg: 11000 },
-  { name: 'Narsingi', zone: 'West', avg: 7800 },
-  { name: 'Tellapur', zone: 'West', avg: 6200 },
-  { name: 'Shamshabad', zone: 'South', avg: 3800 },
-  { name: 'Adibatla', zone: 'South', avg: 3200 },
-  { name: 'Miyapur', zone: 'North-West', avg: 6000 },
-  { name: 'Kompally', zone: 'North', avg: 5600 },
-  { name: 'Uppal', zone: 'East', avg: 5200 },
+  { name: 'Gachibowli', zone: 'West', avg: 9500, lat: 17.4401, lng: 78.3489 },
+  { name: 'Kondapur', zone: 'West', avg: 8200, lat: 17.4691, lng: 78.3568 },
+  { name: 'Kokapet', zone: 'West', avg: 11000, lat: 17.395, lng: 78.33 },
+  { name: 'Narsingi', zone: 'West', avg: 7800, lat: 17.387, lng: 78.359 },
+  { name: 'Tellapur', zone: 'West', avg: 6200, lat: 17.458, lng: 78.283 },
+  { name: 'Shamshabad', zone: 'South', avg: 3800, lat: 17.2543, lng: 78.429 },
+  { name: 'Adibatla', zone: 'South', avg: 3200, lat: 17.22, lng: 78.55 },
+  { name: 'Miyapur', zone: 'North-West', avg: 6000, lat: 17.496, lng: 78.357 },
+  { name: 'Kompally', zone: 'North', avg: 5600, lat: 17.54, lng: 78.487 },
+  { name: 'Uppal', zone: 'East', avg: 5200, lat: 17.405, lng: 78.559 },
 ];
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -26,7 +26,7 @@ async function main() {
   const locs = await Promise.all(
     localities.map((l) =>
       prisma.locality.create({
-        data: { name: l.name, slug: slug(l.name), zone: l.zone, avgPricePerSqft: l.avg },
+        data: { name: l.name, slug: slug(l.name), zone: l.zone, avgPricePerSqft: l.avg, lat: l.lat, lng: l.lng },
       }),
     ),
   );
@@ -64,6 +64,8 @@ async function main() {
           areaSqft: area,
           bedrooms: type === 'PLOT' ? null : 3 + (i % 3),
           reraNumber: `P0220000${n.toString().padStart(4, '0')}`,
+          lat: loc.lat + (((n * 37) % 100) - 50) / 3000,
+          lng: loc.lng + (((n * 53) % 100) - 50) / 3000,
           imageUrl: `https://picsum.photos/seed/hyd-${n}/800/600`,
           localityId: loc.id,
           agentId: agents[n % agents.length].id,

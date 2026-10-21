@@ -26,6 +26,8 @@ model Locality {
   slug      String    @unique
   zone      String
   avgPricePerSqft Int
+  lat       Float
+  lng       Float
   listings  Listing[]
 }
 
@@ -48,6 +50,8 @@ model Listing {
   bedrooms    Int?
   reraNumber  String?
   imageUrl    String
+  lat         Float
+  lng         Float
   localityId  String
   locality    Locality      @relation(fields: [localityId], references: [id])
   agentId     String

@@ -10,6 +10,8 @@ const locality = z.object({
   slug: z.string(),
   zone: z.string(),
   avgPricePerSqft: z.number(),
+  lat: z.number(),
+  lng: z.number(),
 });
 
 export const listingSchema = z.object({
@@ -22,6 +24,8 @@ export const listingSchema = z.object({
   bedrooms: z.number().nullable(),
   reraNumber: z.string().nullable(),
   imageUrl: z.string(),
+  lat: z.number(),
+  lng: z.number(),
   locality,
   agent: z.object({ name: z.string(), phone: z.string(), reraId: z.string() }),
 });
@@ -46,6 +50,8 @@ export type ListingFilters = {
   type?: string;
   minPrice?: string;
   maxPrice?: string;
+  minBeds?: string;
+  sort?: string;
   q?: string;
   page?: string;
 };
@@ -70,3 +76,16 @@ export const fetchListing = (id: string, base = API_URL) =>
 
 export const fetchLocalities = (base = API_URL) =>
   get(base, "/localities", z.array(locality));
+
+export const mapPointSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  lat: z.number(),
+  lng: z.number(),
+  priceInr: z.number(),
+  imageUrl: z.string(),
+});
+export type MapPoint = z.infer<typeof mapPointSchema>;
+
+export const fetchMapPoints = (filters: ListingFilters, base = API_URL) =>
+  get(base, `/listings/map?${qs({ ...filters, page: undefined, sort: undefined })}`, z.array(mapPointSchema));

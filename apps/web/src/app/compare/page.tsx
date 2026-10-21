@@ -12,7 +12,7 @@ export default function ComparePage() {
   });
   const listings = results.flatMap((r) => (r.data ? [r.data] : []));
 
-  if (ids.length === 0) return <p>Pick up to three listings with “Compare” to see them side by side.</p>;
+  if (ids.length === 0) return <p className="p-10">Pick up to three listings with “Compare” to see them side by side.</p>;
 
   const rows: [string, (l: (typeof listings)[number]) => string][] = [
     ["Type", (l) => typeLabels[l.type]],
@@ -25,9 +25,9 @@ export default function ComparePage() {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-[1800px] space-y-4 px-6 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Compare</h1>
+        <h1 className="text-4xl">Compare</h1>
         <Button variant="outline" size="sm" onClick={clear}>Clear</Button>
       </div>
       <div className="overflow-x-auto">
@@ -35,13 +35,13 @@ export default function ComparePage() {
           <thead>
             <tr>
               <th />
-              {listings.map((l) => <th key={l.id} className="p-2 font-semibold">{l.title}</th>)}
+              {listings.map((l) => <th key={l.id} className="p-2 font-display text-lg font-normal">{l.title}</th>)}
             </tr>
           </thead>
           <tbody>
             {rows.map(([label, fn]) => (
-              <tr key={label} className="border-t border-neutral-200 dark:border-neutral-800">
-                <th scope="row" className="p-2 font-medium text-neutral-500">{label}</th>
+              <tr key={label} className="border-t border-line">
+                <th scope="row" className="p-2 font-medium text-muted">{label}</th>
                 {listings.map((l) => <td key={l.id} className="p-2">{fn(l)}</td>)}
               </tr>
             ))}
