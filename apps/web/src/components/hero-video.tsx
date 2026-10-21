@@ -21,7 +21,7 @@ export function HeroVideo() {
 
   return (
     <div className="absolute inset-0 -z-10" aria-hidden>
-      <Image src="https://picsum.photos/seed/hyderabad-skyline/1920/900" alt="" fill priority sizes="100vw" className="object-cover" />
+      <Image src="/videos/hero-poster.jpg" alt="" fill priority sizes="100vw" className="object-cover" />
       {showVideo && (
         <video
           ref={ref}
