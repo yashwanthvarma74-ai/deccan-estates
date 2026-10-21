@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Libre_Franklin, Source_Serif_4 } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
 
-const franklin = Libre_Franklin({ variable: "--font-franklin", subsets: ["latin"] });
-const sourceSerif = Source_Serif_4({ variable: "--font-source-serif", subsets: ["latin"] });
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Deccan Estates — plots, villas and gated communities",
@@ -15,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${franklin.variable} ${sourceSerif.variable} h-full`}>
+    <html lang="en" className={`${inter.variable} h-full`}>
       <body className="flex min-h-full flex-col">
         <Providers>
           <Navbar />

@@ -58,7 +58,8 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const duration = own ? clipSeconds * 1000 : SLIDE_MS;
 
   return (
-    <section className="relative isolate h-[calc(100vh-15rem)] min-h-[30rem] overflow-hidden bg-navy-deep text-white" aria-roledescription="carousel" aria-label="Featured properties">
+    <div className="mx-auto max-w-[1300px] px-6 py-10">
+    <section className="relative isolate h-[min(68vh,640px)] min-h-[28rem] overflow-hidden rounded-2xl bg-secondary text-white shadow-soft" aria-roledescription="carousel" aria-label="Featured properties">
       <Image src={footage.poster} alt="" fill priority sizes="100vw" className="-z-10 object-cover" />
       {!failed && !reduced && (
         <video
@@ -76,14 +77,14 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
       )}
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/55 via-black/10 to-transparent" />
 
-      <div className="mx-auto flex h-full max-w-6xl flex-col px-6 pt-14">
+      <div className="flex h-full flex-col px-8 pt-12 md:px-12">
         {slide && (
           <div key={slide.id} aria-live={paused ? "polite" : "off"}>
-            <h2 className="font-display text-6xl md:text-7xl">{slide.place}</h2>
-            <p className="font-display mt-8 text-2xl">
-              {slide.subtitle} <span className="mx-2 text-gold">•</span> {formatInr(slide.price)}
+            <h2 className="text-5xl md:text-[64px] md:leading-none md:tracking-[-2.125px]">{slide.place}</h2>
+            <p className="mt-6 text-xl font-semibold">
+              {slide.subtitle} <span className="mx-2 text-white/60">•</span> {formatInr(slide.price)}
             </p>
-            <Link href={`/listings/${slide.id}`} className="label mt-2 inline-flex items-center gap-3 text-[0.8rem] hover:underline">
+            <Link href={`/listings/${slide.id}`} className="label mt-4 inline-flex h-10 items-center gap-2 rounded-full bg-white px-5 text-ink shadow-soft transition-transform hover:bg-canvas-soft active:scale-95">
               View listing <ArrowRight className="h-5 w-5" />
             </Link>
           </div>
@@ -93,9 +94,9 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
       <button
         onClick={() => setPaused((p) => !p)}
         aria-label={paused ? "Play slideshow" : "Pause slideshow"}
-        className="absolute right-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))] top-14 cursor-pointer"
+        className="absolute right-6 top-6 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-black/30 transition-transform hover:bg-black/40 active:scale-90"
       >
-        {paused ? <Play className="h-6 w-6 fill-white" /> : <Pause className="h-6 w-6 fill-white" />}
+        {paused ? <Play className="h-5 w-5 fill-white" /> : <Pause className="h-5 w-5 fill-white" />}
       </button>
 
       <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2" role="tablist" aria-label="Choose slide">
@@ -108,7 +109,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
             onClick={() => setIndex(i)}
             className="group h-6 w-16 cursor-pointer py-[10px]"
           >
-            <span className="relative block h-[3px] w-full bg-white/40">
+            <span className="relative block h-[3px] w-full overflow-hidden rounded-full bg-white/40">
               <span
                 key={`${index}-${paused}`}
                 className={cn("absolute inset-y-0 left-0 bg-white", i < index && "w-full", i > index && "w-0")}
@@ -119,5 +120,6 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
         ))}
       </div>
     </section>
+    </div>
   );
 }

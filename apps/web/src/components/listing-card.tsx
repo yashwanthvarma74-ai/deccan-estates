@@ -24,7 +24,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
   });
 
   return (
-    <article id={`listing-${listing.id}`} className="border border-line bg-white transition-shadow hover:shadow-md">
+    <article id={`listing-${listing.id}`} className="overflow-hidden rounded-xl border border-hairline bg-white transition-shadow hover:shadow-soft">
       <Link href={`/listings/${listing.id}`} className="relative block">
         <Image
           src={listing.imageUrl}
@@ -33,7 +33,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
           height={600}
           className="aspect-[3/2] w-full object-cover"
         />
-        <span className="label absolute left-3 top-3 bg-navy px-2 py-1 text-[0.65rem] text-white">
+        <span className="eyebrow absolute left-3 top-3 rounded-full bg-white px-2 py-1 text-primary shadow-soft">
           {typeLabels[listing.type]}
         </span>
       </Link>
@@ -42,24 +42,24 @@ export function ListingCard({ listing }: { listing: Listing }) {
           aria-label={isSaved ? "Remove from saved" : "Save listing"}
           aria-pressed={isSaved}
           onClick={() => (session ? toggleSave.mutate() : router.push("/login"))}
-          className="absolute right-4 top-4 cursor-pointer text-muted hover:text-navy"
+          className="absolute right-4 top-4 cursor-pointer text-ink-muted hover:text-primary"
         >
-          <Star className={cn("h-5 w-5", isSaved && "fill-navy text-navy")} />
+          <Star className={cn("h-5 w-5", isSaved && "fill-primary text-primary")} />
         </button>
-        <p className="label text-[0.7rem] text-muted">{listing.locality.name}</p>
-        <h3 className="font-display mt-2 pr-8 text-xl leading-snug">
+        <p className="eyebrow text-ink-muted">{listing.locality.name}</p>
+        <h3 className="mt-2 pr-8 text-[20px] leading-snug tracking-tight">
           <Link href={`/listings/${listing.id}`} className="hover:underline">{listing.title}</Link>
         </h3>
-        <p className="font-display text-muted">{listing.locality.name}, Hyderabad, Telangana</p>
-        <p className="mt-4 font-semibold">{formatInr(listing.priceInr)}</p>
-        <p className="mt-1 text-sm text-muted">
+        <p className="text-sm text-ink-muted">{listing.locality.name}, Hyderabad, Telangana</p>
+        <p className="mt-4 text-lg font-bold">{formatInr(listing.priceInr)}</p>
+        <p className="mt-1 text-sm text-ink-muted">
           {listing.bedrooms ? `${listing.bedrooms} Bedrooms · ` : ""}Area: {listing.areaSqft} Sq Ft.
         </p>
-        <p className="font-display mt-4 text-sm italic text-muted">Marketed by {listing.agent.name}</p>
+        <p className="mt-3 text-sm text-ink-muted">Listed by {listing.agent.name}</p>
         <button
           onClick={() => toggleCompare(listing.id)}
           aria-pressed={comparing}
-          className={cn("label mt-3 cursor-pointer text-[0.7rem] underline-offset-4 hover:underline", comparing ? "text-navy" : "text-muted")}
+          className={cn("mt-3 cursor-pointer text-sm font-medium hover:underline", comparing ? "text-primary" : "text-ink-muted")}
         >
           {comparing ? "✓ In compare" : "+ Compare"}
         </button>

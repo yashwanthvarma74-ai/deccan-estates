@@ -22,15 +22,15 @@ async function Results({ searchParams }: { searchParams: Promise<ListingFilters>
 
   return (
     <>
-      <h1 className="text-3xl">
+      <h1 className="text-[32px] tracking-[-1px]">
         Viewing {items.length ? `${from + 1}–${from + items.length}` : 0} of {total} Homes for Sale in {place}
       </h1>
-      <p className="mt-2 text-muted">Showing listings marketed by all agents in the searched area.</p>
+      <p className="mt-2 text-ink-muted">Showing listings marketed by all agents in the searched area.</p>
       <div className="mt-8 flex items-center justify-between">
         <Suspense><SortSelect /></Suspense>
       </div>
       {items.length === 0 ? (
-        <p className="py-16 text-center text-muted">No listings match these filters.</p>
+        <p className="py-16 text-center text-ink-muted">No listings match these filters.</p>
       ) : (
         <div id="results" className="mt-6 grid gap-6 xl:grid-cols-2">
           {items.map((l) => <ListingCard key={l.id} listing={l} />)}
@@ -38,7 +38,7 @@ async function Results({ searchParams }: { searchParams: Promise<ListingFilters>
       )}
       <nav className="mt-10 flex items-center justify-center gap-4" aria-label="Pagination">
         {page > 1 && <Link href={href(page - 1)}><Button variant="outline" size="sm">Previous</Button></Link>}
-        <span className="label text-muted">Page {page} of {pages}</span>
+        <span className="label text-ink-muted">Page {page} of {pages}</span>
         {page < pages && <Link href={href(page + 1)}><Button variant="outline" size="sm">Next</Button></Link>}
       </nav>
     </>
@@ -54,11 +54,11 @@ export default function ListingsPage({ searchParams }: PageProps<"/listings">) {
       </div>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
         <section className="order-2 pb-16 lg:order-1">
-          <Suspense fallback={<p className="py-10 text-muted">Loading homes…</p>}>
+          <Suspense fallback={<p className="py-10 text-ink-muted">Loading homes…</p>}>
             <Results searchParams={sp} />
           </Suspense>
         </section>
-        <aside className="order-1 h-80 lg:sticky lg:top-0 lg:order-2 lg:h-screen lg:py-4">
+        <aside className="order-1 h-80 lg:sticky lg:top-20 lg:order-2 lg:h-[calc(100vh-6rem)]">
           <Suspense><ResultsMap /></Suspense>
         </aside>
       </div>
