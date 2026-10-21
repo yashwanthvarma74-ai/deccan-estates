@@ -5,10 +5,17 @@ import { ArrowRight, Pause, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn, formatInr } from "@/lib/utils";
 
-export type HeroSlide = { id: string; place: string; subtitle: string; price: number };
+export type HeroSlide = { id: string; slug: string; place: string; subtitle: string; price: number };
 
-const VIDEO_SRC = "/videos/hero.mp4";
+type Footage = { src: string; poster: string };
+
+const DEFAULT_FOOTAGE: Footage = { src: "/videos/hero.mp4", poster: "/videos/hero-poster.jpg" };
+/** Locality-specific footage: plays from the start when that locality's slide appears, and the slide holds until it ends. */
+const LOCALITY_FOOTAGE: Record<string, Footage> = {
+  kokapet: { src: "/videos/kokapet.mp4", poster: "/videos/kokapet-poster.jpg" },
+};
 const SLIDE_MS = 6000;
+const FALLBACK_CLIP_SECONDS = 33;
 
 /**
  * Full-width looping video with a rotating featured-listing caption, pause control and
@@ -20,6 +27,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const [paused, setPaused] = useState(false);
   const [failed, setFailed] = useState(false);
   const [reduced, setReduced] = useState(false);
+  const [clipSeconds, setClipSeconds] = useState(FALLBACK_CLIP_SECONDS);
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -27,11 +35,18 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
     setPaused(reduce);
   }, []);
 
+  const slide = slides[index];
+  const own = slide ? LOCALITY_FOOTAGE[slide.slug] : undefined;
+  const footage = own ?? DEFAULT_FOOTAGE;
+  const next = () => setIndex((i) => (i + 1) % slides.length);
+
+  // Slides with their own footage advance when the clip ends; the rest use a timer.
   useEffect(() => {
-    if (paused || slides.length < 2) return;
-    const t = setTimeout(() => setIndex((i) => (i + 1) % slides.length), SLIDE_MS);
+    if (paused || slides.length < 2 || own) return;
+    const t = setTimeout(next, SLIDE_MS);
     return () => clearTimeout(t);
-  }, [index, paused, slides.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, paused, slides.length, own]);
 
   useEffect(() => {
     const v = video.current;
@@ -40,19 +55,23 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
     else v.play().catch(() => undefined);
   }, [paused]);
 
-  const slide = slides[index];
+  const duration = own ? clipSeconds * 1000 : SLIDE_MS;
 
   return (
     <section className="relative isolate h-[calc(100vh-15rem)] min-h-[30rem] overflow-hidden bg-navy-deep text-white" aria-roledescription="carousel" aria-label="Featured properties">
-      <Image src="/videos/hero-poster.jpg" alt="" fill priority sizes="100vw" className="-z-10 object-cover" />
+      <Image src={footage.poster} alt="" fill priority sizes="100vw" className="-z-10 object-cover" />
       {!failed && !reduced && (
         <video
+          // Remount when the footage changes so a locality clip starts from 0:00.
+          key={footage.src}
           ref={video}
           className="absolute inset-0 -z-10 h-full w-full object-cover"
-          autoPlay muted loop playsInline preload="auto"
+          autoPlay muted loop={!own} playsInline preload="auto"
+          onLoadedMetadata={(e) => own && setClipSeconds(Math.round(e.currentTarget.duration))}
+          onEnded={() => own && next()}
           onError={() => setFailed(true)}
         >
-          <source src={VIDEO_SRC} type="video/mp4" onError={() => setFailed(true)} />
+          <source src={footage.src} type="video/mp4" onError={() => setFailed(true)} />
         </video>
       )}
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/55 via-black/10 to-transparent" />
@@ -93,7 +112,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
               <span
                 key={`${index}-${paused}`}
                 className={cn("absolute inset-y-0 left-0 bg-white", i < index && "w-full", i > index && "w-0")}
-                style={i === index ? { width: paused ? "100%" : undefined, animation: paused ? undefined : `hero-progress ${SLIDE_MS}ms linear forwards` } : undefined}
+                style={i === index ? { width: paused ? "100%" : undefined, animation: paused ? undefined : `hero-progress ${duration}ms linear forwards` } : undefined}
               />
             </span>
           </button>

@@ -13,8 +13,17 @@ async function Band() {
 
 async function Slides() {
   const { items } = await getListings({ sort: "price_desc", page: "1" });
-  const slides = items.slice(0, 5).map((l) => ({
+  // One slide per locality (priciest listing), always including Kokapet, which has its own footage.
+  const byLocality = new Map(items.map((l) => [l.locality.slug, l] as const).reverse());
+  if (!byLocality.has("kokapet")) {
+    const kokapet = (await getListings({ locality: "kokapet", sort: "price_desc", page: "1" })).items[0];
+    if (kokapet) byLocality.set("kokapet", kokapet);
+  }
+  const picked = [...byLocality.values()].sort((a, b) => b.priceInr - a.priceInr).slice(0, 5);
+  if (!picked.some((l) => l.locality.slug === "kokapet") && byLocality.has("kokapet")) picked[picked.length - 1] = byLocality.get("kokapet")!;
+  const slides = picked.map((l) => ({
     id: l.id,
+    slug: l.locality.slug,
     place: l.locality.name,
     subtitle: `${typeLabels[l.type]}, Hyderabad`,
     price: l.priceInr,
