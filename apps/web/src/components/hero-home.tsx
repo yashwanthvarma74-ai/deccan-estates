@@ -45,7 +45,7 @@ export function HeroHome({ localities, agents }: { localities: Locality[]; agent
         </span>
       </div>
 
-      <div className="mx-auto w-full max-w-[1600px] px-4 pb-8 lg:px-[60px]">
+      <div className="mx-auto w-full max-w-[1600px] px-4 pb-[20vh] lg:px-[60px] lg:pb-[22vh]">
         <SearchPanel localities={localities} agents={agents} />
       </div>
     </section>
