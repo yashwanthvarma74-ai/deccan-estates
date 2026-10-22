@@ -1,83 +1,81 @@
 @import "tailwindcss";
 
-/* Design tokens: monochrome stage — black and white with grey text, light-weight uppercase Montserrat
-   headings, small tracked labels, square corners, full-bleed imagery. */
+/* Design tokens: midnight-navy stage, white type, soft glass cards, taupe accent panel, rounded pills.
+   Headlines are light weight with one bold emphasised word. */
 @theme inline {
-  --color-navy: #0a0a0a;
-  --color-navy-deep: #000000;
-  --color-navy-soft: #1a1a1a;
-  --color-ink: #1b1b1b;
-  --color-body: #333333;
-  --color-muted: #7a7a7a;
-  --color-line: #e2e2e0;
-  --color-surface: #f3f3f1;
-  --color-gold: #8a8a86;
-  --font-sans: var(--font-montserrat), Montserrat, "Helvetica Neue", Arial, sans-serif;
-  --font-serif: var(--font-montserrat), Montserrat, "Helvetica Neue", Arial, sans-serif;
-  --tracking-label: 0.08em;
+  --color-bg: #070c26;
+  --color-card: #0e1433;
+  --color-card-hi: #161d47;
+  --color-taupe: #83776d;
+  --color-ink: #ffffff;
+  --color-body: #c8cce0;
+  --color-muted: #8f95b6;
+  --color-line: rgb(255 255 255 / 0.12);
+  --color-surface: #0e1433;
+  --color-navy: #070c26;
+  --color-navy-deep: #040719;
+  --color-gold: #b9ad9f;
+  --font-sans: var(--font-dm-sans), "Satoshi", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-serif: var(--font-sans);
 }
 
-:root { color-scheme: light; }
+:root { color-scheme: dark; }
 
 @layer base {
-html { background: #fff; }
-  
+  html { background: var(--color-bg); scroll-behavior: smooth; }
+
   body {
-    background: #fff;
-    color: var(--color-body);
+    background: var(--color-bg);
+    color: var(--color-ink);
     font-family: var(--font-sans);
-    font-size: 14px;
-    line-height: 1.45;
+    font-size: 16px;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
-  
-  /* Display type: light weight, tight tracking, uppercase for the big statements. */
+
   h1, h2, h3, .font-display {
     font-family: var(--font-sans);
     font-weight: 300;
     letter-spacing: -0.01em;
-    line-height: 1.1;
+    line-height: 1.15;
     color: var(--color-ink);
   }
-  h1, h2 { text-transform: uppercase; }
-  h3 { font-weight: 400; }
+  h3 { font-weight: 600; }
+  h1 b, h2 b, h1 strong, h2 strong { font-weight: 700; }
 }
 
-/* Small uppercase UI label (nav, filters, buttons, overlines). */
+/* Small UI label (nav, filters, buttons). Sentence case, not shouty. */
 .label {
-  font-size: 0.6875rem;
-  line-height: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-label);
 }
 
 :focus-visible {
-  outline: 1px solid currentColor;
+  outline: 2px solid #fff;
   outline-offset: 3px;
 }
 
 .maplibregl-ctrl-attrib { font-size: 10px; }
+.maplibregl-popup-content { background: var(--color-card); color: #fff; border-radius: 12px; }
+.maplibregl-popup-tip { border-top-color: var(--color-card) !important; border-bottom-color: var(--color-card) !important; }
 
-@keyframes hero-progress {
-  from { width: 0; }
-  to { width: 100%; }
+@keyframes ring-spin { to { transform: rotate(360deg); } }
+@keyframes ring-spin-rev { to { transform: rotate(-360deg); } }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
 }
-
 @keyframes hero-in {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: none; }
 }
 
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-@keyframes blink {
-  50% { opacity: 0.25; }
-}
+/* Scroll-in reveal: elements with [data-reveal] fade up when they enter the viewport (see Reveal). */
+[data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity 800ms ease, transform 800ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+[data-reveal].is-in { opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  [data-reveal] { opacity: 1; transform: none; }
 }

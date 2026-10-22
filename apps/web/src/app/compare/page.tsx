@@ -30,12 +30,12 @@ export default function ComparePage() {
         <h1 className="text-4xl">Compare</h1>
         <Button variant="outline" size="sm" onClick={clear}>Clear</Button>
       </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-2xl border border-line bg-card p-4">
         <table className="w-full text-left text-sm">
           <thead>
             <tr>
               <th />
-              {listings.map((l) => <th key={l.id} className="p-2 font-display text-lg font-normal">{l.title}</th>)}
+              {listings.map((l) => <th key={l.id} className="p-2 text-lg font-semibold">{l.title}</th>)}
             </tr>
           </thead>
           <tbody>

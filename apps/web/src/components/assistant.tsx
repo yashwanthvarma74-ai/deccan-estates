@@ -12,7 +12,7 @@ export function Assistant({ listingId }: { listingId: string }) {
   });
 
   return (
-    <aside className="flex h-[32rem] flex-col border border-line" aria-label="Property assistant">
+    <aside className="flex h-[32rem] flex-col overflow-hidden rounded-2xl border border-line bg-card" aria-label="Property assistant">
       <h2 className="border-b border-line p-4 text-xl">Ask about this property</h2>
       <div className="flex-1 space-y-3 overflow-y-auto p-3 text-sm" aria-live="polite">
         {messages.length === 0 && (
@@ -20,7 +20,7 @@ export function Assistant({ listingId }: { listingId: string }) {
         )}
         {messages.map((m) => (
           <div key={m.id} className={m.role === "user" ? "text-right" : ""}>
-            <p className={m.role === "user" ? "inline-block bg-navy px-3 py-2 text-white" : "whitespace-pre-wrap"}>
+            <p className={m.role === "user" ? "inline-block rounded-xl bg-white px-3 py-2 text-bg" : "whitespace-pre-wrap"}>
               {m.parts.map((p) => (p.type === "text" ? p.text : "")).join("")}
             </p>
           </div>

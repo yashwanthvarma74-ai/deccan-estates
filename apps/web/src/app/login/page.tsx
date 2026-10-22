@@ -32,7 +32,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto max-w-sm space-y-4 px-6 py-16">
+    <div className="mx-auto my-16 max-w-sm space-y-4 rounded-2xl border border-line bg-card p-8">
       <h1 className="text-4xl">{mode === "signin" ? "Sign in" : "Create account"}</h1>
       <form onSubmit={onSubmit} className="space-y-3">
         {mode === "signup" && <Input name="name" placeholder="Full name" required aria-label="Full name" />}

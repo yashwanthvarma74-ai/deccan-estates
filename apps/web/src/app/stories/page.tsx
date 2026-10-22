@@ -7,7 +7,7 @@ const stories = [
 export default function StoriesPage() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-16">
-      <h1 className="text-5xl">Stories</h1>
+      <h1 className="text-4xl md:text-5xl">Stories</h1>
       <p className="mt-3 text-muted">Guides for buying property in Hyderabad. Sample content.</p>
       <ul className="mt-10 divide-y divide-line border-y border-line">
         {stories.map(([t, d]) => (

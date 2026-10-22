@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div aria-hidden className={cn("animate-pulse bg-surface", className)} />;
+  return <div aria-hidden className={cn("animate-pulse bg-card", className)} />;
 }
 
 export function CardSkeleton() {
   return (
-    <div className="border border-line bg-white" aria-hidden>
+    <div className="border border-line bg-card" aria-hidden>
       <Skeleton className="aspect-[3/2] w-full" />
       <div className="space-y-3 p-5">
         <Skeleton className="h-3 w-20" />

@@ -26,7 +26,7 @@ export function useFilterParams() {
   return { sp, set };
 }
 
-const select = "h-10 w-full border border-line bg-white px-3 text-sm";
+const select = "h-10 w-full rounded-lg border border-line bg-card px-3 text-sm";
 
 export function FilterBar({ localities }: { localities: Locality[] }) {
   const { sp, set } = useFilterParams();
@@ -43,15 +43,15 @@ export function FilterBar({ localities }: { localities: Locality[] }) {
   }
 
   const chip = (label: string, onClear: () => void) => (
-    <span key={label} className="flex h-9 items-center gap-2 bg-surface px-3 text-sm">
+    <span key={label} className="flex h-9 items-center gap-2 rounded-full bg-white/10 px-3 text-sm">
       {label}
-      <button aria-label={`Remove ${label}`} onClick={onClear} className="cursor-pointer text-muted hover:text-navy"><X className="h-4 w-4" /></button>
+      <button aria-label={`Remove ${label}`} onClick={onClear} className="cursor-pointer text-muted hover:text-white"><X className="h-4 w-4" /></button>
     </span>
   );
 
   return (
     <div className="flex flex-wrap items-center gap-x-8 gap-y-4" role="search">
-      <div className="flex min-h-12 w-full max-w-xl items-center gap-3 border-b border-line focus-within:border-navy md:w-[34rem]">
+      <div className="flex min-h-12 w-full max-w-xl items-center gap-3 border-b border-white/25 focus-within:border-white md:w-[34rem]">
         <Search className="h-5 w-5 text-muted" aria-hidden />
         {locality && chip(locality.name, () => set({ locality: undefined }))}
         {sp.get("q") && chip(`“${sp.get("q")}”`, () => set({ q: undefined }))}
@@ -74,8 +74,8 @@ export function FilterBar({ localities }: { localities: Locality[] }) {
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex" role="group" aria-label="Transaction">
-          <button className="label h-10 bg-navy px-6 text-white" aria-pressed>Buy</button>
-          <button className="label h-10 cursor-not-allowed border border-line px-6 text-muted" disabled title="Rentals coming soon">Rent</button>
+          <button className="label h-10 rounded-lg bg-white px-6 text-bg" aria-pressed>Buy</button>
+          <button className="label h-10 cursor-not-allowed rounded-lg border border-line px-6 text-muted" disabled title="Rentals coming soon">Rent</button>
         </div>
 
         <Popover label="Price range" active={!!(min || max)}>
@@ -107,7 +107,7 @@ export function FilterBar({ localities }: { localities: Locality[] }) {
                   <button
                     key={b || "any"}
                     onClick={() => { set({ minBeds: b || undefined }); close(); }}
-                    className={cn("label h-10 flex-1 cursor-pointer border px-2", (sp.get("minBeds") ?? "") === b ? "border-navy bg-navy text-white" : "border-line hover:border-navy")}
+                    className={cn("label h-10 flex-1 cursor-pointer rounded-lg border px-2", (sp.get("minBeds") ?? "") === b ? "border-white bg-white text-bg" : "border-line hover:border-white")}
                   >
                     {b ? `${b}+` : "Any"}
                   </button>
@@ -124,7 +124,7 @@ export function FilterBar({ localities }: { localities: Locality[] }) {
                 <li key={value || "any"}>
                   <button
                     onClick={() => { set({ type: value || undefined }); close(); }}
-                    className={cn("w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-surface", (sp.get("type") ?? "") === value && "font-semibold text-navy")}
+                    className={cn("w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-white/10", (sp.get("type") ?? "") === value && "font-semibold text-white")}
                   >
                     {label}
                   </button>

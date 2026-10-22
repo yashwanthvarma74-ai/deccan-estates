@@ -9,7 +9,7 @@ export function SortSelect() {
       <select
         value={sp.get("sort") ?? "newest"}
         onChange={(e) => set({ sort: e.target.value === "newest" ? undefined : e.target.value })}
-        className="label cursor-pointer bg-transparent text-navy"
+        className="label cursor-pointer bg-transparent text-white [&>option]:text-black"
       >
         <option value="newest">Newest (default)</option>
         <option value="price_asc">Price: low to high</option>

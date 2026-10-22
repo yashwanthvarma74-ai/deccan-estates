@@ -10,11 +10,11 @@ async function Agents() {
   return (
     <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {list.map((a) => (
-        <article key={a.id} className="border border-line p-6">
-          <p className="font-display text-2xl">{a.name}</p>
+        <article key={a.id} className="rounded-2xl border border-line bg-card p-6">
+          <p className="text-2xl font-semibold">{a.name}</p>
           <p className="label mt-2 text-[0.7rem] text-muted">RERA {a.reraId}</p>
           <p className="mt-4 text-sm">{a.listingCount} active listings</p>
-          <a href={`tel:${a.phone.replace(/\s/g, "")}`} className="label mt-4 inline-block text-navy underline underline-offset-4">{a.phone}</a>
+          <a href={`tel:${a.phone.replace(/\s/g, "")}`} className="label mt-4 inline-block text-white underline underline-offset-4">{a.phone}</a>
         </article>
       ))}
     </div>

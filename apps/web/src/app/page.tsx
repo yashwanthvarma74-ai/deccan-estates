@@ -1,141 +1,167 @@
+import Image from "next/image";
 import Link from "next/link";
+import { ArrowUpRight, FileCheck2, ShieldCheck, Sparkles } from "lucide-react";
 import { Suspense } from "react";
-import { Counter } from "@/components/counter";
-import { FeatureSlider } from "@/components/feature-slider";
-import { HeroStack, type HeroSlide } from "@/components/hero-stack";
-import { Marquee } from "@/components/marquee";
+import { DestinationCard, FeaturedCard, ServiceCard } from "@/components/home-cards";
+import { HeroHome } from "@/components/hero-home";
+import { Reveal } from "@/components/reveal";
 import { Skeleton } from "@/components/skeletons";
-import { StackedWords } from "@/components/stacked-words";
-import { API_URL, typeLabels } from "@/lib/api";
+import { SnapRow } from "@/components/snap-row";
 import { getListings, getLocalities } from "@/lib/data";
 
-const FOOTAGE: Record<string, { video: string; image: string }> = {
-  kokapet: { video: "/videos/kokapet.mp4", image: "/stills/s5.jpg" },
-};
-const STILLS = ["/stills/s1.jpg", "/stills/s2.jpg", "/stills/s3.jpg", "/stills/s4.jpg", "/stills/s6.jpg"];
+const STILLS = ["/stills/s1.jpg", "/stills/s2.jpg", "/stills/s3.jpg", "/stills/s4.jpg", "/stills/s6.jpg", "/stills/s5.jpg"];
 
-async function Hero() {
-  const [{ items }, localities] = await Promise.all([
-    getListings({ sort: "price_desc", page: "1", pageSize: "50" }),
-    getLocalities(),
-  ]);
-  // One slide per locality (priciest listing), always including Kokapet, which has its own footage.
-  const byLocality = new Map(items.map((l) => [l.locality.slug, l] as const).reverse());
-  const picked = [...byLocality.values()].sort((a, b) => b.priceInr - a.priceInr).slice(0, 5);
-  const kokapet = byLocality.get("kokapet");
-  if (kokapet && !picked.includes(kokapet)) picked[picked.length - 1] = kokapet;
-
-  const slides: HeroSlide[] = picked.map((l, i) => {
-    const own = FOOTAGE[l.locality.slug];
-    return {
-      id: l.id,
-      slug: l.locality.slug,
-      place: l.locality.name,
-      subtitle: `${typeLabels[l.type]}, Hyderabad`,
-      price: l.priceInr,
-      image: own?.image ?? STILLS[i % STILLS.length],
-      video: own?.video ?? (i === 0 ? "/videos/hero.mp4" : undefined),
-    };
-  });
-  return <HeroStack slides={slides} localities={localities} />;
+function Heading({ lead, bold, text }: { lead: string; bold: string; text?: string }) {
+  return (
+    <div>
+      <h2 className="text-[clamp(1.8rem,3.4vw,2.6rem)]">{lead} <b>{bold}</b></h2>
+      {text && <p className="mt-3 max-w-md text-[15px] leading-relaxed text-body">{text}</p>}
+    </div>
+  );
 }
 
-const words = [
-  { label: "Plots", href: "/listings?type=PLOT" },
-  { label: "Villas", href: "/listings?type=VILLA" },
-  { label: "Gated communities", href: "/listings?type=GATED_COMMUNITY" },
-  { label: "Apartments", href: "/listings?type=APARTMENT" },
-  { label: "Kokapet", href: "/listings?locality=kokapet" },
-  { label: "Gachibowli", href: "/listings?locality=gachibowli" },
-  { label: "Narsingi", href: "/listings?locality=narsingi" },
-  { label: "Shamshabad", href: "/listings?locality=shamshabad" },
-];
+async function Hero() {
+  return <HeroHome localities={await getLocalities()} />;
+}
 
 async function Featured() {
   const { items } = await getListings({ sort: "price_desc", page: "1", pageSize: "50" });
   const seen = new Set<string>();
   const featured = items.filter((l) => !seen.has(l.locality.slug) && seen.add(l.locality.slug)).slice(0, 8);
-  return <FeatureSlider items={featured} />;
-}
-
-async function Stats() {
-  const [{ total }, localities, agents] = await Promise.all([
-    getListings({ page: "1" }),
-    getLocalities(),
-    fetch(`${API_URL}/agents`, { next: { revalidate: 300 } }).then((r) => r.json() as Promise<unknown[]>).catch(() => []),
-  ]);
-  const stats: [number, string, string][] = [
-    [total, "", "Active listings"],
-    [localities.length, "", "Localities covered"],
-    [agents.length, "", "RERA-registered agents"],
-    [100, "%", "Listings with a RERA number"],
-  ];
   return (
-    <dl className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-      {stats.map(([n, suffix, label]) => (
-        <div key={label} className="border-t border-ink pt-5">
-          <dd className="text-[clamp(3.5rem,8vw,6.5rem)] font-extralight leading-none tracking-[-0.04em] text-ink"><Counter to={n} suffix={suffix} /></dd>
-          <dt className="label mt-4 text-muted">{label}</dt>
-        </div>
-      ))}
-    </dl>
+    <SnapRow center progress label="Featured homes">
+      {featured.map((l, i) => <FeaturedCard key={l.id} listing={l} index={i} />)}
+    </SnapRow>
   );
 }
 
-async function Cities() {
-  const localities = await getLocalities();
-  return <Marquee items={localities.map((l) => l.name)} />;
+async function Destinations() {
+  const [localities, { items }] = await Promise.all([getLocalities(), getListings({ page: "1", pageSize: "50" })]);
+  const counts = new Map<string, number>();
+  for (const l of items) counts.set(l.locality.slug, (counts.get(l.locality.slug) ?? 0) + 1);
+  return (
+    <SnapRow label="Localities" controls="none">
+      {localities.map((l, i) => (
+        <DestinationCard key={l.id} name={l.name} slug={l.slug} count={counts.get(l.slug) ?? 0} image={STILLS[i % STILLS.length]} />
+      ))}
+    </SnapRow>
+  );
 }
+
+const services = [
+  { title: "Verified listings", text: "Every plot, villa and community carries its RERA number and a named agent.", image: "/stills/s2.jpg" },
+  { title: "Documents, read for you", text: "Ask the assistant about the sale deed and approvals, with citations.", image: "/stills/s4.jpg" },
+  { title: "Site visits", text: "Book a visit slot with the listing agent and compare homes side by side.", image: "/stills/s3.jpg" },
+  { title: "Registration support", text: "From token advance to agreement and registration, tracked in one place.", image: "/stills/s6.jpg" },
+];
+
+const stories = [
+  { title: "Reading a sale deed before you pay a token advance", date: "Guide", image: "/stills/s1.jpg" },
+  { title: "Why Kokapet and Gachibowli keep pulling ahead", date: "Market", image: "/stills/s5.jpg" },
+  { title: "Plots vs. villas: what to buy first in Hyderabad", date: "Guide", image: "/stills/s6.jpg" },
+];
 
 export default function Home() {
   return (
     <>
-      <Suspense fallback={<div className="h-screen bg-black" />}><Hero /></Suspense>
+      <Suspense fallback={<div className="min-h-screen bg-bg" />}><Hero /></Suspense>
 
-      <section className="mx-auto grid max-w-[1800px] gap-10 px-6 py-28 md:grid-cols-[1fr_2fr] md:py-40">
-        <p className="label text-muted">About us</p>
-        <div>
-          <p className="max-w-4xl text-[clamp(1.5rem,3vw,2.75rem)] font-light leading-[1.2] tracking-[-0.02em] text-ink">
-            Deccan Estates helps families and investors buy RERA-registered plots, villas and gated communities across
-            Hyderabad, from first shortlist to registration.
-          </p>
-          <p className="mt-8 max-w-xl text-[15px] leading-relaxed text-body">
-            Every listing carries its RERA number, every agent is registered, and an assistant reads the sale deed and
-            approval papers so you can ask questions before you visit.
-          </p>
-          <Link href="/listings" className="label mt-8 inline-block border-b border-ink pb-1 text-ink hover:opacity-60">Browse all homes ↗</Link>
+      <section className="pb-24 pt-20 md:pt-28" aria-labelledby="featured-h">
+        <Reveal className="mx-auto mb-10 flex max-w-[1600px] flex-wrap items-start justify-between gap-6 px-6 lg:px-[60px]">
+          <div id="featured-h">
+            <Heading lead="Homes for" bold="Sale" text="We do not list every property, only the finest. Explore our hand-picked homes across Hyderabad, chosen for their location, approvals and builders." />
+          </div>
+          <Link href="/listings" className="flex items-center gap-3 underline underline-offset-4">
+            All homes <span className="flex h-8 w-8 items-center justify-center rounded border border-white/60"><ArrowUpRight className="h-4 w-4" /></span>
+          </Link>
+        </Reveal>
+        <Reveal>
+          <Suspense fallback={<Skeleton className="mx-auto aspect-[4/3] w-[66%] rounded-sm" />}><Featured /></Suspense>
+        </Reveal>
+      </section>
+
+      <section id="localities" className="mx-auto grid max-w-[1600px] gap-10 px-6 py-24 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)] lg:px-[60px]" aria-label="Localities">
+        <Reveal className="flex flex-col justify-center">
+          <span aria-hidden className="mb-6 flex h-12 w-12 items-center justify-center rounded-full border border-white/40"><ShieldCheck className="h-6 w-6" strokeWidth={1.3} /></span>
+          <Heading lead="Explore" bold="Localities" text="Discover the most sought-after neighbourhoods in Hyderabad, from the financial district to the airport corridor." />
+          <Link href="/listings" className="mt-8 inline-flex w-fit rounded-lg bg-white px-5 py-3 text-[15px] font-medium text-bg transition-colors hover:bg-white/90">Discover Hyderabad</Link>
+        </Reveal>
+        <Reveal delay={120}>
+          <Suspense fallback={<Skeleton className="aspect-[4/5] w-[40%] rounded-2xl" />}><Destinations /></Suspense>
+        </Reveal>
+      </section>
+
+      <section className="grid border-y border-white/10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)]" aria-label="Services">
+        <div className="relative min-h-[22rem] overflow-hidden">
+          <Image src="/stills/s3.jpg" alt="" fill sizes="(min-width:1024px) 35vw, 100vw" className="object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-bg/90 via-bg/30 to-transparent" />
+          <Reveal className="absolute inset-x-6 bottom-8 lg:inset-x-[60px]">
+            <h2 className="text-[clamp(1.8rem,3vw,2.4rem)]">Neighbourhood <b>guides</b></h2>
+            <p className="mt-3 flex max-w-xs items-start gap-3 text-sm text-body"><Sparkles className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.3} />Discover the culture, check the commute, and picture the daily routine.</p>
+            <Link href="/stories" className="mt-4 inline-flex items-center gap-2 text-sm underline underline-offset-4">See more <ArrowUpRight className="h-4 w-4" /></Link>
+          </Reveal>
+        </div>
+        <div className="px-6 py-14 lg:px-[60px]">
+          <Reveal>
+            <h2 className="mb-8 text-[clamp(1.5rem,2.4vw,2rem)]">Our <b>Services</b></h2>
+            <SnapRow label="Services" progress>
+              {services.map((s) => <ServiceCard key={s.title} {...s} />)}
+            </SnapRow>
+          </Reveal>
         </div>
       </section>
 
-      <section className="border-y border-line py-24 md:py-32" aria-label="Browse by type and locality">
-        <div className="mx-auto grid max-w-[1800px] gap-12 px-6 md:grid-cols-[1.8fr_1fr]">
-          <StackedWords words={words} />
-          <p className="max-w-xs self-start text-[13px] leading-relaxed text-body md:sticky md:top-32 md:justify-self-end">
-            Start from the kind of home you want, or from the neighbourhood you have in mind. Every route opens the same
-            map view with filters for price, bedrooms and type.
-          </p>
+      <section className="grid lg:grid-cols-2" aria-label="Why buyers choose us">
+        <div className="bg-taupe px-6 py-16 text-white lg:px-[60px]">
+          <Reveal>
+            <p className="flex items-center gap-3 text-sm text-white/80"><FileCheck2 className="h-6 w-6" strokeWidth={1.3} />Don&apos;t take our word for it, check the papers.</p>
+            <h2 className="mt-8 text-[clamp(1.8rem,3.2vw,2.6rem)]">Every document, <b>read for you</b></h2>
+            <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-white/85">
+              Upload the sale deed or RERA certificate and ask in plain language: who owns the land, what is approved, what
+              is pending. Answers cite the page they came from, and when the papers do not say, the assistant tells you so.
+            </p>
+            <Link href="/listings" className="mt-8 inline-flex items-center gap-2 text-sm underline underline-offset-4">Try it on a listing <ArrowUpRight className="h-4 w-4" /></Link>
+          </Reveal>
+        </div>
+        <div className="px-6 py-16 lg:px-[60px]">
+          <Reveal>
+            <p className="flex items-center gap-3"><ShieldCheck className="h-6 w-6" strokeWidth={1.3} /><span className="text-2xl font-light">How we <b className="font-bold">verify</b></span></p>
+            <ul className="mt-8 divide-y divide-white/10 text-[15px]">
+              {["RERA number shown on every listing", "Agent registration displayed beside the contact", "Price per sq ft compared with the locality average", "Documents summarised with page citations"].map((t) => (
+                <li key={t} className="flex items-center justify-between py-4"><span>{t}</span><span aria-hidden className="text-white/40">✓</span></li>
+              ))}
+            </ul>
+          </Reveal>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1800px] px-6 py-28 md:py-40">
-        <h2 className="mb-14 text-[clamp(2rem,5vw,4rem)]">Featured homes</h2>
-        <Suspense fallback={<Skeleton className="mx-auto aspect-[3/4] w-full max-w-[26rem]" />}><Featured /></Suspense>
+      <section className="mx-auto max-w-[1600px] px-6 py-24 lg:px-[60px]" aria-label="Latest stories">
+        <Reveal className="mb-10 flex items-end justify-between gap-6">
+          <h2 className="text-[clamp(1.8rem,3vw,2.4rem)]">Latest <b>Stories</b></h2>
+          <Link href="/stories" className="flex items-center gap-2 underline underline-offset-4">All stories <ArrowUpRight className="h-4 w-4" /></Link>
+        </Reveal>
+        <div className="grid gap-5 md:grid-cols-3">
+          {stories.map((s, i) => (
+            <Reveal key={s.title} delay={i * 100}>
+              <Link href="/stories" className="group relative block aspect-[4/3] overflow-hidden rounded-lg bg-card">
+                <Image src={s.image} alt="" fill sizes="(min-width:768px) 33vw, 100vw" className="object-cover transition-transform duration-[1200ms] group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-x-5 bottom-5">
+                  <h3 className="text-xl font-semibold leading-snug">{s.title}</h3>
+                  <p className="mt-2 text-xs text-white/70">{s.date} · sample content</p>
+                </div>
+              </Link>
+            </Reveal>
+          ))}
+        </div>
       </section>
 
-      <section className="mx-auto max-w-[1800px] px-6 pb-28 md:pb-40">
-        <Suspense fallback={<Skeleton className="h-40 w-full" />}><Stats /></Suspense>
-      </section>
-
-      <section className="border-t border-line py-20" aria-label="Localities">
-        <p className="label mx-auto mb-10 max-w-[1800px] px-6 text-muted">We cover</p>
-        <Suspense fallback={<Skeleton className="h-16 w-full" />}><Cities /></Suspense>
-      </section>
-
-      <section className="bg-black px-6 py-28 text-center text-white will-change-[filter,opacity] md:py-40 [filter:blur(calc(var(--reveal,0)*10px))] [opacity:calc(1-var(--reveal,0)*0.55)]">
-        <h2 className="mx-auto max-w-4xl text-[clamp(2.2rem,6vw,5rem)] text-white">Find your place in Hyderabad, right now.</h2>
-        <Link href="/listings" className="label mt-12 inline-flex h-14 items-center bg-white px-10 text-black transition-colors hover:bg-white/85">
-          Start searching
-        </Link>
+      <section className="border-t border-white/10 px-6 py-24 text-center">
+        <Reveal>
+          <h2 className="mx-auto max-w-2xl text-[clamp(1.8rem,3.4vw,2.8rem)]">Looking to sell? <b>Talk to an advisor.</b></h2>
+          <p className="mx-auto mt-4 max-w-md text-[15px] text-body">Our agents list, market and manage your property from valuation to registration.</p>
+          <Link href="/sell" className="mt-8 inline-flex rounded-lg bg-white px-6 py-3.5 text-[15px] font-medium text-bg transition-colors hover:bg-white/90">Sell with us</Link>
+        </Reveal>
       </section>
     </>
   );
