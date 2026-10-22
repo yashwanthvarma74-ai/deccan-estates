@@ -28,7 +28,7 @@ export function SiteHeader() {
   }, []);
 
   const solid = scrolled || !home;
-  const item = "flex h-11 items-center gap-2 rounded-lg px-3 text-base font-medium text-white/95 transition-colors hover:bg-white/10";
+  const item = "flex h-11 items-center gap-2 px-3 text-[17px] text-white/90 transition-colors hover:text-white";
 
   return (
     <>
@@ -37,7 +37,7 @@ export function SiteHeader() {
         <div className="mx-auto flex h-[72px] max-w-[1600px] items-center gap-2 px-4 sm:px-6 lg:px-[60px]">
           <Link href="/" aria-label="Deccan Estates home" className="mr-auto shrink-0"><Logo /></Link>
 
-          <a href={PHONE_HREF} className={cn(item, "bg-white/10")} aria-label={`Call us on ${PHONE_DISPLAY}`}>
+          <a href={PHONE_HREF} className={item} aria-label={`Call us on ${PHONE_DISPLAY}`}>
             <Phone className="h-5 w-5" />
             <span className="hidden sm:inline">{PHONE_DISPLAY}</span>
             <span className="sm:hidden">Call us</span>
@@ -48,7 +48,7 @@ export function SiteHeader() {
           {session ? (
             <button onClick={() => authClient.signOut()} className={cn(item, "hidden cursor-pointer md:flex")}>Log out</button>
           ) : (
-            <Link href="/login" className={item}>Log in</Link>
+            <Link href="/login" className="ml-1 flex h-11 items-center rounded-full border border-white/40 px-5 text-[17px] text-white transition-colors hover:bg-white hover:text-bg">Log in</Link>
           )}
         </div>
       </header>

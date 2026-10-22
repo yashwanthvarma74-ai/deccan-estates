@@ -17,6 +17,7 @@
   --color-gold: #b9ad9f;
   --font-sans: var(--font-dm-sans), "Satoshi", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --font-serif: var(--font-sans);
+  --font-accent: var(--font-instrument), Georgia, serif;
 }
 
 :root { color-scheme: dark; }
@@ -41,7 +42,13 @@
     color: var(--color-ink);
   }
   h3 { font-weight: 600; }
-  h1 b, h2 b, h1 strong, h2 strong { font-weight: 700; }
+  /* One emphasised word per headline is set in an elegant italic serif. */
+  h1 b, h2 b, h1 strong, h2 strong, .accent {
+    font-family: var(--font-accent);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
 }
 
 /* Small UI label (nav, filters, buttons). Sentence case, not shouty. */
@@ -78,4 +85,9 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
   [data-reveal] { opacity: 1; transform: none; }
+}
+
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
 }

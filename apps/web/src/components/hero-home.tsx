@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowRight, Building2, House, LandPlot, Phone, Trees } from "lucide-react";
+import { ArrowUpRight, Building2, House, LandPlot, Phone, Trees } from "lucide-react";
 import { AreaPicker } from "@/components/area-picker";
 
 type Locality = { id: string; name: string; slug: string };
@@ -15,56 +15,65 @@ const choices = [
 ] as const;
 
 /**
- * One question, one click: "What are you looking for?". Each answer opens the matching homes straight
- * away. Narrowing by area, budget or size happens on the next screen, where it can be undone easily.
+ * One question, one tap: "What are you looking for?". Each answer opens the matching homes straight away;
+ * narrowing by area, budget or size happens on the next screen, where it is easy to undo.
+ * Visually: cinematic footage, a light italic-serif accent, frosted-glass choices and no heavy boxes.
  */
 export function HeroHome({ localities, counts }: { localities: Locality[]; counts: TypeCounts }) {
   const [reduced, setReduced] = useState(false);
   useEffect(() => setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches), []);
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
 
   return (
     <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden" aria-label="Find your property">
       <div className="absolute inset-0 -z-20">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/videos/hero-poster.jpg)" }} />
+        <div className="absolute inset-0 animate-[kenburns_30s_ease-in-out_infinite_alternate] bg-cover bg-center" style={{ backgroundImage: "url(/videos/hero-poster.jpg)" }} />
         {!reduced && (
           <video className="absolute inset-0 h-full w-full object-cover" autoPlay muted loop playsInline preload="auto" poster="/videos/hero-poster.jpg">
             <source src="/videos/hero.mp4" type="video/mp4" />
           </video>
         )}
       </div>
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgb(7_12_38/0.6)_0%,rgb(7_12_38/0.55)_45%,rgb(7_12_38/0.92)_100%)]" />
+      {/* Light vignette so the footage stays vivid; deeper only where text sits. */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_40%,rgb(7_12_38/0.15)_0%,rgb(7_12_38/0.55)_75%),linear-gradient(180deg,rgb(7_12_38/0.55)_0%,transparent_30%,transparent_55%,rgb(7_12_38/0.95)_100%)]" />
 
-      <div className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col justify-center px-5 pb-12 pt-28 sm:px-8">
-        <h1 className="animate-[fade-up_700ms_ease-out_both] text-center text-[clamp(2.2rem,5.5vw,4rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-white">
-          Find your plot, flat or villa in Hyderabad
+      <div className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col justify-end px-5 pb-10 pt-32 sm:px-8 lg:pb-14">
+        <p className="mb-5 animate-[fade-up_800ms_ease-out_both] text-sm font-medium tracking-[0.28em] text-white/75 uppercase">
+          Hyderabad · Plots · Flats · Villas
+        </p>
+        <h1 className="max-w-[16ch] animate-[fade-up_900ms_100ms_ease-out_both] text-[clamp(2.9rem,7.2vw,6rem)] font-light leading-[1.02] tracking-[-0.035em] text-white [text-shadow:0_2px_40px_rgb(0_0_0/0.35)] sm:max-w-[18ch]">
+          Find the place you will <b>call home.</b>
         </h1>
-        <p className="mt-4 animate-[fade-up_700ms_100ms_ease-out_both] text-center text-[clamp(1.15rem,2.4vw,1.6rem)] text-white/90">
-          What are you looking for? Tap one.
+        <p className="mt-6 max-w-xl animate-[fade-up_900ms_200ms_ease-out_both] text-[clamp(1.1rem,1.7vw,1.3rem)] leading-relaxed text-white/85">
+          Tell us what you are looking for. We will show you every verified option, nothing more.
         </p>
 
-        <ul className="mt-9 grid animate-[fade-up_700ms_200ms_ease-out_both] gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-10 grid animate-[fade-up_900ms_320ms_ease-out_both] gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="What are you looking for?">
           {choices.map(({ type, title, hint, Icon }) => (
             <li key={type}>
               <Link
                 href={`/listings?type=${type}`}
-                className="group flex h-full min-h-[11rem] flex-col rounded-2xl bg-white p-6 text-bg shadow-[0_12px_40px_rgb(0_0_0/0.35)] transition-transform duration-200 hover:-translate-y-1 active:scale-[0.98]"
+                className="group relative flex h-full min-h-[9.5rem] flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/[0.09] p-5 text-white backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-bg focus-visible:border-white"
               >
-                <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-bg text-white"><Icon className="h-8 w-8" strokeWidth={1.5} /></span>
-                <span className="mt-4 text-2xl font-bold leading-tight">{title}</span>
-                <span className="mt-1 text-base text-bg/70">{hint}</span>
-                <span className="mt-auto flex items-center justify-between pt-4 text-base font-semibold">
-                  {counts[type]} available
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-bg text-white transition-transform group-hover:translate-x-1"><ArrowRight className="h-5 w-5" /></span>
+                <Icon className="h-8 w-8 text-white/90 transition-colors group-hover:text-bg" strokeWidth={1.2} />
+                <span className="mt-auto pt-6 text-[1.55rem] font-medium leading-tight tracking-[-0.01em]">{title}</span>
+                <span className="mt-1 text-[0.95rem] text-white/65 transition-colors group-hover:text-bg/65">{hint}</span>
+                <span className="mt-4 flex items-center justify-between text-[0.95rem]">
+                  <span className="text-white/90 transition-colors group-hover:text-bg">{counts[type]} homes</span>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/40 transition-all group-hover:border-bg group-hover:bg-bg group-hover:text-white">
+                    <ArrowUpRight className="h-4 w-4" />
+                  </span>
                 </span>
               </Link>
             </li>
           ))}
         </ul>
 
-        <div className="mt-8 flex animate-[fade-up_700ms_300ms_ease-out_both] flex-col items-center justify-center gap-4 sm:flex-row">
+        <div className="mt-6 flex animate-[fade-up_900ms_440ms_ease-out_both] flex-col gap-3 border-t border-white/15 pt-5 sm:flex-row sm:items-center sm:justify-between">
           <AreaPicker localities={localities} />
-          <a href="tel:+919848001000" className="inline-flex min-h-14 items-center gap-3 rounded-xl bg-white/15 px-5 text-lg font-semibold text-white backdrop-blur transition-colors hover:bg-white/25">
-            <Phone className="h-6 w-6" /> Not sure? Call +91 98480 01000
+          <p className="hidden text-[0.95rem] text-white/60 lg:block">RERA number on every listing · {total} verified homes across {localities.length} areas</p>
+          <a href="tel:+919848001000" className="flex min-h-12 items-center gap-3 px-1 text-[17px] text-white/90 transition-colors hover:text-white">
+            <Phone className="h-5 w-5 text-white/70" strokeWidth={1.5} /> Need help? <span className="font-medium">+91 98480 01000</span>
           </a>
         </div>
       </div>
