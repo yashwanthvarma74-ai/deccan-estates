@@ -24,3 +24,19 @@ describe("listing meta", () => {
     expect(keysForType(undefined)).toContain("minBeds");
   });
 });
+
+import { maxOptions, minOptions, NO_CAP, plusAfterNumber } from "./utils";
+
+describe("range options", () => {
+  it("puts + right after the number on the last option", () => {
+    expect(plusAfterNumber("5,000 sq ft", "+")).toBe("5,000+ sq ft");
+    expect(plusAfterNumber("₹20 Cr", "+")).toBe("₹20+ Cr");
+    expect(minOptions([1, 2], (n) => `${n} sq ft`).map((o) => o.label)).toEqual(["1 sq ft", "2+ sq ft"]);
+  });
+
+  it("makes the last max option open-ended", () => {
+    const opts = maxOptions([1, 2], (n) => `${n} sq ft`);
+    expect(opts[0].value).toBe(1);
+    expect(opts[1]).toEqual({ value: NO_CAP, label: "2+ sq ft" });
+  });
+});

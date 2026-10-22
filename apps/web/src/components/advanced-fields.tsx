@@ -4,7 +4,7 @@ import {
   AMENITIES_BY_TYPE, AMENITY_LABELS, APPROVAL_LABELS, FACING_LABELS, FIELDS_BY_TYPE, FURNISHING_LABELS, POSSESSION_LABELS,
   SQFT_PER_SQYD, UNIT_LABEL, formatArea, keysForType, type AreaUnit, type FieldGroup, type PropertyType,
 } from "@/lib/listing-meta";
-import { cn, formatInr, PRICE_STEPS, TOP_PRICE } from "@/lib/utils";
+import { cn, formatInr, maxOptions, minOptions, NO_CAP, PRICE_STEPS } from "@/lib/utils";
 
 type Locality = { id: string; name: string; slug: string };
 export type FilterValues = Partial<Record<FilterKey, string>>;
@@ -128,12 +128,15 @@ export function AdvancedFields({ values, onChange, localities, agents, dark = tr
   );
 
   const nPlus = (n: number) => ({ value: n, label: `${n}+` });
-  const areaOptions = (list: number[], suffix: string, topIsPlus: boolean, asMin: boolean) =>
-    list.map((a, i) => ({ value: a, label: `${a.toLocaleString("en-IN")}${asMin && topIsPlus && i === list.length - 1 ? "+" : ""} ${suffix}` }));
-  const plotOptions = PLOT_SQYD.map((a) => ({ value: a, label: formatArea(a, unit) }));
+  const sqft = (n: number) => `${n.toLocaleString("en-IN")} sq ft`;
+  const plot = (n: number) => formatArea(n, unit);
   const perUnit = type === "PLOT" ? PPSYD : PPSF;
-  const ppsfOptions = (list: number[]) =>
-    list.map((p) => ({ value: type === "PLOT" ? Math.round(p / SQFT_PER_SQYD) : p, label: `₹${p.toLocaleString("en-IN")}` }));
+  // Plot prices are quoted per sq yd but stored per sq ft.
+  const toStored = (p: number) => (type === "PLOT" ? Math.round(p / SQFT_PER_SQYD) : p);
+  const ppsfOpts = (max: boolean) => {
+    const opts = (max ? maxOptions : minOptions)(perUnit, (n) => `₹${n.toLocaleString("en-IN")}`);
+    return opts.map((o, i) => ({ ...o, value: o.value === NO_CAP ? NO_CAP : toStored(perUnit[i]) }));
+  };
 
   const amenityOptions = Object.fromEntries(AMENITIES_BY_TYPE[type].map((k) => [k, AMENITY_LABELS[k]]));
 
@@ -155,10 +158,10 @@ export function AdvancedFields({ values, onChange, localities, agents, dark = tr
             {localities.map((l) => <option key={l.id} value={l.slug}>{l.name}</option>)}
           </select>
         </Box>
-        {select("minPrice", "Min price", "No minimum", PRICE_STEPS.map((p) => ({ value: p, label: p === TOP_PRICE ? `${formatInr(p)}+` : formatInr(p) })))}
-        {select("maxPrice", "Max price", "No maximum", PRICE_STEPS.map((p) => ({ value: p, label: formatInr(p) })))}
-        {has("ppsf") && select("minPpsf", `Min price per ${type === "PLOT" ? "sq yd" : "sq ft"}`, "No minimum", ppsfOptions(perUnit))}
-        {has("ppsf") && select("maxPpsf", `Max price per ${type === "PLOT" ? "sq yd" : "sq ft"}`, "No maximum", ppsfOptions(perUnit))}
+        {select("minPrice", "Min price", "Any", minOptions(PRICE_STEPS, formatInr))}
+        {select("maxPrice", "Max price", "Any", maxOptions(PRICE_STEPS, formatInr))}
+        {has("ppsf") && select("minPpsf", `Min price per ${type === "PLOT" ? "sq yd" : "sq ft"}`, "Any", ppsfOpts(false))}
+        {has("ppsf") && select("maxPpsf", `Max price per ${type === "PLOT" ? "sq yd" : "sq ft"}`, "Any", ppsfOpts(true))}
         {select("agent", "Listing agent", "Any agent", agents.map((a) => ({ value: a.id, label: `${a.name} (${a.listingCount})` })))}
       </Section>
 
@@ -170,16 +173,16 @@ export function AdvancedFields({ values, onChange, localities, agents, dark = tr
                 {(Object.keys(UNIT_LABEL) as AreaUnit[]).map((u) => <option key={u} value={u}>{UNIT_LABEL[u][0].toUpperCase() + UNIT_LABEL[u].slice(1)}</option>)}
               </select>
             </Box>
-            {select("minPlotArea", `Min plot area (${UNIT_LABEL[unit]})`, "No minimum", plotOptions)}
-            {select("maxPlotArea", `Max plot area (${UNIT_LABEL[unit]})`, "No maximum", plotOptions)}
+            {select("minPlotArea", `Min plot area (${UNIT_LABEL[unit]})`, "Any", minOptions(PLOT_SQYD, plot))}
+            {select("maxPlotArea", `Max plot area (${UNIT_LABEL[unit]})`, "Any", maxOptions(PLOT_SQYD, plot))}
           </>
         )}
         {has("beds") && select("minBeds", "Bedrooms", "Any", [1, 2, 3, 4, 5].map(nPlus))}
         {has("baths") && select("minBaths", "Bathrooms", "Any", [1, 2, 3, 4, 5].map(nPlus))}
-        {has("carpet") && select("minCarpet", "Min carpet area (sq ft)", "No minimum", areaOptions(CARPET, "sq ft", false, true))}
-        {has("carpet") && select("maxCarpet", "Max carpet area (sq ft)", "No maximum", areaOptions(CARPET, "sq ft", false, false))}
-        {has("builtUp") && select("minArea", `Min ${type === "ANY" ? "area" : "built-up area"} (sq ft)`, "No minimum", areaOptions(BUILT_UP, "sq ft", true, true))}
-        {has("builtUp") && select("maxArea", `Max ${type === "ANY" ? "area" : "built-up area"} (sq ft)`, "No maximum", areaOptions(BUILT_UP, "sq ft", true, false))}
+        {has("carpet") && select("minCarpet", "Min carpet area (sq ft)", "Any", minOptions(CARPET, sqft))}
+        {has("carpet") && select("maxCarpet", "Max carpet area (sq ft)", "Any", maxOptions(CARPET, sqft))}
+        {has("builtUp") && select("minArea", `Min ${type === "ANY" ? "area" : "built-up area"} (sq ft)`, "Any", minOptions(BUILT_UP, sqft))}
+        {has("builtUp") && select("maxArea", `Max ${type === "ANY" ? "area" : "built-up area"} (sq ft)`, "Any", maxOptions(BUILT_UP, sqft))}
         {has("floor") && select("minFloor", "Min floor", "Any", [1, 3, 5, 10, 15, 20, 25].map((f) => ({ value: f, label: `Floor ${f}+` })))}
         {has("floor") && select("maxFloor", "Max floor", "Any", [3, 5, 10, 15, 20, 25, 30, 40].map((f) => ({ value: f, label: `Up to floor ${f}` })))}
         {has("storeys") && select("minStoreys", "Floors in the villa", "Any", [{ value: 2, label: "G+1 or more" }, { value: 3, label: "G+2 or more" }])}

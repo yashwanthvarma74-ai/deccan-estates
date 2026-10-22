@@ -1,11 +1,11 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Home, MapPin, Ruler, Search, SlidersHorizontal, Wallet, BedDouble } from "lucide-react";
 import { typeLabels, type Agent, type FilterKey } from "@/lib/api";
 import { AdvancedFields, withType, type FilterValues } from "@/components/advanced-fields";
 import { formatArea } from "@/lib/listing-meta";
-import { cn, formatInr, PRICE_STEPS } from "@/lib/utils";
+import { cn, formatInr, maxOptions, PRICE_STEPS } from "@/lib/utils";
 
 type Locality = { id: string; name: string; slug: string };
 
@@ -39,6 +39,24 @@ export function SearchPanel({ localities, agents }: { localities: Locality[]; ag
   const router = useRouter();
   const [v, setV] = useState<FilterValues>({});
   const [advanced, setAdvanced] = useState(false);
+  const form = useRef<HTMLFormElement>(null);
+
+  // Close the Advanced section when clicking anywhere outside the panel, or pressing Escape.
+  useEffect(() => {
+    if (!advanced) return;
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      if (form.current && !form.current.contains(e.target as Node)) setAdvanced(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setAdvanced(false);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("touchstart", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("touchstart", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [advanced]);
   const change = (k: FilterKey, val: string) => setV((prev) => (k === "type" ? withType(prev, val) : { ...prev, [k]: val }));
   const set = (k: FilterKey) => (e: React.ChangeEvent<HTMLSelectElement>) => change(k, e.target.value);
   const basic = new Set(["type", "locality", "maxPrice", "minBeds", "minPlotArea"]);
@@ -52,7 +70,7 @@ export function SearchPanel({ localities, agents }: { localities: Locality[]; ag
   }
 
   return (
-    <form onSubmit={submit} role="search" aria-label="Find a home" className="rounded-2xl bg-white p-3 text-bg shadow-[0_20px_60px_rgb(0_0_0/0.35)]">
+    <form ref={form} onSubmit={submit} role="search" aria-label="Find a home" className="rounded-2xl bg-white p-3 text-bg shadow-[0_20px_60px_rgb(0_0_0/0.35)]">
       <p className="px-2 pb-2 pt-1 text-sm"><span className="font-medium">Find now</span> <span className="text-bg/70">your dream home</span></p>
       <div className="flex flex-col gap-1 lg:flex-row lg:items-stretch">
         <Field icon={Home} label="Property type" active>
@@ -69,8 +87,8 @@ export function SearchPanel({ localities, agents }: { localities: Locality[]; ag
         </Field>
         <Field icon={Wallet} label="Budget">
           <select value={v.maxPrice ?? ""} onChange={set("maxPrice")} className={select} aria-label="Maximum budget">
-            <option value="">Any budget</option>
-            {PRICE_STEPS.map((b) => <option key={b} value={b}>Up to {formatInr(b)}</option>)}
+            <option value="">Any</option>
+            {maxOptions(PRICE_STEPS, formatInr).map((o) => <option key={o.value} value={o.value}>Up to {o.label}</option>)}
           </select>
         </Field>
         {v.type === "PLOT" ? (

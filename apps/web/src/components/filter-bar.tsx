@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { typeLabels, FILTER_KEYS, type Agent } from "@/lib/api";
 import { AdvancedFields, withType, type FilterValues } from "@/components/advanced-fields";
-import { cn, formatInr, PRICE_STEPS, TOP_PRICE } from "@/lib/utils";
+import { cn, formatInr, maxOptions, minOptions, PRICE_STEPS } from "@/lib/utils";
 
 type Locality = { id: string; name: string; slug: string };
 
@@ -98,14 +98,14 @@ export function FilterBar({ localities, agents }: { localities: Locality[]; agen
             <div className="space-y-3">
               <label className="label block text-muted">Min
                 <select className={cn(select, "mt-1")} value={min} onChange={(e) => set({ minPrice: e.target.value || undefined })}>
-                  <option value="">No min</option>
-                  {PRICE_STEPS.map((v) => <option key={v} value={v}>{v === TOP_PRICE ? `${formatInr(v)}+` : formatInr(v)}</option>)}
+                  <option value="">Any</option>
+                  {minOptions(PRICE_STEPS, formatInr).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </label>
               <label className="label block text-muted">Max
                 <select className={cn(select, "mt-1")} value={max} onChange={(e) => set({ maxPrice: e.target.value || undefined })}>
-                  <option value="">No max</option>
-                  {PRICE_STEPS.map((v) => <option key={v} value={v}>{formatInr(v)}</option>)}
+                  <option value="">Any</option>
+                  {maxOptions(PRICE_STEPS, formatInr).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </label>
               <Button size="sm" className="w-full" onClick={close}>Done</Button>
