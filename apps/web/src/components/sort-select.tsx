@@ -1,5 +1,5 @@
 "use client";
-import { useFilterParams } from "@/components/filter-bar";
+import { useFilterParams } from "@/hooks/use-filter-params";
 
 export function SortSelect() {
   const { sp, set } = useFilterParams();

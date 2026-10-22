@@ -1,18 +1,12 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { CardGridSkeleton } from "@/components/skeletons";
-import { FilterBar } from "@/components/filter-bar";
 import { ListingCard } from "@/components/listing-card";
 import { ResultsMap } from "@/components/results-map";
 import { SortSelect } from "@/components/sort-select";
 import { Button } from "@/components/ui/button";
 import type { ListingFilters } from "@/lib/api";
-import { getAgents, getListings, getLocalities } from "@/lib/data";
-
-async function Filters() {
-  const [localities, agents] = await Promise.all([getLocalities(), getAgents()]);
-  return <FilterBar localities={localities} agents={agents} />;
-}
+import { getListings, getLocalities } from "@/lib/data";
 
 async function Results({ searchParams }: { searchParams: Promise<ListingFilters> }) {
   const filters = await searchParams;
@@ -51,16 +45,13 @@ export default function ListingsPage({ searchParams }: PageProps<"/listings">) {
   const sp = searchParams as unknown as Promise<ListingFilters>;
   return (
     <div className="mx-auto max-w-[1800px] px-6">
-      <div className="py-6">
-        <Suspense fallback={<div className="h-12" />}><Filters /></Suspense>
-      </div>
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+      <div className="grid gap-8 pt-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
         <section className="order-2 pb-16 lg:order-1">
           <Suspense fallback={<div className="pt-10"><CardGridSkeleton count={6} className="xl:grid-cols-2" /></div>}>
             <Results searchParams={sp} />
           </Suspense>
         </section>
-        <aside className="order-1 h-80 lg:sticky lg:top-20 lg:order-2 lg:h-[calc(100vh-5rem)] lg:py-4">
+        <aside className="order-1 h-80 lg:sticky lg:top-[11.5rem] lg:order-2 lg:h-[calc(100vh-12.5rem)]">
           <Suspense><ResultsMap /></Suspense>
         </aside>
       </div>
