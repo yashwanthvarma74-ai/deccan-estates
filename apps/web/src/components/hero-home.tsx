@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Building2, House, LandPlot, Phone, Trees } from "lucide-react";
 import { AreaPicker } from "@/components/area-picker";
+import { cn } from "@/lib/utils";
 
 type Locality = { id: string; name: string; slug: string };
 export type TypeCounts = Record<"PLOT" | "APARTMENT" | "VILLA" | "GATED_COMMUNITY", number>;
@@ -48,22 +49,23 @@ export function HeroHome({ localities, counts }: { localities: Locality[]; count
           Tell us what you are looking for. We will show you every verified option, nothing more.
         </p>
 
-        <ul className="mt-10 grid animate-[fade-up_900ms_320ms_ease-out_both] gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="What are you looking for?">
-          {choices.map(({ type, title, hint, Icon }) => (
-            <li key={type}>
+        <ul
+          className="mt-10 grid animate-[fade-up_900ms_320ms_ease-out_both] grid-cols-2 overflow-hidden rounded-2xl border border-white/20 bg-white/[0.09] backdrop-blur-xl lg:grid-cols-4"
+          aria-label="What are you looking for?"
+        >
+          {choices.map(({ type, title, hint, Icon }, i) => (
+            <li key={type} className={cn("border-white/15", i % 2 === 1 && "border-l", i >= 2 && "border-t lg:border-t-0", i > 0 && "lg:border-l")}>
               <Link
                 href={`/listings?type=${type}`}
-                className="group relative flex h-full min-h-[9.5rem] flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/[0.09] p-5 text-white backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-bg focus-visible:border-white"
+                className="group flex h-full items-center gap-4 px-5 py-5 text-white transition-colors duration-300 hover:bg-white hover:text-bg focus-visible:bg-white focus-visible:text-bg sm:px-6 sm:py-6"
               >
-                <Icon className="h-8 w-8 text-white/90 transition-colors group-hover:text-bg" strokeWidth={1.2} />
-                <span className="mt-auto pt-6 text-[1.55rem] font-medium leading-tight tracking-[-0.01em]">{title}</span>
-                <span className="mt-1 text-[0.95rem] text-white/65 transition-colors group-hover:text-bg/65">{hint}</span>
-                <span className="mt-4 flex items-center justify-between text-[0.95rem]">
-                  <span className="text-white/90 transition-colors group-hover:text-bg">{counts[type]} homes</span>
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/40 transition-all group-hover:border-bg group-hover:bg-bg group-hover:text-white">
-                    <ArrowUpRight className="h-4 w-4" />
-                  </span>
+                <Icon className="h-9 w-9 shrink-0 text-white/90 transition-colors group-hover:text-bg group-focus-visible:text-bg" strokeWidth={1.2} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[1.3rem] font-medium leading-tight tracking-[-0.01em] sm:text-[1.45rem]">{title}</span>
+                  <span className="mt-0.5 block truncate text-[0.95rem] text-white/65 transition-colors group-hover:text-bg/65">{counts[type]} homes</span>
                 </span>
+                <ArrowUpRight className="h-5 w-5 shrink-0 opacity-60 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
+                <span className="sr-only">{hint}</span>
               </Link>
             </li>
           ))}
