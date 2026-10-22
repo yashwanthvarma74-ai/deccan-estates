@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Heart, Phone } from "lucide-react";
+import { Phone, Search, Star } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
@@ -28,28 +28,37 @@ export function SiteHeader() {
   }, []);
 
   const solid = scrolled || !home;
-  const item = "flex h-11 items-center gap-2 px-3 text-[17px] text-white/90 transition-colors hover:text-white";
+  const item = "flex h-11 items-center gap-2 px-2 text-[15px] text-white/90 transition-colors hover:text-white";
 
   return (
     <>
       {!home && <div aria-hidden className="h-[72px]" />}
       <header className={cn("fixed inset-x-0 top-0 z-50 transition-[background-color,backdrop-filter,box-shadow] duration-300", solid ? "bg-bg/90 shadow-[0_1px_0_rgb(255_255_255/0.08)] backdrop-blur-xl" : "bg-transparent")}>
         <div className="mx-auto flex h-[72px] max-w-[1600px] items-center gap-2 px-4 sm:px-6 lg:px-[60px]">
-          <Link href="/" aria-label="Deccan Estates home" className="mr-auto shrink-0"><Logo /></Link>
-
-          <a href={PHONE_HREF} className={item} aria-label={`Call us on ${PHONE_DISPLAY}`}>
-            <Phone className="h-5 w-5" />
-            <span className="hidden sm:inline">{PHONE_DISPLAY}</span>
-            <span className="sm:hidden">Call us</span>
-          </a>
-          <Link href={session ? "/saved" : "/login"} className={cn(item, "hidden sm:flex")}>
-            <Heart className="h-5 w-5" /> Saved homes
+          <Link href="/" aria-label="Deccan Estates home" className="shrink-0"><Logo /></Link>
+          <Link href="/listings" aria-label="Search all homes" className="ml-3 hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/30 transition-colors hover:bg-white/10 md:flex">
+            <Search className="h-[18px] w-[18px]" />
           </Link>
-          {session ? (
-            <button onClick={() => authClient.signOut()} className={cn(item, "hidden cursor-pointer md:flex")}>Log out</button>
-          ) : (
-            <Link href="/login" className="ml-1 flex h-11 items-center rounded-full border border-white/40 px-5 text-[17px] text-white transition-colors hover:bg-white hover:text-bg">Log in</Link>
-          )}
+          <span aria-hidden className="ml-3 hidden h-10 w-px bg-white/15 md:block" />
+
+          <div className="ml-auto flex items-center gap-1 sm:gap-3">
+            <a href={PHONE_HREF} className={item} aria-label={`Call us on ${PHONE_DISPLAY}`}>
+              <Phone className="h-[18px] w-[18px]" />
+              <span className="hidden sm:inline">{PHONE_DISPLAY}</span>
+              <span className="sm:hidden">Call</span>
+            </a>
+            <Link href={session ? "/saved" : "/login"} className={cn(item, "hidden sm:flex")}>
+              <Star className="h-[18px] w-[18px]" /> Favorites
+            </Link>
+            {session ? (
+              <button onClick={() => authClient.signOut()} className={cn(item, "hidden cursor-pointer md:flex")}>Log out</button>
+            ) : (
+              <Link href="/login" className={cn(item, "hidden md:flex")}>Log in</Link>
+            )}
+            <Link href="/listings" className={cn("flex h-11 items-center rounded-lg px-5 text-[15px] font-medium transition-colors", solid ? "bg-white text-bg hover:bg-white/90" : "bg-bg text-white hover:bg-card-hi")}>
+              Start searching
+            </Link>
+          </div>
         </div>
       </header>
     </>
