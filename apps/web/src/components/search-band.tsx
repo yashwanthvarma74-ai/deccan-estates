@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Locality = { id: string; name: string; slug: string };
@@ -13,16 +13,6 @@ const tabs = [
   { label: "Developments", href: "/listings?type=GATED_COMMUNITY" },
   { label: "Sell", href: "/sell" },
   { label: "More", href: "/stories" },
-];
-
-/** Decorative sticker constellation: colour carries personality, never structure. */
-const stickers = [
-  { c: "bg-accent-pink", s: "h-10 w-10", p: "left-[6%] top-[22%]", r: "-rotate-12" },
-  { c: "bg-accent-orange", s: "h-7 w-7", p: "left-[14%] bottom-[18%]", r: "rotate-6" },
-  { c: "bg-accent-teal", s: "h-9 w-9", p: "right-[8%] top-[18%]", r: "rotate-12" },
-  { c: "bg-accent-purple", s: "h-12 w-12", p: "right-[16%] bottom-[14%]", r: "-rotate-6" },
-  { c: "bg-accent-sky", s: "h-6 w-6", p: "left-[42%] top-[8%]", r: "rotate-45" },
-  { c: "bg-accent-green", s: "h-6 w-6", p: "right-[34%] bottom-[10%]", r: "-rotate-12" },
 ];
 
 export function SearchBand({ localities }: { localities: Locality[] }) {
@@ -40,54 +30,47 @@ export function SearchBand({ localities }: { localities: Locality[] }) {
   }
 
   return (
-    <section className="relative isolate overflow-hidden bg-secondary text-white" aria-label="Find a home">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 hidden md:block">
-        {stickers.map((s, i) => (
-          <span key={i} className={cn("absolute rounded-xl opacity-90 shadow-soft", s.c, s.s, s.p, s.r)} />
-        ))}
-      </div>
-      <div className="mx-auto max-w-[1300px] px-6 py-20 text-center md:py-24">
-        <h1 className="mx-auto max-w-3xl text-5xl md:text-[64px] md:leading-none md:tracking-[-2.125px]">
-          Find a home that suits your lifestyle.
-        </h1>
-        <ul className="mt-9 flex flex-wrap justify-center gap-2" role="tablist" aria-label="What are you looking for">
-          {tabs.map((t) => {
-            const active = t.label === "Buy";
-            const cls = cn(
-              "label inline-block rounded-full px-4 py-1.5",
-              active ? "bg-white text-secondary" : "text-white/80",
-              t.disabled && "cursor-not-allowed text-white/40",
-            );
-            return (
-              <li key={t.label} role="presentation">
-                {t.href ? (
-                  <Link href={t.href} className={cn(cls, "hover:bg-white/10")}>{t.label}</Link>
-                ) : (
-                  <span role="tab" aria-selected={active} aria-disabled={t.disabled} title={t.disabled ? "Rentals coming soon" : undefined} className={cls}>
-                    {t.label}
-                  </span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-        <form onSubmit={submit} role="search" className="mx-auto mt-5 flex max-w-xl items-center gap-3 rounded-xl bg-white p-2 shadow-elevated">
-          <Search className="ml-2 h-5 w-5 shrink-0 text-ink-faint" aria-hidden />
-          <input
-            list="band-localities"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder="Search by locality or keyword"
-            aria-label="Search by locality or keyword"
-            className="h-11 w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-faint"
-          />
-          <datalist id="band-localities">
-            {localities.map((l) => <option key={l.id} value={l.name} />)}
-          </datalist>
-          <button type="submit" className="label h-11 shrink-0 cursor-pointer rounded-full bg-primary px-6 text-white transition-transform hover:bg-primary-active active:scale-95">
-            Search
-          </button>
-        </form>
+    <section className="bg-navy text-white" aria-label="Find a home">
+      <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 md:grid-cols-2 md:gap-16">
+        <h1 className="font-display text-4xl leading-[1.15] md:text-5xl">Find a home that suits your lifestyle.</h1>
+        <div>
+          <ul className="flex flex-wrap gap-x-8 gap-y-2" role="tablist" aria-label="What are you looking for">
+            {tabs.map((t) => {
+              const active = t.label === "Buy";
+              const cls = cn(
+                "label inline-block border-b-2 pb-1 text-[0.75rem]",
+                active ? "border-gold" : "border-transparent",
+                t.disabled && "cursor-not-allowed text-white/40",
+              );
+              return (
+                <li key={t.label} role="presentation">
+                  {t.href ? (
+                    <Link href={t.href} className={cn(cls, "hover:border-white/60")}>{t.label}</Link>
+                  ) : (
+                    <span role="tab" aria-selected={active} aria-disabled={t.disabled} title={t.disabled ? "Rentals coming soon" : undefined} className={cls}>
+                      {t.label}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          <form onSubmit={submit} role="search" className="mt-6 flex items-center gap-3 border-b border-white/70 pb-2 focus-within:border-white">
+            <Search className="h-5 w-5 shrink-0" aria-hidden />
+            <input
+              list="band-localities"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="Search by locality or keyword"
+              aria-label="Search by locality or keyword"
+              className="font-display w-full bg-transparent text-2xl outline-none placeholder:text-white/60"
+            />
+            <datalist id="band-localities">
+              {localities.map((l) => <option key={l.id} value={l.name} />)}
+            </datalist>
+            <button type="submit" aria-label="Search" className="cursor-pointer"><ArrowRight className="h-6 w-6" /></button>
+          </form>
+        </div>
       </div>
     </section>
   );

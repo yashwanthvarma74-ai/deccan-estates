@@ -1,69 +1,52 @@
 @import "tailwindcss";
 
-/* Design tokens: warm paper canvas, near-black Inter type with tight tracking, one blue accent,
-   decorative-only sticker palette, hairline + barely-there shadows. */
+/* Design tokens: navy + white editorial luxury look — serif display, uppercase tracked sans labels, square corners. */
 @theme inline {
-  --color-primary: #0075de;
-  --color-primary-active: #005bab;
-  --color-secondary: #213183;
-  --color-canvas: #ffffff;
-  --color-canvas-soft: #f6f5f4;
-  --color-hairline: #e6e6e6;
-  --color-ink: #0d0d0d;
-  --color-ink-secondary: #31302e;
-  --color-ink-muted: #615d59;
-  --color-ink-faint: #a39e98;
-  --color-accent-sky: #62aef0;
-  --color-accent-purple: #d6b6f6;
-  --color-accent-purple-deep: #391c57;
-  --color-accent-pink: #ff64c8;
-  --color-accent-orange: #dd5b00;
-  --color-accent-teal: #2a9d99;
-  --color-accent-green: #1aae39;
-  --color-accent-brown: #523410;
-  --font-sans: var(--font-inter), "NotionInter", -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
-  --shadow-soft: 0 0.175px 1.041px rgb(0 0 0 / 0.01), 0 0.8px 2.925px rgb(0 0 0 / 0.02), 0 2.025px 7.847px rgb(0 0 0 / 0.027), 0 4px 18px rgb(0 0 0 / 0.04);
-  --shadow-elevated: 0 1px 3px rgb(0 0 0 / 0.01), 0 3px 7px rgb(0 0 0 / 0.02), 0 7px 15px rgb(0 0 0 / 0.027), 0 14px 28px rgb(0 0 0 / 0.04), 0 23px 52px rgb(0 0 0 / 0.05);
+  --color-navy: #002349;
+  --color-navy-deep: #001a38;
+  --color-navy-soft: #0b3a70;
+  --color-ink: #1b1b1b;
+  --color-muted: #666666;
+  --color-line: #d9d9d9;
+  --color-surface: #f4f4f4;
+  --color-gold: #a38a5a;
+  --font-sans: var(--font-franklin), "Helvetica Neue", Arial, sans-serif;
+  --font-serif: var(--font-source-serif), Georgia, "Times New Roman", serif;
+  --tracking-label: 0.14em;
 }
 
-:root { color-scheme: light; }
+:root {
+  color-scheme: light;
+}
 
-html, body { background: var(--color-canvas-soft); }
+html {
+  background: #fff;
+}
 
 body {
+  background: #fff;
   color: var(--color-ink);
   font-family: var(--font-sans);
-  font-feature-settings: "lnum", "locl";
   -webkit-font-smoothing: antialiased;
 }
 
-/* Headings: heavy weight, tracking tightens as size grows. */
 h1, h2, h3, .font-display {
-  font-family: var(--font-sans);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.005em;
 }
-h1 { letter-spacing: -0.033em; line-height: 1.04; }
-h3 { letter-spacing: -0.012em; line-height: 1.27; }
 
-/* Button / nav label: plain 500-weight sentence case (no uppercase tracking). */
+/* Small uppercase tracked label used for nav, filters, buttons and overlines. */
 .label {
-  font-size: 0.9375rem;
-  line-height: 1.33;
-  font-weight: 500;
-}
-
-/* Small pill / eyebrow text. */
-.eyebrow {
   font-size: 0.75rem;
-  line-height: 1.33;
-  font-weight: 600;
-  letter-spacing: 0.125px;
+  line-height: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-navy);
   outline-offset: 2px;
 }
 

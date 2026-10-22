@@ -1,6 +1,6 @@
 # ADR-0004: Editorial split-view design system
 
-- Status: superseded by ADR-0005
+- Status: accepted
 - Date: 2026-10-21
 
 ## Context

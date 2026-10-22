@@ -9,7 +9,7 @@ import { PUBLIC_API_URL, fetchLocalities, fetchMapPoints, type ListingFilters } 
 import { formatInr } from "@/lib/utils";
 
 const HYDERABAD: [number, number] = [78.4867, 17.385];
-const NAVY = "#0075de"; // primary blue
+const NAVY = "#002349";
 
 const style = {
   version: 8 as const,
@@ -62,7 +62,7 @@ export function ResultsMap() {
         m.addSource("listings", { type: "geojson", data: { type: "FeatureCollection", features: [] }, cluster: true, clusterRadius: 48, clusterMaxZoom: 14 });
         m.addSource("outline", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
         m.addLayer({ id: "outline-fill", type: "fill", source: "outline", paint: { "fill-color": NAVY, "fill-opacity": 0.06 } });
-        m.addLayer({ id: "outline-hairline", type: "line", source: "outline", paint: { "line-color": NAVY, "line-width": 2 } });
+        m.addLayer({ id: "outline-line", type: "line", source: "outline", paint: { "line-color": NAVY, "line-width": 2 } });
         m.addLayer({
           id: "clusters", type: "circle", source: "listings", filter: ["has", "point_count"],
           paint: { "circle-color": NAVY, "circle-radius": ["step", ["get", "point_count"], 18, 5, 24, 15, 30], "circle-stroke-color": "#fff", "circle-stroke-width": 2 },
@@ -87,7 +87,7 @@ export function ResultsMap() {
           const card = document.getElementById(`listing-${p.id}`);
           new maplibregl.Popup({ offset: 12, closeButton: false })
             .setLngLat((f.geometry as unknown as { coordinates: [number, number] }).coordinates)
-            .setHTML(`<a href="/listings/${p.id}" style="color:#0d0d0d"><strong>${p.title.replace(/</g, "&lt;")}</strong><br>${formatInr(p.price)}</a>`)
+            .setHTML(`<a href="/listings/${p.id}" style="font-family:var(--font-serif);color:${NAVY}"><strong>${p.title.replace(/</g, "&lt;")}</strong><br>${formatInr(p.price)}</a>`)
             .addTo(m);
           card?.scrollIntoView({ behavior: "smooth", block: "center" });
         });
@@ -134,10 +134,10 @@ export function ResultsMap() {
     });
   }, [ready, locality, outline]);
 
-  const btn = "label flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-hairline bg-white px-4 text-ink shadow-soft hover:bg-canvas-soft";
+  const btn = "label flex h-12 cursor-pointer items-center gap-2 border border-line bg-white px-5 text-navy shadow-sm hover:border-navy";
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-xl border border-hairline">
+    <div className="relative h-full w-full">
       <div ref={el} className="h-full w-full" role="region" aria-label="Map of matching listings" />
       <div className="absolute left-4 top-4 flex gap-2">
         {locality && (
@@ -145,8 +145,8 @@ export function ResultsMap() {
         )}
       </div>
       <div className="absolute right-4 top-4 flex flex-col">
-        <button aria-label="Zoom in" onClick={() => mapRef.current?.zoomIn()} className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-t-lg border border-hairline bg-white hover:bg-canvas-soft"><Plus className="h-5 w-5" /></button>
-        <button aria-label="Zoom out" onClick={() => mapRef.current?.zoomOut()} className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-b-lg border border-t-0 border-hairline bg-white hover:bg-canvas-soft"><Minus className="h-5 w-5" /></button>
+        <button aria-label="Zoom in" onClick={() => mapRef.current?.zoomIn()} className="flex h-10 w-10 cursor-pointer items-center justify-center border border-line bg-white hover:bg-surface"><Plus className="h-5 w-5" /></button>
+        <button aria-label="Zoom out" onClick={() => mapRef.current?.zoomOut()} className="flex h-10 w-10 cursor-pointer items-center justify-center border border-t-0 border-line bg-white hover:bg-surface"><Minus className="h-5 w-5" /></button>
       </div>
       <div className="absolute bottom-6 right-4 flex gap-2">
         <button
@@ -160,7 +160,7 @@ export function ResultsMap() {
             setTimeout(() => setSaved(false), 2000);
           }}
         >
-          <Star className="h-4 w-4 fill-primary text-primary" />{saved ? "Saved" : "Save search"}
+          <Star className="h-4 w-4 fill-navy" />{saved ? "Saved" : "Save search"}
         </button>
         <button className={btn} onClick={() => document.getElementById("results")?.scrollIntoView({ behavior: "smooth" })}>
           <List className="h-4 w-4" />List

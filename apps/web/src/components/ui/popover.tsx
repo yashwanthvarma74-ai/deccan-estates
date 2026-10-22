@@ -36,14 +36,14 @@ export function Popover({
         aria-expanded={open}
         onClick={() => setOpen(!open)}
         className={cn(
-          "label h-9 rounded-lg border px-3.5 transition-colors",
-          active ? "border-primary bg-white text-primary" : "border-hairline bg-white text-ink hover:bg-canvas-soft",
+          "label h-10 border px-4 transition-colors",
+          active ? "border-navy bg-navy text-white" : "border-navy text-navy hover:bg-surface",
         )}
       >
         {label}
       </button>
       {open && (
-        <div className={cn("absolute top-11 z-30 min-w-64 rounded-xl border border-hairline bg-white p-4 shadow-elevated", align === "right" ? "right-0" : "left-0")}>
+        <div className={cn("absolute top-12 z-30 min-w-64 border border-line bg-white p-4 shadow-lg", align === "right" ? "right-0" : "left-0")}>
           {children(() => setOpen(false))}
         </div>
       )}
