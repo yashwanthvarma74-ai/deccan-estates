@@ -6,7 +6,7 @@ import { Popover } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { typeLabels, FILTER_KEYS, type Agent } from "@/lib/api";
-import { AdvancedFields, type FilterValues } from "@/components/advanced-fields";
+import { AdvancedFields, withType, type FilterValues } from "@/components/advanced-fields";
 import { cn, formatInr, PRICE_STEPS, TOP_PRICE } from "@/lib/utils";
 
 type Locality = { id: string; name: string; slug: string };
@@ -32,7 +32,7 @@ function AdvancedPanel({ initial, localities, agents, onApply }: { initial: Filt
   const [vals, setVals] = useState<FilterValues>(initial);
   return (
     <form onSubmit={(e) => { e.preventDefault(); onApply(vals); }} className="space-y-5">
-      <AdvancedFields values={vals} onChange={(k, v) => setVals((p) => ({ ...p, [k]: v }))} localities={localities} agents={agents} />
+      <AdvancedFields values={vals} onChange={(k, v) => setVals((p) => (k === "type" ? withType(p, v) : { ...p, [k]: v }))} localities={localities} agents={agents} />
       <div className="flex items-center justify-between">
         <button type="button" onClick={() => setVals({})} className="cursor-pointer text-sm underline underline-offset-4">Clear all</button>
         <Button type="submit" size="sm">Apply filters</Button>
@@ -45,7 +45,8 @@ export function FilterBar({ localities, agents }: { localities: Locality[]; agen
   const { sp, set } = useFilterParams();
   const [text, setText] = useState("");
   const locality = localities.find((l) => l.slug === sp.get("locality"));
-  const advancedCount = ["minArea", "maxArea", "agent", "sort", "q"].filter((k) => sp.get(k)).length;
+  const basicKeys = new Set(["locality", "type", "minPrice", "maxPrice", "minBeds", "page", "unit"]);
+  const advancedCount = [...sp.keys()].filter((k) => !basicKeys.has(k) && (FILTER_KEYS as readonly string[]).includes(k)).length;
   const min = sp.get("minPrice") ?? "";
   const max = sp.get("maxPrice") ?? "";
 

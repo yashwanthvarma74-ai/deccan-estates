@@ -2,6 +2,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { PUBLIC_API_URL, fetchListing, typeLabels } from "@/lib/api";
+import { areaSummary, pricePerUnit } from "@/lib/listing-meta";
 import { formatInr } from "@/lib/utils";
 import { useCompare } from "@/stores/compare";
 
@@ -18,8 +19,8 @@ export default function ComparePage() {
     ["Type", (l) => typeLabels[l.type]],
     ["Locality", (l) => l.locality.name],
     ["Price", (l) => formatInr(l.priceInr)],
-    ["Area", (l) => `${l.areaSqft} sq ft`],
-    ["₹ / sq ft", (l) => `₹${Math.round(l.priceInr / l.areaSqft).toLocaleString("en-IN")}`],
+    ["Size", (l) => areaSummary(l)],
+    ["Price per unit", (l) => `₹${pricePerUnit(l).value.toLocaleString("en-IN")} / ${pricePerUnit(l).unit}`],
     ["Locality avg ₹ / sq ft", (l) => `₹${l.locality.avgPricePerSqft.toLocaleString("en-IN")}`],
     ["RERA", (l) => l.reraNumber ?? "—"],
   ];

@@ -6,6 +6,7 @@ import { Assistant } from "@/components/assistant";
 import { SaveButton } from "@/components/save-button";
 import { typeLabels } from "@/lib/api";
 import { getListing } from "@/lib/data";
+import { AMENITY_LABELS, specsFor } from "@/lib/listing-meta";
 import { formatInr } from "@/lib/utils";
 
 async function Detail({ params }: { params: Promise<{ id: string }> }) {
@@ -13,12 +14,7 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
   const listing = await getListing(id).catch(() => null);
   if (!listing) notFound();
   const extra = [1, 2].map((n) => listing.imageUrl.replace(/\/seed\/([^/]+)/, `/seed/$1-${n}`));
-  const specs: [string, string][] = [
-    ["Price", formatInr(listing.priceInr)],
-    ["Area", `${listing.areaSqft} Sq Ft.`],
-    ["Per sq ft", `₹${Math.round(listing.priceInr / listing.areaSqft).toLocaleString("en-IN")}`],
-    ["Bedrooms", listing.bedrooms ? String(listing.bedrooms) : "—"],
-  ];
+  const specs = specsFor(listing, formatInr);
 
   return (
     <div className="mx-auto max-w-[1800px] px-6 py-8">
@@ -39,7 +35,7 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
           <h1 className="mt-3 text-4xl font-semibold md:text-5xl">{listing.title}</h1>
           <p className="mt-2 text-lg text-muted">{listing.locality.name}, Hyderabad, Telangana</p>
           <p className="mt-6 text-3xl font-semibold">{formatInr(listing.priceInr)}</p>
-          <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-white/10 md:grid-cols-4">
+          <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-white/10 md:grid-cols-3 xl:grid-cols-4">
             {specs.map(([k, v]) => (
               <div key={k} className="bg-card p-5">
                 <dt className="text-sm text-muted">{k}</dt>

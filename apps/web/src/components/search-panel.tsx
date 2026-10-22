@@ -1,9 +1,10 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, Home, MapPin, Search, SlidersHorizontal, Wallet, BedDouble } from "lucide-react";
+import { ChevronDown, Home, MapPin, Ruler, Search, SlidersHorizontal, Wallet, BedDouble } from "lucide-react";
 import { typeLabels, type Agent, type FilterKey } from "@/lib/api";
-import { AdvancedFields, type FilterValues } from "@/components/advanced-fields";
+import { AdvancedFields, withType, type FilterValues } from "@/components/advanced-fields";
+import { formatArea } from "@/lib/listing-meta";
 import { cn, formatInr, PRICE_STEPS } from "@/lib/utils";
 
 type Locality = { id: string; name: string; slug: string };
@@ -28,9 +29,10 @@ export function SearchPanel({ localities, agents }: { localities: Locality[]; ag
   const router = useRouter();
   const [v, setV] = useState<FilterValues>({});
   const [advanced, setAdvanced] = useState(false);
-  const change = (k: FilterKey, val: string) => setV((prev) => ({ ...prev, [k]: val }));
+  const change = (k: FilterKey, val: string) => setV((prev) => (k === "type" ? withType(prev, val) : { ...prev, [k]: val }));
   const set = (k: FilterKey) => (e: React.ChangeEvent<HTMLSelectElement>) => change(k, e.target.value);
-  const activeAdvanced = ["q", "minPrice", "minArea", "maxArea", "agent", "sort"].filter((k) => v[k as FilterKey]).length;
+  const basic = new Set(["type", "locality", "maxPrice", "minBeds", "minPlotArea"]);
+  const activeAdvanced = Object.entries(v).filter(([k, val]) => val && !basic.has(k) && k !== "unit").length;
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -61,12 +63,21 @@ export function SearchPanel({ localities, agents }: { localities: Locality[]; ag
             {PRICE_STEPS.map((b) => <option key={b} value={b}>Up to {formatInr(b)}</option>)}
           </select>
         </Field>
-        <Field icon={BedDouble} label="Bedrooms">
-          <select value={v.minBeds ?? ""} onChange={set("minBeds")} className={select} aria-label="Minimum bedrooms">
-            <option value="">Any</option>
-            {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}+ bedrooms</option>)}
-          </select>
-        </Field>
+        {v.type === "PLOT" ? (
+          <Field icon={Ruler} label="Plot size">
+            <select value={v.minPlotArea ?? ""} onChange={set("minPlotArea")} className={select} aria-label="Minimum plot size">
+              <option value="">Any size</option>
+              {[100, 200, 300, 500, 1000, 2420, 4840].map((n) => <option key={n} value={n}>{formatArea(n, n >= 2420 ? "acre" : "sqyd")}+</option>)}
+            </select>
+          </Field>
+        ) : (
+          <Field icon={BedDouble} label="Bedrooms">
+            <select value={v.minBeds ?? ""} onChange={set("minBeds")} className={select} aria-label="Minimum bedrooms">
+              <option value="">Any</option>
+              {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}+ bedrooms</option>)}
+            </select>
+          </Field>
+        )}
         <button
           type="button"
           onClick={() => setAdvanced(!advanced)}

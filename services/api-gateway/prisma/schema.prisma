@@ -14,6 +14,35 @@ enum PropertyType {
   GATED_COMMUNITY
 }
 
+enum Facing {
+  EAST
+  WEST
+  NORTH
+  SOUTH
+  NORTH_EAST
+  NORTH_WEST
+  SOUTH_EAST
+  SOUTH_WEST
+}
+
+enum Furnishing {
+  UNFURNISHED
+  SEMI_FURNISHED
+  FURNISHED
+}
+
+enum Possession {
+  READY
+  UNDER_CONSTRUCTION
+  NEW_LAUNCH
+}
+
+enum Approval {
+  DTCP
+  HMDA
+  RERA
+}
+
 enum ListingStatus {
   ACTIVE
   SOLD
@@ -46,7 +75,24 @@ model Listing {
   type        PropertyType
   status      ListingStatus @default(ACTIVE)
   priceInr    BigInt
+  /// Primary area in sq ft: plot area for plots, built-up area for everything else.
   areaSqft    Int
+  plotAreaSqYd Int?
+  carpetSqft  Int?
+  pricePerSqft Int        @default(0)
+  bathrooms   Int?
+  floor       Int?
+  totalFloors Int?
+  parking     Int         @default(0)
+  ageYears    Int?
+  facing      Facing?
+  furnishing  Furnishing?
+  possession  Possession  @default(READY)
+  approval    Approval?
+  cornerPlot  Boolean     @default(false)
+  roadWidthFt Int?
+  gated       Boolean     @default(false)
+  amenities   String[]
   bedrooms    Int?
   reraNumber  String?
   imageUrl    String

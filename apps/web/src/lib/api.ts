@@ -21,7 +21,23 @@ export const listingSchema = z.object({
   type: z.enum(["PLOT", "VILLA", "APARTMENT", "GATED_COMMUNITY"]),
   priceInr: z.number(),
   areaSqft: z.number(),
+  plotAreaSqYd: z.number().nullable(),
+  carpetSqft: z.number().nullable(),
+  pricePerSqft: z.number(),
   bedrooms: z.number().nullable(),
+  bathrooms: z.number().nullable(),
+  floor: z.number().nullable(),
+  totalFloors: z.number().nullable(),
+  parking: z.number(),
+  ageYears: z.number().nullable(),
+  facing: z.string().nullable(),
+  furnishing: z.string().nullable(),
+  possession: z.string(),
+  approval: z.string().nullable(),
+  cornerPlot: z.boolean(),
+  roadWidthFt: z.number().nullable(),
+  gated: z.boolean(),
+  amenities: z.array(z.string()),
   reraNumber: z.string().nullable(),
   imageUrl: z.string(),
   lat: z.number(),
@@ -45,20 +61,7 @@ export const typeLabels: Record<Listing["type"], string> = {
   GATED_COMMUNITY: "Gated community",
 };
 
-export type ListingFilters = {
-  locality?: string;
-  type?: string;
-  minPrice?: string;
-  maxPrice?: string;
-  minBeds?: string;
-  minArea?: string;
-  maxArea?: string;
-  agent?: string;
-  sort?: string;
-  q?: string;
-  page?: string;
-  pageSize?: string;
-};
+export type ListingFilters = Partial<Record<FilterKey | "page" | "pageSize", string>>;
 
 async function get<T>(base: string, path: string, schema: z.ZodType<T>): Promise<T> {
   const res = await fetch(`${base}${path}`);
@@ -100,5 +103,11 @@ export type Agent = z.infer<typeof agentSchema>;
 export const fetchAgents = (base = API_URL) => get(base, "/agents", z.array(agentSchema));
 
 /** Every filter the search supports, in one place so forms and URLs stay in sync. */
-export const FILTER_KEYS = ["q", "locality", "type", "minPrice", "maxPrice", "minBeds", "minArea", "maxArea", "agent", "sort"] as const;
+export const FILTER_KEYS = [
+  "q", "locality", "type", "minPrice", "maxPrice", "minBeds", "minBaths",
+  "minArea", "maxArea", "minPlotArea", "maxPlotArea", "minCarpet", "maxCarpet",
+  "minFloor", "maxFloor", "minStoreys", "minParking", "maxAge", "minRoad", "minPpsf", "maxPpsf",
+  "facing", "furnishing", "possession", "approval", "amenities", "corner", "gated",
+  "agent", "sort", "unit",
+] as const;
 export type FilterKey = (typeof FILTER_KEYS)[number];

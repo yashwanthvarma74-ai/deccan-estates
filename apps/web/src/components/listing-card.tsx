@@ -8,6 +8,7 @@ import { authClient } from "@/lib/auth-client";
 import { formatInr, cn } from "@/lib/utils";
 import { type Listing, typeLabels } from "@/lib/api";
 import { useCompare } from "@/stores/compare";
+import { areaSummary, pricePerUnit } from "@/lib/listing-meta";
 import { authedFetch, useSaved } from "@/components/save-button";
 
 export function ListingCard({ listing }: { listing: Listing }) {
@@ -52,9 +53,8 @@ export function ListingCard({ listing }: { listing: Listing }) {
         </h3>
         <p className="text-sm text-muted">{listing.locality.name}, Hyderabad, Telangana</p>
         <p className="mt-4 text-lg font-semibold tracking-tight">{formatInr(listing.priceInr)}</p>
-        <p className="mt-1 text-sm text-muted">
-          {listing.bedrooms ? `${listing.bedrooms} Bedrooms · ` : ""}Area: {listing.areaSqft} Sq Ft.
-        </p>
+        <p className="mt-1 text-sm text-muted">{areaSummary(listing)}</p>
+        <p className="mt-0.5 text-xs text-muted">₹{pricePerUnit(listing).value.toLocaleString("en-IN")} / {pricePerUnit(listing).unit}</p>
         <p className="mt-auto pt-4 text-sm text-muted">Marketed by {listing.agent.name}</p>
         <button
           onClick={() => toggleCompare(listing.id)}

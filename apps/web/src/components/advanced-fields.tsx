@@ -1,27 +1,93 @@
 "use client";
 import { typeLabels, type Agent, type FilterKey } from "@/lib/api";
-import { formatInr, PRICE_STEPS, TOP_PRICE } from "@/lib/utils";
+import {
+  AMENITIES_BY_TYPE, AMENITY_LABELS, APPROVAL_LABELS, FACING_LABELS, FIELDS_BY_TYPE, FURNISHING_LABELS, POSSESSION_LABELS,
+  SQFT_PER_SQYD, UNIT_LABEL, formatArea, keysForType, type AreaUnit, type FieldGroup, type PropertyType,
+} from "@/lib/listing-meta";
+import { cn, formatInr, PRICE_STEPS, TOP_PRICE } from "@/lib/utils";
 
 type Locality = { id: string; name: string; slug: string };
 export type FilterValues = Partial<Record<FilterKey, string>>;
 
-const AREAS = [500, 1000, 1500, 2000, 3000, 4000, 5000, 7000, 10000];
-const TOP_AREA = AREAS[AREAS.length - 1];
+const BUILT_UP = [500, 750, 1000, 1500, 2000, 3000, 4000, 5000, 7000, 10000];
+const CARPET = [400, 600, 800, 1000, 1500, 2000, 3000, 4000, 5000];
+const PLOT_SQYD = [100, 150, 200, 250, 300, 400, 500, 800, 1000, 2000, 4840, 9680, 24200];
+const PPSF = [3000, 4000, 5000, 6000, 8000, 10000, 15000, 20000];
+const PPSYD = [10000, 25000, 50000, 75000, 100000, 150000, 200000];
 
-const box = "mt-1.5 h-11 w-full rounded-lg border border-line bg-card px-3 text-[15px] text-white outline-none focus-visible:border-white/60 [&>option]:text-black";
+/** Clears filters that don't apply to the newly chosen property type, then sets the type. */
+export function withType(values: FilterValues, type: string): FilterValues {
+  const allowed = new Set([...keysForType(type || undefined), "q", "locality", "type", "minPrice", "maxPrice", "agent", "sort"]);
+  const next: FilterValues = {};
+  for (const [k, v] of Object.entries(values)) if (v && allowed.has(k)) next[k as FilterKey] = v;
+  if (type) next.type = type;
+  else delete next.type;
+  return next;
+}
 
-function Field({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
+const control = "mt-1.5 h-11 w-full rounded-lg border border-line bg-card px-3 text-[15px] text-white outline-none focus-visible:border-white/60 [&>option]:text-black";
+
+function Box({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
-    <label className={className}>
+    <label className={cn("block", className)}>
       <span className="text-xs text-muted">{label}</span>
       {children}
     </label>
   );
 }
 
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <fieldset className="border-t border-line pt-5 first:border-t-0 first:pt-0">
+      <legend className="mb-3 text-sm font-semibold text-white">{title}</legend>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{children}</div>
+    </fieldset>
+  );
+}
+
+function Chips({ label, options, value, onChange, className }: { label: string; options: Record<string, string>; value: string; onChange: (v: string) => void; className?: string }) {
+  const selected = new Set(value ? value.split(",") : []);
+  const toggle = (k: string) => {
+    const next = new Set(selected);
+    if (next.has(k)) next.delete(k); else next.add(k);
+    onChange([...next].join(","));
+  };
+  return (
+    <div className={cn("sm:col-span-2 lg:col-span-4", className)} role="group" aria-label={label}>
+      <span className="text-xs text-muted">{label}</span>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {Object.entries(options).map(([k, text]) => {
+          const on = selected.has(k);
+          return (
+            <button
+              key={k}
+              type="button"
+              aria-pressed={on}
+              onClick={() => toggle(k)}
+              className={cn("cursor-pointer rounded-full border px-3.5 py-1.5 text-sm transition-colors", on ? "border-white bg-white text-bg" : "border-white/25 text-white/85 hover:border-white/60")}
+            >
+              {text}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="flex h-11 cursor-pointer items-center gap-3 self-end rounded-lg border border-line bg-card px-3 text-[15px]">
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="h-4 w-4 accent-white" />
+      {label}
+    </label>
+  );
+}
+
 /**
- * Every filter the search API understands. Controlled: the parent owns the values and decides
- * what "apply" means (route to /listings from the home page, or update the URL on the search page).
+ * Every filter the search API understands, shown according to the chosen property type: plots get plot
+ * area (sq yd / acre / sq ft), approvals, facing, corner and road width; flats get carpet and built-up
+ * sq ft, floor and amenities; villas get plot area plus built-up and carpet area, and so on.
  */
 export function AdvancedFields({ values, onChange, localities, agents, dark = true }: {
   values: FilterValues;
@@ -31,71 +97,100 @@ export function AdvancedFields({ values, onChange, localities, agents, dark = tr
   dark?: boolean;
 }) {
   const v = (k: FilterKey) => values[k] ?? "";
-  const field = dark ? box : box.replace("border-line bg-card text-white", "border-bg/15 bg-white text-bg");
-  const labelCls = dark ? undefined : "[&>span]:text-bg/60";
+  const type = (values.type && values.type in typeLabels ? values.type : "ANY") as PropertyType | "ANY";
+  const has = (g: FieldGroup) => FIELDS_BY_TYPE[type].includes(g);
+  const unit = (values.unit as AreaUnit) || "sqyd";
+  const field = dark ? control : control.replace("border-line bg-card text-white", "border-bg/15 bg-white text-bg");
+  const wrap = dark ? "" : "[&_span]:text-bg/60 [&_legend]:text-bg [&_fieldset]:border-bg/10";
+
+  const select = (key: FilterKey, label: string, anyLabel: string, options: { value: string | number; label: string }[], className?: string) => (
+    <Box label={label} className={className}>
+      <select value={v(key)} onChange={(e) => onChange(key, e.target.value)} className={field}>
+        <option value="">{anyLabel}</option>
+        {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+    </Box>
+  );
+
+  const nPlus = (n: number) => ({ value: n, label: `${n}+` });
+  const areaOptions = (list: number[], suffix: string, topIsPlus: boolean, asMin: boolean) =>
+    list.map((a, i) => ({ value: a, label: `${a.toLocaleString("en-IN")}${asMin && topIsPlus && i === list.length - 1 ? "+" : ""} ${suffix}` }));
+  const plotOptions = PLOT_SQYD.map((a) => ({ value: a, label: formatArea(a, unit) }));
+  const perUnit = type === "PLOT" ? PPSYD : PPSF;
+  const ppsfOptions = (list: number[]) =>
+    list.map((p) => ({ value: type === "PLOT" ? Math.round(p / SQFT_PER_SQYD) : p, label: `₹${p.toLocaleString("en-IN")}` }));
+
+  const amenityOptions = Object.fromEntries(AMENITIES_BY_TYPE[type].map((k) => [k, AMENITY_LABELS[k]]));
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <Field label="Keyword" className={`sm:col-span-2 ${labelCls ?? ""}`}>
-        <input value={v("q")} onChange={(e) => onChange("q", e.target.value)} maxLength={100} placeholder="e.g. ORR access, corner plot, RERA" className={field} />
-      </Field>
-      <Field label="Property type" className={labelCls}>
-        <select value={v("type")} onChange={(e) => onChange("type", e.target.value)} className={field}>
-          <option value="">Any type</option>
-          {Object.entries(typeLabels).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
-        </select>
-      </Field>
-      <Field label="Locality" className={labelCls}>
-        <select value={v("locality")} onChange={(e) => onChange("locality", e.target.value)} className={field}>
-          <option value="">All localities</option>
-          {localities.map((l) => <option key={l.id} value={l.slug}>{l.name}</option>)}
-        </select>
-      </Field>
+    <div className={cn("space-y-5", wrap)}>
+      <Section title="Basics">
+        <Box label="Keyword" className="sm:col-span-2">
+          <input value={v("q")} onChange={(e) => onChange("q", e.target.value)} maxLength={100} placeholder="e.g. ORR access, corner plot" className={field} />
+        </Box>
+        <Box label="Property type">
+          <select value={v("type")} onChange={(e) => onChange("type", e.target.value)} className={field}>
+            <option value="">Any type</option>
+            {Object.entries(typeLabels).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+          </select>
+        </Box>
+        <Box label="Locality">
+          <select value={v("locality")} onChange={(e) => onChange("locality", e.target.value)} className={field}>
+            <option value="">All localities</option>
+            {localities.map((l) => <option key={l.id} value={l.slug}>{l.name}</option>)}
+          </select>
+        </Box>
+        {select("minPrice", "Min price", "No minimum", PRICE_STEPS.map((p) => ({ value: p, label: p === TOP_PRICE ? `${formatInr(p)}+` : formatInr(p) })))}
+        {select("maxPrice", "Max price", "No maximum (20 Cr+)", PRICE_STEPS.map((p) => ({ value: p, label: formatInr(p) })))}
+        {has("ppsf") && select("minPpsf", `Min price per ${type === "PLOT" ? "sq yd" : "sq ft"}`, "No minimum", ppsfOptions(perUnit))}
+        {has("ppsf") && select("maxPpsf", `Max price per ${type === "PLOT" ? "sq yd" : "sq ft"}`, "No maximum", ppsfOptions(perUnit))}
+        {select("agent", "Listing agent", "Any agent", agents.map((a) => ({ value: a.id, label: `${a.name} (${a.listingCount})` })))}
+      </Section>
 
-      <Field label="Min price" className={labelCls}>
-        <select value={v("minPrice")} onChange={(e) => onChange("minPrice", e.target.value)} className={field}>
-          <option value="">No minimum</option>
-          {PRICE_STEPS.map((p) => <option key={p} value={p}>{p === TOP_PRICE ? `${formatInr(p)}+` : formatInr(p)}</option>)}
-        </select>
-      </Field>
-      <Field label="Max price" className={labelCls}>
-        <select value={v("maxPrice")} onChange={(e) => onChange("maxPrice", e.target.value)} className={field}>
-          <option value="">No maximum (20 Cr+)</option>
-          {PRICE_STEPS.map((p) => <option key={p} value={p}>{formatInr(p)}</option>)}
-        </select>
-      </Field>
-      <Field label="Bedrooms" className={labelCls}>
-        <select value={v("minBeds")} onChange={(e) => onChange("minBeds", e.target.value)} className={field}>
-          <option value="">Any</option>
-          {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}+ bedrooms</option>)}
-        </select>
-      </Field>
-      <Field label="Listing agent" className={labelCls}>
-        <select value={v("agent")} onChange={(e) => onChange("agent", e.target.value)} className={field}>
-          <option value="">Any agent</option>
-          {agents.map((a) => <option key={a.id} value={a.id}>{a.name} ({a.listingCount})</option>)}
-        </select>
-      </Field>
+      <Section title={type === "PLOT" ? "Plot size" : type === "APARTMENT" ? "Size and layout" : "Size, plot and layout"}>
+        {has("plotArea") && (
+          <>
+            <Box label="Area unit">
+              <select value={unit} onChange={(e) => onChange("unit", e.target.value)} className={field}>
+                {(Object.keys(UNIT_LABEL) as AreaUnit[]).map((u) => <option key={u} value={u}>{UNIT_LABEL[u][0].toUpperCase() + UNIT_LABEL[u].slice(1)}</option>)}
+              </select>
+            </Box>
+            {select("minPlotArea", `Min plot area (${UNIT_LABEL[unit]})`, "No minimum", plotOptions)}
+            {select("maxPlotArea", `Max plot area (${UNIT_LABEL[unit]})`, "No maximum", plotOptions)}
+          </>
+        )}
+        {has("beds") && select("minBeds", "Bedrooms", "Any", [1, 2, 3, 4, 5].map(nPlus))}
+        {has("baths") && select("minBaths", "Bathrooms", "Any", [1, 2, 3, 4, 5].map(nPlus))}
+        {has("carpet") && select("minCarpet", "Min carpet area (sq ft)", "No minimum", areaOptions(CARPET, "sq ft", false, true))}
+        {has("carpet") && select("maxCarpet", "Max carpet area (sq ft)", "No maximum", areaOptions(CARPET, "sq ft", false, false))}
+        {has("builtUp") && select("minArea", `Min ${type === "ANY" ? "area" : "built-up area"} (sq ft)`, "No minimum", areaOptions(BUILT_UP, "sq ft", true, true))}
+        {has("builtUp") && select("maxArea", `Max ${type === "ANY" ? "area" : "built-up area"} (sq ft)`, "No maximum (10,000+)", areaOptions(BUILT_UP, "sq ft", true, false))}
+        {has("floor") && select("minFloor", "Min floor", "Any", [1, 3, 5, 10, 15, 20, 25].map((f) => ({ value: f, label: `Floor ${f}+` })))}
+        {has("floor") && select("maxFloor", "Max floor", "Any", [3, 5, 10, 15, 20, 25, 30, 40].map((f) => ({ value: f, label: `Up to floor ${f}` })))}
+        {has("storeys") && select("minStoreys", "Floors in the villa", "Any", [{ value: 2, label: "G+1 or more" }, { value: 3, label: "G+2 or more" }])}
+        {has("road") && select("minRoad", "Road width", "Any", [20, 30, 40, 60, 80].map((r) => ({ value: r, label: `${r} ft or wider` })))}
+      </Section>
 
-      <Field label="Min area (sq ft)" className={labelCls}>
-        <select value={v("minArea")} onChange={(e) => onChange("minArea", e.target.value)} className={field}>
-          <option value="">No minimum</option>
-          {AREAS.map((a) => <option key={a} value={a}>{a.toLocaleString("en-IN")}{a === TOP_AREA ? "+" : ""} sq ft</option>)}
-        </select>
-      </Field>
-      <Field label="Max area (sq ft)" className={labelCls}>
-        <select value={v("maxArea")} onChange={(e) => onChange("maxArea", e.target.value)} className={field}>
-          <option value="">No maximum (10,000+)</option>
-          {AREAS.map((a) => <option key={a} value={a}>{a.toLocaleString("en-IN")} sq ft</option>)}
-        </select>
-      </Field>
-      <Field label="Sort by" className={`sm:col-span-2 ${labelCls ?? ""}`}>
-        <select value={v("sort")} onChange={(e) => onChange("sort", e.target.value)} className={field}>
-          <option value="">Newest</option>
-          <option value="price_asc">Price: low to high</option>
-          <option value="price_desc">Price: high to low</option>
-        </select>
-      </Field>
+      <Section title="Details">
+        {has("possession") && <Chips label="Possession" options={POSSESSION_LABELS} value={v("possession")} onChange={(x) => onChange("possession", x)} />}
+        {has("approval") && <Chips label="Approval" options={APPROVAL_LABELS} value={v("approval")} onChange={(x) => onChange("approval", x)} />}
+        {has("facing") && <Chips label="Facing" options={FACING_LABELS} value={v("facing")} onChange={(x) => onChange("facing", x)} />}
+        {has("furnishing") && <Chips label="Furnishing" options={FURNISHING_LABELS} value={v("furnishing")} onChange={(x) => onChange("furnishing", x)} />}
+        {has("parking") && select("minParking", "Car parking", "Any", [1, 2, 3].map((n) => ({ value: n, label: `${n}+ covered` })))}
+        {has("age") && select("maxAge", "Age of property", "Any", [{ value: 0, label: "New / under construction" }, { value: 1, label: "Up to 1 year" }, { value: 3, label: "Up to 3 years" }, { value: 5, label: "Up to 5 years" }, { value: 10, label: "Up to 10 years" }])}
+        {has("corner") && <Toggle label="Corner plot only" checked={v("corner") === "1"} onChange={(c) => onChange("corner", c ? "1" : "")} />}
+        {has("gated") && <Toggle label={type === "PLOT" ? "Gated layout only" : "Gated community only"} checked={v("gated") === "1"} onChange={(c) => onChange("gated", c ? "1" : "")} />}
+      </Section>
+
+      {has("amenities") && (
+        <Section title="Amenities">
+          <Chips label="Must have all selected" options={amenityOptions} value={v("amenities")} onChange={(x) => onChange("amenities", x)} />
+        </Section>
+      )}
+
+      <Section title="Order">
+        {select("sort", "Sort by", "Newest", [{ value: "price_asc", label: "Price: low to high" }, { value: "price_desc", label: "Price: high to low" }], "sm:col-span-2")}
+      </Section>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { PrismaClient, PropertyType } from '@prisma/client';
+import { Approval, Facing, Furnishing, Possession, Prisma, PrismaClient, PropertyType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -42,35 +42,115 @@ async function main() {
   const names: Record<PropertyType, string> = {
     PLOT: 'DTCP-approved plot',
     VILLA: 'Independent villa',
-    APARTMENT: '3BHK apartment',
+    APARTMENT: 'apartment',
     GATED_COMMUNITY: 'Villa in gated community',
   };
 
+  const facings: Facing[] = ['EAST', 'NORTH', 'WEST', 'SOUTH', 'NORTH_EAST', 'SOUTH_EAST', 'NORTH_WEST', 'SOUTH_WEST'];
+  const furnishings: Furnishing[] = ['UNFURNISHED', 'SEMI_FURNISHED', 'FURNISHED'];
+  const approvals: Approval[] = ['DTCP', 'HMDA', 'RERA'];
+  const aptAmenities = ['LIFT', 'GYM', 'SWIMMING_POOL', 'CLUBHOUSE', 'POWER_BACKUP', 'SECURITY_24X7', 'PARK', 'KIDS_PLAY_AREA'];
+  const villaAmenities = ['PRIVATE_GARDEN', 'PRIVATE_POOL', 'SECURITY_24X7', 'POWER_BACKUP', 'PARK', 'CLUBHOUSE'];
+  const communityAmenities = ['CLUBHOUSE', 'SWIMMING_POOL', 'GYM', 'PARK', 'JOGGING_TRACK', 'KIDS_PLAY_AREA', 'SECURITY_24X7', 'POWER_BACKUP'];
+  const plotSizesSqYd = [150, 200, 240, 267, 300, 400, 500, 600, 1000, 2420, 4840];
+
+  // Deterministic pick so reseeding gives the same data.
+  const pick = <T,>(list: T[], n: number, salt = 0) => list[(n * 7 + salt * 3) % list.length];
+  const subset = (list: string[], n: number, count: number) =>
+    Array.from({ length: count }, (_, i) => list[(n + i * 3) % list.length]).filter((v, i, arr) => arr.indexOf(v) === i);
+
   let n = 0;
   for (const loc of locs) {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 8; i++) {
       const type = types[(n + i) % types.length];
-      const area = type === 'PLOT' ? 200 * 9 + i * 90 : 1400 + i * 350;
       const rate = loc.avgPricePerSqft * (0.85 + (i % 4) * 0.1);
-      const price = BigInt(Math.round((area * rate) / 10000) * 10000);
-      await prisma.listing.create({
-        data: {
+      const common = {
+        type,
+        localityId: loc.id,
+        agentId: agents[n % agents.length].id,
+        reraNumber: `P0220000${n.toString().padStart(4, '0')}`,
+        imageUrl: `https://picsum.photos/seed/hyd-${n}/800/600`,
+        lat: loc.lat + (((n * 37) % 100) - 50) / 3000,
+        lng: loc.lng + (((n * 53) % 100) - 50) / 3000,
+        facing: pick(facings, n),
+      };
+      let data: Prisma.ListingUncheckedCreateInput;
+
+      if (type === 'PLOT') {
+        // Larger plots (half-acre and acre) only in the outer, cheaper localities.
+        const outer = loc.avgPricePerSqft < 4000;
+        const sizes = outer ? plotSizesSqYd : plotSizesSqYd.filter((s) => s <= 1000);
+        const sqYd = pick(sizes, n);
+        const areaSqft = sqYd * 9;
+        const price = Math.round((areaSqft * rate) / 10000) * 10000;
+        data = {
+          ...common,
+          title: `${names.PLOT} in ${loc.name}`,
+          description: `${sqYd} sq yd (${areaSqft} sq ft) ${approvals[n % 3]}-approved plot in ${loc.name}, Hyderabad (${loc.zone}). ${pick(facings, n)} facing, ${pick([30, 40, 60], n)} ft road. Clear title, RERA registered.`,
+          priceInr: BigInt(price),
+          areaSqft,
+          plotAreaSqYd: sqYd,
+          pricePerSqft: Math.round(price / areaSqft),
+          approval: approvals[n % 3],
+          cornerPlot: n % 4 === 0,
+          roadWidthFt: pick([30, 40, 60], n),
+          gated: n % 3 === 0,
+          possession: 'READY',
+          amenities: [],
+        };
+      } else if (type === 'APARTMENT') {
+        const bhk = 2 + (n % 3);
+        const builtUp = [1150, 1650, 2300][bhk - 2] + (n % 5) * 40;
+        const price = Math.round((builtUp * rate) / 10000) * 10000;
+        const floor = 1 + ((n * 5) % 30);
+        const possession: Possession = n % 5 === 0 ? 'UNDER_CONSTRUCTION' : n % 7 === 0 ? 'NEW_LAUNCH' : 'READY';
+        data = {
+          ...common,
+          title: `${bhk}BHK ${names.APARTMENT} in ${loc.name}`,
+          description: `${bhk}BHK apartment in ${loc.name}, Hyderabad (${loc.zone}). ${builtUp} sq ft built-up, floor ${floor}. ${common.facing.replace('_', '-').toLowerCase()} facing. Clear title, RERA registered.`,
+          priceInr: BigInt(price),
+          areaSqft: builtUp,
+          carpetSqft: Math.round(builtUp * 0.78),
+          pricePerSqft: Math.round(price / builtUp),
+          bedrooms: bhk,
+          bathrooms: bhk,
+          floor,
+          totalFloors: floor + 2 + (n % 10),
+          parking: 1 + (n % 2),
+          ageYears: possession === 'READY' ? n % 9 : 0,
+          furnishing: pick(furnishings, n),
+          possession,
+          gated: true,
+          amenities: subset(aptAmenities, n, 4 + (n % 3)),
+        };
+      } else {
+        const community = type === 'GATED_COMMUNITY';
+        const bhk = community ? 3 + (n % 2) : 3 + (n % 3);
+        const plotSqYd = community ? 150 + (n % 4) * 50 : 200 + (n % 6) * 80;
+        const builtUp = community ? 1800 + (n % 5) * 300 : 2200 + (n % 6) * 420;
+        const price = Math.round((builtUp * rate * 1.15) / 10000) * 10000;
+        const possession: Possession = n % 6 === 0 ? 'UNDER_CONSTRUCTION' : n % 8 === 0 ? 'NEW_LAUNCH' : 'READY';
+        data = {
+          ...common,
           title: `${names[type]} in ${loc.name}`,
-          description:
-            `${names[type]} in ${loc.name}, Hyderabad (${loc.zone}). ${area} sq ft. ` +
-            `Close to ORR access, schools and IT corridor. Clear title, RERA registered.`,
-          type,
-          priceInr: price,
-          areaSqft: area,
-          bedrooms: type === 'PLOT' ? null : 3 + (i % 3),
-          reraNumber: `P0220000${n.toString().padStart(4, '0')}`,
-          lat: loc.lat + (((n * 37) % 100) - 50) / 3000,
-          lng: loc.lng + (((n * 53) % 100) - 50) / 3000,
-          imageUrl: `https://picsum.photos/seed/hyd-${n}/800/600`,
-          localityId: loc.id,
-          agentId: agents[n % agents.length].id,
-        },
-      });
+          description: `${bhk}BHK ${community ? 'villa in a gated community' : 'independent villa'} in ${loc.name}, Hyderabad (${loc.zone}). ${plotSqYd} sq yd plot, ${builtUp} sq ft built-up. Clear title, RERA registered.`,
+          priceInr: BigInt(price),
+          areaSqft: builtUp,
+          plotAreaSqYd: plotSqYd,
+          carpetSqft: Math.round(builtUp * 0.85),
+          pricePerSqft: Math.round(price / builtUp),
+          bedrooms: bhk,
+          bathrooms: bhk + 1,
+          totalFloors: 2 + ((n >> 1) % 2),
+          parking: 2 + (n % 2),
+          ageYears: possession === 'READY' ? n % 7 : 0,
+          furnishing: pick(furnishings, n, 1),
+          possession,
+          gated: community,
+          amenities: subset(community ? communityAmenities : villaAmenities, n, community ? 6 : 3),
+        };
+      }
+      await prisma.listing.create({ data });
       n++;
     }
   }

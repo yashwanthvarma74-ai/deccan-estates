@@ -21,3 +21,29 @@ describe('listingQuery area and agent filters', () => {
     expect(q).toMatchObject({ minArea: 1200, maxArea: 3000, agent: 'abc' });
   });
 });
+
+describe('listingQuery type-specific filters', () => {
+  it('parses plot, flat and villa filters', () => {
+    const q = parse(listingQuery, {
+      minPlotArea: '200', corner: '1', facing: 'EAST,NORTH', approval: 'DTCP',
+      minCarpet: '900', minBaths: '2', furnishing: 'SEMI_FURNISHED', amenities: 'GYM, LIFT',
+      possession: 'READY', maxAge: '5', minFloor: '5', gated: 'true',
+    });
+    expect(q).toMatchObject({
+      minPlotArea: 200, corner: true, facing: ['EAST', 'NORTH'], approval: ['DTCP'],
+      minCarpet: 900, minBaths: 2, furnishing: ['SEMI_FURNISHED'], amenities: ['GYM', 'LIFT'],
+      possession: ['READY'], maxAge: 5, minFloor: 5, gated: true,
+    });
+  });
+
+  it('rejects unknown enum values', () => {
+    expect(() => parse(listingQuery, { facing: 'UP' })).toThrow(BadRequestException);
+    expect(() => parse(listingQuery, { furnishing: 'LUXURY' })).toThrow(BadRequestException);
+  });
+
+  it('leaves filters off when absent', () => {
+    const q = parse(listingQuery, {});
+    expect(q.corner).toBeUndefined();
+    expect(q.facing).toBeUndefined();
+  });
+});
