@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Libre_Franklin, Source_Serif_4 } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/navbar";
+import { Preloader } from "@/components/preloader";
+import { SiteHeader } from "@/components/site-header";
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
 
-const franklin = Libre_Franklin({ variable: "--font-franklin", subsets: ["latin"] });
-const sourceSerif = Source_Serif_4({ variable: "--font-source-serif", subsets: ["latin"] });
+const montserrat = Montserrat({ variable: "--font-montserrat", subsets: ["latin"], weight: ["200", "300", "400", "500", "600"] });
 
 export const metadata: Metadata = {
   title: "Deccan Estates — plots, villas and gated communities",
@@ -15,10 +15,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${franklin.variable} ${sourceSerif.variable} h-full`}>
-      <body className="flex min-h-full flex-col">
+    <html lang="en" className={`${montserrat.variable} h-full`}>
+      <body id="top" className="flex min-h-full flex-col">
         <Providers>
-          <Navbar />
+          <Preloader />
+          <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />
         </Providers>

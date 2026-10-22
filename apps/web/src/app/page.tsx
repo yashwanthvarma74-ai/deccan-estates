@@ -1,100 +1,141 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import { HeroCarousel } from "@/components/hero-carousel";
-import { SearchBand } from "@/components/search-band";
-import { CardGridSkeleton, Skeleton } from "@/components/skeletons";
-import { ListingCard } from "@/components/listing-card";
-import { typeLabels } from "@/lib/api";
+import { Counter } from "@/components/counter";
+import { FeatureSlider } from "@/components/feature-slider";
+import { HeroScroller, type HeroSlide } from "@/components/hero-scroller";
+import { Marquee } from "@/components/marquee";
+import { Skeleton } from "@/components/skeletons";
+import { StackedWords } from "@/components/stacked-words";
+import { API_URL, typeLabels } from "@/lib/api";
 import { getListings, getLocalities } from "@/lib/data";
 
-async function Band() {
-  return <SearchBand localities={await getLocalities()} />;
-}
+const FOOTAGE: Record<string, { video: string; image: string }> = {
+  kokapet: { video: "/videos/kokapet.mp4", image: "/stills/s5.jpg" },
+};
+const STILLS = ["/stills/s1.jpg", "/stills/s2.jpg", "/stills/s3.jpg", "/stills/s4.jpg", "/stills/s6.jpg"];
 
-async function Slides() {
-  const { items } = await getListings({ sort: "price_desc", page: "1" });
+async function Hero() {
+  const [{ items }, localities] = await Promise.all([
+    getListings({ sort: "price_desc", page: "1", pageSize: "50" }),
+    getLocalities(),
+  ]);
   // One slide per locality (priciest listing), always including Kokapet, which has its own footage.
   const byLocality = new Map(items.map((l) => [l.locality.slug, l] as const).reverse());
-  if (!byLocality.has("kokapet")) {
-    const kokapet = (await getListings({ locality: "kokapet", sort: "price_desc", page: "1" })).items[0];
-    if (kokapet) byLocality.set("kokapet", kokapet);
-  }
   const picked = [...byLocality.values()].sort((a, b) => b.priceInr - a.priceInr).slice(0, 5);
-  if (!picked.some((l) => l.locality.slug === "kokapet") && byLocality.has("kokapet")) picked[picked.length - 1] = byLocality.get("kokapet")!;
-  const slides = picked.map((l) => ({
-    id: l.id,
-    slug: l.locality.slug,
-    place: l.locality.name,
-    subtitle: `${typeLabels[l.type]}, Hyderabad`,
-    price: l.priceInr,
-  }));
-  return <HeroCarousel slides={slides} />;
+  const kokapet = byLocality.get("kokapet");
+  if (kokapet && !picked.includes(kokapet)) picked[picked.length - 1] = kokapet;
+
+  const slides: HeroSlide[] = picked.map((l, i) => {
+    const own = FOOTAGE[l.locality.slug];
+    return {
+      id: l.id,
+      slug: l.locality.slug,
+      place: l.locality.name,
+      subtitle: `${typeLabels[l.type]}, Hyderabad`,
+      price: l.priceInr,
+      image: own?.image ?? STILLS[i % STILLS.length],
+      video: own?.video ?? (i === 0 ? "/videos/hero.mp4" : undefined),
+    };
+  });
+  return <HeroScroller slides={slides} localities={localities} />;
 }
+
+const words = [
+  { label: "Plots", href: "/listings?type=PLOT" },
+  { label: "Villas", href: "/listings?type=VILLA" },
+  { label: "Gated communities", href: "/listings?type=GATED_COMMUNITY" },
+  { label: "Apartments", href: "/listings?type=APARTMENT" },
+  { label: "Kokapet", href: "/listings?locality=kokapet" },
+  { label: "Gachibowli", href: "/listings?locality=gachibowli" },
+  { label: "Narsingi", href: "/listings?locality=narsingi" },
+  { label: "Shamshabad", href: "/listings?locality=shamshabad" },
+];
 
 async function Featured() {
   const { items } = await getListings({ sort: "price_desc", page: "1", pageSize: "50" });
-  // Spread featured picks across localities instead of showing six from one place.
   const seen = new Set<string>();
-  const featured = items.filter((l) => !seen.has(l.locality.slug) && seen.add(l.locality.slug));
+  const featured = items.filter((l) => !seen.has(l.locality.slug) && seen.add(l.locality.slug)).slice(0, 8);
+  return <FeatureSlider items={featured} />;
+}
+
+async function Stats() {
+  const [{ total }, localities, agents] = await Promise.all([
+    getListings({ page: "1" }),
+    getLocalities(),
+    fetch(`${API_URL}/agents`, { next: { revalidate: 300 } }).then((r) => r.json() as Promise<unknown[]>).catch(() => []),
+  ]);
+  const stats: [number, string, string][] = [
+    [total, "", "Active listings"],
+    [localities.length, "", "Localities covered"],
+    [agents.length, "", "RERA-registered agents"],
+    [100, "%", "Listings with a RERA number"],
+  ];
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {featured.slice(0, 6).map((l) => <ListingCard key={l.id} listing={l} />)}
-    </div>
+    <dl className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+      {stats.map(([n, suffix, label]) => (
+        <div key={label} className="border-t border-ink pt-5">
+          <dd className="text-[clamp(3.5rem,8vw,6.5rem)] font-extralight leading-none tracking-[-0.04em] text-ink"><Counter to={n} suffix={suffix} /></dd>
+          <dt className="label mt-4 text-muted">{label}</dt>
+        </div>
+      ))}
+    </dl>
   );
 }
 
-async function Localities() {
-  const localities = (await getLocalities()).slice(0, 4);
-  return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {localities.map((l, i) => (
-        <Link key={l.id} href={`/listings?locality=${l.slug}`} className="group relative block aspect-[4/5] overflow-hidden">
-          <Image src={`https://picsum.photos/seed/locality-${i + 3}/600/750`} alt="" fill sizes="25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy-deep/80 to-transparent" />
-          <div className="absolute bottom-5 left-5 text-white">
-            <p className="font-display text-2xl">{l.name}</p>
-            <p className="label mt-1 text-[0.7rem] text-white/80">{l.zone} Hyderabad · ₹{l.avgPricePerSqft.toLocaleString("en-IN")}/sq ft</p>
-          </div>
-        </Link>
-      ))}
-    </div>
-  );
+async function Cities() {
+  const localities = await getLocalities();
+  return <Marquee items={localities.map((l) => l.name)} />;
 }
 
 export default function Home() {
   return (
     <>
-      <Suspense fallback={<div className="h-40 bg-navy" />}><Band /></Suspense>
-      <Suspense fallback={<div className="h-[calc(100vh-15rem)] bg-navy-deep" />}><Slides /></Suspense>
+      <Suspense fallback={<div className="h-screen bg-black" />}><Hero /></Suspense>
 
-      <section className="mx-auto max-w-[1800px] px-6 py-20">
-        <div className="mb-8 flex items-end justify-between">
-          <div><p className="label text-gold">Handpicked</p><h2 className="mt-2 text-4xl">Featured properties</h2></div>
-          <Link href="/listings" className="label text-navy underline underline-offset-4">View all</Link>
-        </div>
-        <Suspense fallback={<CardGridSkeleton count={6} className="lg:grid-cols-3" />}><Featured /></Suspense>
-      </section>
-
-      <section className="bg-surface">
-        <div className="mx-auto max-w-[1800px] px-6 py-20">
-          <p className="label text-gold">Neighbourhoods</p>
-          <h2 className="mb-8 mt-2 text-4xl">Explore localities</h2>
-          <Suspense fallback={<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="aspect-[4/5]" />)}</div>}><Localities /></Suspense>
+      <section className="mx-auto grid max-w-[1800px] gap-10 px-6 py-28 md:grid-cols-[1fr_2fr] md:py-40">
+        <p className="label text-muted">About us</p>
+        <div>
+          <p className="max-w-4xl text-[clamp(1.5rem,3vw,2.75rem)] font-light leading-[1.2] tracking-[-0.02em] text-ink">
+            Deccan Estates helps families and investors buy RERA-registered plots, villas and gated communities across
+            Hyderabad, from first shortlist to registration.
+          </p>
+          <p className="mt-8 max-w-xl text-[15px] leading-relaxed text-body">
+            Every listing carries its RERA number, every agent is registered, and an assistant reads the sale deed and
+            approval papers so you can ask questions before you visit.
+          </p>
+          <Link href="/listings" className="label mt-8 inline-block border-b border-ink pb-1 text-ink hover:opacity-60">Browse all homes ↗</Link>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-[1800px] gap-10 px-6 py-20 md:grid-cols-3">
-        {[
-          ["Ask about any property", "An assistant reads sale deeds and RERA papers and answers with citations."],
-          ["RERA-registered", "Every listing carries its RERA number so you can verify before you visit."],
-          ["Compare side by side", "Line up three properties on price, area and price per square foot."],
-        ].map(([t, d]) => (
-          <div key={t} className="border-t border-navy pt-5">
-            <h3 className="text-2xl">{t}</h3>
-            <p className="mt-3 text-muted">{d}</p>
-          </div>
-        ))}
+      <section className="border-y border-line py-24 md:py-32" aria-label="Browse by type and locality">
+        <div className="mx-auto grid max-w-[1800px] gap-12 px-6 md:grid-cols-[1.8fr_1fr]">
+          <StackedWords words={words} />
+          <p className="max-w-xs self-start text-[13px] leading-relaxed text-body md:sticky md:top-32 md:justify-self-end">
+            Start from the kind of home you want, or from the neighbourhood you have in mind. Every route opens the same
+            map view with filters for price, bedrooms and type.
+          </p>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1800px] px-6 py-28 md:py-40">
+        <h2 className="mb-14 text-[clamp(2rem,5vw,4rem)]">Featured homes</h2>
+        <Suspense fallback={<Skeleton className="mx-auto aspect-[3/4] w-full max-w-[26rem]" />}><Featured /></Suspense>
+      </section>
+
+      <section className="mx-auto max-w-[1800px] px-6 pb-28 md:pb-40">
+        <Suspense fallback={<Skeleton className="h-40 w-full" />}><Stats /></Suspense>
+      </section>
+
+      <section className="border-t border-line py-20" aria-label="Localities">
+        <p className="label mx-auto mb-10 max-w-[1800px] px-6 text-muted">We cover</p>
+        <Suspense fallback={<Skeleton className="h-16 w-full" />}><Cities /></Suspense>
+      </section>
+
+      <section className="bg-black px-6 py-28 text-center text-white md:py-40">
+        <h2 className="mx-auto max-w-4xl text-[clamp(2.2rem,6vw,5rem)] text-white">Find your place in Hyderabad, right now.</h2>
+        <Link href="/listings" className="label mt-12 inline-flex h-14 items-center bg-white px-10 text-black transition-colors hover:bg-white/85">
+          Start searching
+        </Link>
       </section>
     </>
   );

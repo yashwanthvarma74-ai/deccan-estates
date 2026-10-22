@@ -1,44 +1,51 @@
 @import "tailwindcss";
 
-/* Design tokens: navy + white editorial luxury look — serif display, uppercase tracked sans labels, square corners. */
+/* Design tokens: monochrome stage — black and white with grey text, light-weight uppercase Montserrat
+   headings, small tracked labels, square corners, full-bleed imagery. */
 @theme inline {
-  --color-navy: #002349;
-  --color-navy-deep: #001a38;
-  --color-navy-soft: #0b3a70;
+  --color-navy: #0a0a0a;
+  --color-navy-deep: #000000;
+  --color-navy-soft: #1a1a1a;
   --color-ink: #1b1b1b;
-  --color-muted: #666666;
-  --color-line: #d9d9d9;
-  --color-surface: #f4f4f4;
-  --color-gold: #a38a5a;
-  --font-sans: var(--font-franklin), "Helvetica Neue", Arial, sans-serif;
-  --font-serif: var(--font-source-serif), Georgia, "Times New Roman", serif;
-  --tracking-label: 0.14em;
+  --color-body: #333333;
+  --color-muted: #7a7a7a;
+  --color-line: #e2e2e0;
+  --color-surface: #f3f3f1;
+  --color-gold: #8a8a86;
+  --font-sans: var(--font-montserrat), Montserrat, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: var(--font-montserrat), Montserrat, "Helvetica Neue", Arial, sans-serif;
+  --tracking-label: 0.08em;
 }
 
-:root {
-  color-scheme: light;
+:root { color-scheme: light; }
+
+@layer base {
+html { background: #fff; }
+  
+  body {
+    background: #fff;
+    color: var(--color-body);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  /* Display type: light weight, tight tracking, uppercase for the big statements. */
+  h1, h2, h3, .font-display {
+    font-family: var(--font-sans);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: var(--color-ink);
+  }
+  h1, h2 { text-transform: uppercase; }
+  h3 { font-weight: 400; }
 }
 
-html {
-  background: #fff;
-}
-
-body {
-  background: #fff;
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-}
-
-h1, h2, h3, .font-display {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  letter-spacing: -0.005em;
-}
-
-/* Small uppercase tracked label used for nav, filters, buttons and overlines. */
+/* Small uppercase UI label (nav, filters, buttons, overlines). */
 .label {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   line-height: 1rem;
   font-weight: 500;
   text-transform: uppercase;
@@ -46,8 +53,8 @@ h1, h2, h3, .font-display {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-navy);
-  outline-offset: 2px;
+  outline: 1px solid currentColor;
+  outline-offset: 3px;
 }
 
 .maplibregl-ctrl-attrib { font-size: 10px; }
@@ -62,6 +69,15 @@ h1, h2, h3, .font-display {
   to { opacity: 1; transform: none; }
 }
 
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes blink {
+  50% { opacity: 0.25; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
