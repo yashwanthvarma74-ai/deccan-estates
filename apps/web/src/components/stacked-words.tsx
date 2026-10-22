@@ -46,10 +46,10 @@ export function StackedWords({ words }: { words: Word[] }) {
       {words.map((w, i) => {
         const [first, ...rest] = w.label.split(" ");
         return (
-          <li key={w.label} ref={(el) => { refs.current[i] = el; }} className="origin-left will-change-[opacity,filter,transform]">
-            <Link href={w.href} className="block py-1 text-[clamp(2rem,6.4vw,5.5rem)] font-light uppercase leading-[1.02] tracking-[-0.025em] text-ink transition-opacity hover:opacity-60">
+          <li key={w.label} ref={(el) => { refs.current[i] = el; }} className="group origin-left will-change-[opacity,filter,transform] hover:!opacity-100 hover:![filter:none] hover:![transform:translateX(12px)] hover:transition-[opacity,filter,transform] hover:duration-300">
+            <Link href={w.href} className="block py-1 text-[clamp(2rem,6.4vw,5.5rem)] font-light uppercase leading-[1.02] tracking-[-0.025em] text-ink">
               {first}
-              {rest.length > 0 && <span className="text-muted"> {rest.join(" ")}</span>}
+              {rest.length > 0 && <span className="text-muted transition-colors duration-300 group-hover:text-ink"> {rest.join(" ")}</span>}
             </Link>
           </li>
         );
