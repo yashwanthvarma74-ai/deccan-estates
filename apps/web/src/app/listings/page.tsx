@@ -7,10 +7,11 @@ import { ResultsMap } from "@/components/results-map";
 import { SortSelect } from "@/components/sort-select";
 import { Button } from "@/components/ui/button";
 import type { ListingFilters } from "@/lib/api";
-import { getListings, getLocalities } from "@/lib/data";
+import { getAgents, getListings, getLocalities } from "@/lib/data";
 
 async function Filters() {
-  return <FilterBar localities={await getLocalities()} />;
+  const [localities, agents] = await Promise.all([getLocalities(), getAgents()]);
+  return <FilterBar localities={localities} agents={agents} />;
 }
 
 async function Results({ searchParams }: { searchParams: Promise<ListingFilters> }) {

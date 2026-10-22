@@ -8,11 +8,13 @@ export function Popover({
   active,
   children,
   align = "left",
+  panelClassName,
 }: {
   label: string;
   active?: boolean;
   children: (close: () => void) => React.ReactNode;
   align?: "left" | "right";
+  panelClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -43,7 +45,7 @@ export function Popover({
         {label}
       </button>
       {open && (
-        <div className={cn("absolute top-12 z-30 min-w-64 rounded-xl border border-line bg-card p-4 shadow-2xl", align === "right" ? "right-0" : "left-0")}>
+        <div className={cn("absolute top-12 z-30 min-w-64 rounded-xl border border-line bg-card p-4 shadow-2xl", align === "right" ? "right-0" : "left-0", panelClassName)}>
           {children(() => setOpen(false))}
         </div>
       )}

@@ -51,6 +51,9 @@ export type ListingFilters = {
   minPrice?: string;
   maxPrice?: string;
   minBeds?: string;
+  minArea?: string;
+  maxArea?: string;
+  agent?: string;
   sort?: string;
   q?: string;
   page?: string;
@@ -90,3 +93,12 @@ export type MapPoint = z.infer<typeof mapPointSchema>;
 
 export const fetchMapPoints = (filters: ListingFilters, base = API_URL) =>
   get(base, `/listings/map?${qs({ ...filters, page: undefined, sort: undefined })}`, z.array(mapPointSchema));
+
+export const agentSchema = z.object({ id: z.string(), name: z.string(), phone: z.string(), reraId: z.string(), listingCount: z.number() });
+export type Agent = z.infer<typeof agentSchema>;
+
+export const fetchAgents = (base = API_URL) => get(base, "/agents", z.array(agentSchema));
+
+/** Every filter the search supports, in one place so forms and URLs stay in sync. */
+export const FILTER_KEYS = ["q", "locality", "type", "minPrice", "maxPrice", "minBeds", "minArea", "maxArea", "agent", "sort"] as const;
+export type FilterKey = (typeof FILTER_KEYS)[number];

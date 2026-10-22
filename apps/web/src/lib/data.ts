@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import { fetchListing, fetchListings, fetchLocalities, type ListingFilters } from "@/lib/api";
+import { fetchAgents, fetchListing, fetchListings, fetchLocalities, type ListingFilters } from "@/lib/api";
 
 export async function getListings(filters: ListingFilters) {
   "use cache";
@@ -17,4 +17,10 @@ export async function getLocalities() {
   "use cache";
   cacheLife("hours");
   return fetchLocalities();
+}
+
+export async function getAgents() {
+  "use cache";
+  cacheLife("hours");
+  return fetchAgents();
 }

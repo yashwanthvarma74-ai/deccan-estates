@@ -5,12 +5,12 @@ import { X, Search } from "lucide-react";
 import { Popover } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { typeLabels } from "@/lib/api";
-import { cn, formatInr } from "@/lib/utils";
+import { typeLabels, FILTER_KEYS, type Agent } from "@/lib/api";
+import { AdvancedFields, type FilterValues } from "@/components/advanced-fields";
+import { cn, formatInr, PRICE_STEPS, TOP_PRICE } from "@/lib/utils";
 
 type Locality = { id: string; name: string; slug: string };
 
-const priceSteps = [0, 2_000_000, 5_000_000, 10_000_000, 20_000_000, 50_000_000, 100_000_000];
 
 /** All filters live in the URL so the server-rendered list and the client map stay in sync. */
 export function useFilterParams() {
@@ -28,10 +28,24 @@ export function useFilterParams() {
 
 const select = "h-10 w-full rounded-lg border border-line bg-card px-3 text-sm";
 
-export function FilterBar({ localities }: { localities: Locality[] }) {
+function AdvancedPanel({ initial, localities, agents, onApply }: { initial: FilterValues; localities: Locality[]; agents: Agent[]; onApply: (v: FilterValues) => void }) {
+  const [vals, setVals] = useState<FilterValues>(initial);
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); onApply(vals); }} className="space-y-5">
+      <AdvancedFields values={vals} onChange={(k, v) => setVals((p) => ({ ...p, [k]: v }))} localities={localities} agents={agents} />
+      <div className="flex items-center justify-between">
+        <button type="button" onClick={() => setVals({})} className="cursor-pointer text-sm underline underline-offset-4">Clear all</button>
+        <Button type="submit" size="sm">Apply filters</Button>
+      </div>
+    </form>
+  );
+}
+
+export function FilterBar({ localities, agents }: { localities: Locality[]; agents: Agent[] }) {
   const { sp, set } = useFilterParams();
   const [text, setText] = useState("");
   const locality = localities.find((l) => l.slug === sp.get("locality"));
+  const advancedCount = ["minArea", "maxArea", "agent", "sort", "q"].filter((k) => sp.get(k)).length;
   const min = sp.get("minPrice") ?? "";
   const max = sp.get("maxPrice") ?? "";
 
@@ -84,13 +98,13 @@ export function FilterBar({ localities }: { localities: Locality[] }) {
               <label className="label block text-muted">Min
                 <select className={cn(select, "mt-1")} value={min} onChange={(e) => set({ minPrice: e.target.value || undefined })}>
                   <option value="">No min</option>
-                  {priceSteps.slice(1).map((v) => <option key={v} value={v}>{formatInr(v)}</option>)}
+                  {PRICE_STEPS.map((v) => <option key={v} value={v}>{v === TOP_PRICE ? `${formatInr(v)}+` : formatInr(v)}</option>)}
                 </select>
               </label>
               <label className="label block text-muted">Max
                 <select className={cn(select, "mt-1")} value={max} onChange={(e) => set({ maxPrice: e.target.value || undefined })}>
-                  <option value="">No max</option>
-                  {priceSteps.slice(1).map((v) => <option key={v} value={v}>{formatInr(v)}</option>)}
+                  <option value="">No max (20 Cr+)</option>
+                  {PRICE_STEPS.map((v) => <option key={v} value={v}>{formatInr(v)}</option>)}
                 </select>
               </label>
               <Button size="sm" className="w-full" onClick={close}>Done</Button>
@@ -134,21 +148,14 @@ export function FilterBar({ localities }: { localities: Locality[] }) {
           )}
         </Popover>
 
-        <Popover label="Filters" align="right">
+        <Popover label="Advanced" align="right" active={advancedCount > 0} panelClassName="w-[min(92vw,56rem)]">
           {(close) => (
-            <div className="space-y-3">
-              <label className="label block text-muted">Keyword
-                <Input
-                  className="mt-1 h-10"
-                  defaultValue={sp.get("q") ?? ""}
-                  placeholder="e.g. ORR, RERA, corner plot"
-                  onKeyDown={(e) => { if (e.key === "Enter") { set({ q: e.currentTarget.value || undefined }); close(); } }}
-                />
-              </label>
-              <Button variant="quiet" size="sm" className="w-full" onClick={() => { set({ q: undefined, locality: undefined, type: undefined, minPrice: undefined, maxPrice: undefined, minBeds: undefined }); close(); }}>
-                Clear all filters
-              </Button>
-            </div>
+            <AdvancedPanel
+              initial={Object.fromEntries(FILTER_KEYS.map((k) => [k, sp.get(k) ?? ""]))}
+              localities={localities}
+              agents={agents}
+              onApply={(vals) => { set(Object.fromEntries(FILTER_KEYS.map((k) => [k, vals[k] || undefined]))); close(); }}
+            />
           )}
         </Popover>
       </div>

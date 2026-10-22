@@ -10,6 +10,9 @@ export const listingQuery = z.object({
   minPrice: z.coerce.number().int().nonnegative().optional(),
   maxPrice: z.coerce.number().int().positive().optional(),
   minBeds: z.coerce.number().int().min(0).max(10).optional(),
+  minArea: z.coerce.number().int().nonnegative().optional(),
+  maxArea: z.coerce.number().int().positive().optional(),
+  agent: z.string().max(64).optional(),
   q: z.string().max(100).optional(),
   sort: z.enum(['newest', 'price_asc', 'price_desc']).default('newest'),
   page: z.coerce.number().int().min(1).default(1),
@@ -35,6 +38,8 @@ export class ListingsService {
       locality: query.locality ? { slug: query.locality } : undefined,
       priceInr: { gte: query.minPrice, lte: query.maxPrice },
       bedrooms: query.minBeds ? { gte: query.minBeds } : undefined,
+      areaSqft: { gte: query.minArea, lte: query.maxArea },
+      agentId: query.agent,
       ...(query.q
         ? {
             OR: [

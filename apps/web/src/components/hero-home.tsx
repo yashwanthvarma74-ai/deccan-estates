@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { SearchPanel } from "@/components/search-panel";
+import type { Agent } from "@/lib/api";
 
 type Locality = { id: string; name: string; slug: string };
 
 /** Full-bleed video hero with slow concentric rings, a two-weight headline and the search panel. */
-export function HeroHome({ localities }: { localities: Locality[] }) {
+export function HeroHome({ localities, agents }: { localities: Locality[]; agents: Agent[] }) {
   const [reduced, setReduced] = useState(false);
   useEffect(() => setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches), []);
 
@@ -45,7 +46,7 @@ export function HeroHome({ localities }: { localities: Locality[] }) {
       </div>
 
       <div className="mx-auto w-full max-w-[1600px] px-4 pb-8 lg:px-[60px]">
-        <SearchPanel localities={localities} />
+        <SearchPanel localities={localities} agents={agents} />
       </div>
     </section>
   );

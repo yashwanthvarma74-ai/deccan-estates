@@ -14,3 +14,10 @@ describe('listingQuery', () => {
     expect(() => parse(listingQuery, { pageSize: '500' })).toThrow(BadRequestException);
   });
 });
+
+describe('listingQuery area and agent filters', () => {
+  it('coerces area bounds and keeps the agent id', () => {
+    const q = parse(listingQuery, { minArea: '1200', maxArea: '3000', agent: 'abc' });
+    expect(q).toMatchObject({ minArea: 1200, maxArea: 3000, agent: 'abc' });
+  });
+});

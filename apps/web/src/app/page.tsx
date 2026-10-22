@@ -7,7 +7,7 @@ import { HeroHome } from "@/components/hero-home";
 import { Reveal } from "@/components/reveal";
 import { Skeleton } from "@/components/skeletons";
 import { SnapRow } from "@/components/snap-row";
-import { getListings, getLocalities } from "@/lib/data";
+import { getAgents, getListings, getLocalities } from "@/lib/data";
 
 const STILLS = ["/stills/s1.jpg", "/stills/s2.jpg", "/stills/s3.jpg", "/stills/s4.jpg", "/stills/s6.jpg", "/stills/s5.jpg"];
 
@@ -21,7 +21,8 @@ function Heading({ lead, bold, text }: { lead: string; bold: string; text?: stri
 }
 
 async function Hero() {
-  return <HeroHome localities={await getLocalities()} />;
+  const [localities, agents] = await Promise.all([getLocalities(), getAgents()]);
+  return <HeroHome localities={localities} agents={agents} />;
 }
 
 async function Featured() {
