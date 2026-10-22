@@ -87,3 +87,7 @@
   from { transform: scale(1); }
   to { transform: scale(1.08); }
 }
+
+/* Full-bleed panels keep their text aligned to the 1320px page container. */
+@utility pad-l { padding-left: max(1.25rem, calc((100vw - 1320px) / 2)); }
+@utility pad-r { padding-right: max(1.25rem, calc((100vw - 1320px) / 2)); }

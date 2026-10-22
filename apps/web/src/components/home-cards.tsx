@@ -56,31 +56,36 @@ export function FeaturedCard({ listing, index }: { listing: Listing; index: numb
   );
 }
 
-/** Tall locality card with a gradient and a link line. */
+/** Tall locality card: 3:4 photo, rounded corners, name and a boxed arrow link line. */
 export function DestinationCard({ name, slug, count, image }: { name: string; slug: string; count: number; image: string }) {
   return (
-    <Link href={`/listings?locality=${slug}`} className="group relative aspect-[4/5] w-[62%] shrink-0 snap-start overflow-hidden rounded-2xl sm:w-[44%] lg:w-[34%]">
-      <Image src={image} alt="" fill sizes="(min-width:1024px) 20vw, 60vw" className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
-      <div className="absolute inset-x-5 bottom-5 text-white">
+    <Link href={`/listings?locality=${slug}`} className="group relative aspect-[3/4] w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl sm:w-[46%] lg:w-[calc((100%-2rem)/3)]">
+      <Image src={image} alt="" fill sizes="(min-width:1024px) 24vw, 70vw" className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110" />
+      {/* Cool navy-teal grade so every photo sits in the same colour family. */}
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(8_60_90/0.18)_0%,transparent_38%,rgb(5_10_30/0.8)_100%)]" />
+      <div className="absolute inset-x-6 bottom-6 text-white">
         <p className="text-2xl font-semibold">{name}</p>
-        <p className="mt-2 flex items-center gap-3 text-sm text-white/75">
-          <span className="whitespace-nowrap">Included <u className="text-white">{count} homes</u></span>
-          <span className="flex h-7 w-7 items-center justify-center rounded border border-white/60 transition-colors group-hover:bg-white group-hover:text-bg"><ArrowUpRight className="h-4 w-4" /></span>
+        <p className="mt-2 flex items-center gap-3 text-[15px] text-white/80">
+          <span className="whitespace-nowrap">Included <u className="font-medium text-white underline-offset-2">{count} homes</u></span>
+          <span className="flex h-8 w-8 items-center justify-center rounded-md border border-white/70 transition-colors group-hover:bg-white group-hover:text-bg"><ArrowUpRight className="h-4 w-4" /></span>
         </p>
       </div>
     </Link>
   );
 }
 
-export function ServiceCard({ title, text, image }: { title: string; text: string; image: string }) {
+/** Landscape service card: photo with an icon chip, then a two-weight title below ("Bold start, light end"). */
+export function ServiceCard({ title, text, image, icon }: { title: string; text: string; image: string; icon: React.ReactNode }) {
+  const [first, ...rest] = title.split(" ");
   return (
-    <article className="group w-[72%] shrink-0 snap-start sm:w-[46%] lg:w-[40%]">
-      <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-card">
-        <Image src={image} alt="" fill sizes="(min-width:1024px) 22vw, 70vw" className="object-cover transition-transform duration-[1200ms] group-hover:scale-105" />
+    <article className="group w-[86%] shrink-0 snap-start sm:w-[calc((100%-1.25rem)/2)]">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-sm bg-card">
+        <Image src={image} alt="" fill sizes="(min-width:1024px) 28vw, 80vw" className="object-cover transition-transform duration-[1200ms] group-hover:scale-105" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(8_60_90/0.12),transparent_45%,rgb(5_10_30/0.55))]" />
+        <span className="absolute bottom-4 left-4 flex h-10 w-10 items-center justify-center rounded-lg border border-white/50 bg-bg/40 text-white backdrop-blur">{icon}</span>
       </div>
-      <h3 className="mt-4 text-xl font-semibold">{title}</h3>
-      <p className="mt-1 text-sm text-body">{text}</p>
+      <h3 className="mt-4 text-[clamp(1.4rem,2.2vw,1.9rem)] leading-tight text-white"><b className="font-semibold">{first}</b> <span className="font-light">{rest.join(" ")}</span></h3>
+      <p className="mt-1.5 max-w-sm text-[15px] text-body">{text}</p>
     </article>
   );
 }

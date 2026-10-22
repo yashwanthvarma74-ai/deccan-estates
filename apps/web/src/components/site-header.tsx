@@ -34,7 +34,7 @@ export function SiteHeader() {
     <>
       {!home && <div aria-hidden className="h-[72px]" />}
       <header className={cn("fixed inset-x-0 top-0 z-50 transition-[background-color,backdrop-filter,box-shadow] duration-300", solid ? "bg-bg/90 shadow-[0_1px_0_rgb(255_255_255/0.08)] backdrop-blur-xl" : "bg-transparent")}>
-        <div className="mx-auto flex h-[72px] max-w-[1600px] items-center gap-2 px-4 sm:px-6 lg:px-[60px]">
+        <div className={cn("mx-auto flex max-w-[1320px] items-center gap-2 px-4 transition-[height] duration-300 sm:px-6", solid ? "h-[72px]" : "h-[96px] pt-5")}>
           <Link href="/" aria-label="Deccan Estates home" className="shrink-0"><Logo /></Link>
           <Link href="/listings" aria-label="Search all homes" className="ml-3 hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/30 transition-colors hover:bg-white/10 md:flex">
             <Search className="h-[18px] w-[18px]" />

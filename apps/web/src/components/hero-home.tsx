@@ -24,7 +24,7 @@ export function HeroHome({ localities, counts }: { localities: Locality[]; count
   useEffect(() => setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches), []);
 
   return (
-    <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden" aria-label="Find your property">
+    <section className="relative isolate flex min-h-[92svh] flex-col overflow-hidden" aria-label="Find your property">
       <div className="absolute inset-0 -z-20">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/videos/hero-poster.jpg)" }} />
         {!reduced && (
@@ -42,30 +42,30 @@ export function HeroHome({ localities, counts }: { localities: Locality[]; count
         <div className="absolute inset-[22%] rounded-full border border-white/10" />
       </div>
 
-      <div className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col items-center justify-center px-5 pt-28 text-center sm:px-8 lg:px-[60px]">
-        <h1 className="animate-[fade-up_900ms_ease-out_both] text-[clamp(2.3rem,5.4vw,4.4rem)] font-light leading-[1.1] tracking-[-0.02em] text-white">
+      <div className="mx-auto flex w-full max-w-[1320px] flex-1 flex-col items-center justify-center px-5 pb-6 pt-28 text-center sm:px-8">
+        <h1 className="animate-[fade-up_900ms_ease-out_both] text-[clamp(2rem,2.4vw+0.4rem,2.75rem)] font-light leading-[1.2] tracking-[-0.01em] text-white">
           Your Private Horizon <b>Address</b>
         </h1>
-        <p className="mt-4 animate-[fade-up_900ms_150ms_ease-out_both] text-[clamp(1.2rem,2.6vw,1.9rem)] font-light text-white/90">
+        <p className="mt-2 animate-[fade-up_900ms_150ms_ease-out_both] text-[clamp(1.3rem,1.9vw,2.25rem)] font-light leading-tight text-white/90">
           Find your plot, flat or villa in Hyderabad.
         </p>
-        <p className="mt-3 max-w-2xl animate-[fade-up_900ms_300ms_ease-out_both] text-base text-white/65">
+        <p className="mt-1 max-w-[46rem] animate-[fade-up_900ms_300ms_ease-out_both] text-base leading-relaxed text-white/70">
           Every listing is RERA-registered. Tap what you are looking for and we show you every verified option.
         </p>
-        <span aria-hidden className="mt-9 flex h-14 w-14 animate-[fade-up_900ms_450ms_ease-out_both] items-center justify-center rounded-full border border-white/30">
+        <span aria-hidden className="mt-10 flex h-12 w-12 animate-[fade-up_900ms_450ms_ease-out_both] items-center justify-center rounded-full border border-white/30">
           <svg viewBox="0 0 32 32" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M7 19.5 16 10l9 9.5M11 19.5V25h10v-5.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
       </div>
 
-      <div className="mx-auto w-full max-w-[1600px] animate-[fade-up_900ms_500ms_ease-out_both] px-4 pb-8 lg:px-[60px]">
-        <div className="rounded-2xl bg-white p-3 text-bg shadow-[0_20px_60px_rgb(0_0_0/0.35)]">
-          <p className="px-2 pb-2 pt-1 text-sm"><span className="font-medium">Find now</span> <span className="text-bg/70">your property</span></p>
+      <div className="mx-auto w-full max-w-[1000px] animate-[fade-up_900ms_500ms_ease-out_both] px-4 pb-10">
+        <p className="mb-2 text-sm text-white/90"><span className="font-medium">Find now</span> <span className="text-white/70">your property</span></p>
+        <div className="rounded-xl bg-white p-2 text-bg shadow-[0_20px_60px_rgb(0_0_0/0.35)]">
           <ul className="grid grid-cols-2 gap-1 lg:flex lg:items-stretch" aria-label="What are you looking for?">
             {choices.map(({ type, title, Icon }) => (
               <li key={type} className="lg:flex-1">
                 <Link
                   href={`/listings?type=${type}`}
-                  className="group flex h-full min-w-0 items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors hover:bg-bg hover:text-white focus-visible:bg-bg focus-visible:text-white"
+                  className="group flex h-full min-w-0 items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors hover:bg-bg hover:text-white focus-visible:bg-bg focus-visible:text-white"
                 >
                   <Icon className="h-7 w-7 shrink-0 opacity-80" strokeWidth={1.3} />
                   <span className="min-w-0">

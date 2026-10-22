@@ -11,7 +11,7 @@ const cols: Record<string, [string, string][]> = {
 export function SiteFooter() {
   return (
     <footer className="border-t border-white/10 bg-navy-deep">
-      <div className="mx-auto max-w-[1600px] px-6 py-16 lg:px-[60px]">
+      <div className="mx-auto max-w-[1320px] px-6 py-16">
         <div className="flex flex-wrap items-center justify-between gap-8 border-b border-white/10 pb-12">
           <div className="flex items-center gap-6">
             <Logo className="scale-125 origin-left" />
