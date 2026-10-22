@@ -1,28 +1,23 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, FileCheck2, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowUpRight, FileCheck2, Phone, ShieldCheck } from "lucide-react";
 import { Suspense } from "react";
-import { DestinationCard, FeaturedCard, ServiceCard } from "@/components/home-cards";
-import { HeroHome } from "@/components/hero-home";
+import { DestinationCard, FeaturedCard } from "@/components/home-cards";
+import { HeroHome, type TypeCounts } from "@/components/hero-home";
 import { Reveal } from "@/components/reveal";
 import { Skeleton } from "@/components/skeletons";
 import { SnapRow } from "@/components/snap-row";
-import { getAgents, getListings, getLocalities } from "@/lib/data";
+import { getListings, getLocalities } from "@/lib/data";
 
 const STILLS = ["/stills/s1.jpg", "/stills/s2.jpg", "/stills/s3.jpg", "/stills/s4.jpg", "/stills/s6.jpg", "/stills/s5.jpg"];
 
-function Heading({ lead, bold, text }: { lead: string; bold: string; text?: string }) {
-  return (
-    <div>
-      <h2 className="text-[clamp(1.8rem,3.4vw,2.6rem)]">{lead} <b>{bold}</b></h2>
-      {text && <p className="mt-3 max-w-md text-[15px] leading-relaxed text-body">{text}</p>}
-    </div>
-  );
-}
-
 async function Hero() {
-  const [localities, agents] = await Promise.all([getLocalities(), getAgents()]);
-  return <HeroHome localities={localities} agents={agents} />;
+  const types = ["PLOT", "APARTMENT", "VILLA", "GATED_COMMUNITY"] as const;
+  const [localities, ...pages] = await Promise.all([
+    getLocalities(),
+    ...types.map((type) => getListings({ type, page: "1", pageSize: "1" })),
+  ]);
+  const counts = Object.fromEntries(types.map((t, i) => [t, pages[i].total])) as TypeCounts;
+  return <HeroHome localities={localities} counts={counts} />;
 }
 
 async function Featured() {
@@ -49,31 +44,26 @@ async function Destinations() {
   );
 }
 
-const services = [
-  { title: "Verified listings", text: "Every plot, villa and community carries its RERA number and a named agent.", image: "/stills/s2.jpg" },
-  { title: "Documents, read for you", text: "Ask the assistant about the sale deed and approvals, with citations.", image: "/stills/s4.jpg" },
-  { title: "Site visits", text: "Book a visit slot with the listing agent and compare homes side by side.", image: "/stills/s3.jpg" },
-  { title: "Registration support", text: "From token advance to agreement and registration, tracked in one place.", image: "/stills/s6.jpg" },
-];
-
-const stories = [
-  { title: "Reading a sale deed before you pay a token advance", date: "Guide", image: "/stills/s1.jpg" },
-  { title: "Why Kokapet and Gachibowli keep pulling ahead", date: "Market", image: "/stills/s5.jpg" },
-  { title: "Plots vs. villas: what to buy first in Hyderabad", date: "Guide", image: "/stills/s6.jpg" },
-];
-
 export default function Home() {
   return (
     <>
       <Suspense fallback={<div className="min-h-screen bg-bg" />}><Hero /></Suspense>
 
-      <section className="pb-24 pt-20 md:pt-28" aria-labelledby="featured-h">
-        <Reveal className="mx-auto mb-10 flex max-w-[1600px] flex-wrap items-start justify-between gap-6 px-6 lg:px-[60px]">
-          <div id="featured-h">
-            <Heading lead="Homes for" bold="Sale" text="We do not list every property, only the finest. Explore our hand-picked homes across Hyderabad, chosen for their location, approvals and builders." />
-          </div>
-          <Link href="/listings" className="flex items-center gap-3 underline underline-offset-4">
-            All homes <span className="flex h-8 w-8 items-center justify-center rounded border border-white/60"><ArrowUpRight className="h-4 w-4" /></span>
+      <section id="localities" className="mx-auto max-w-[1600px] px-5 py-16 sm:px-8 lg:px-[60px] lg:py-24" aria-labelledby="areas-h">
+        <Reveal className="mb-8">
+          <h2 id="areas-h" className="text-[clamp(1.8rem,3.4vw,2.6rem)]">Browse by <b>area</b></h2>
+          <p className="mt-3 max-w-xl text-lg text-body">Tap an area to see every plot, flat and villa available there.</p>
+        </Reveal>
+        <Reveal>
+          <Suspense fallback={<Skeleton className="aspect-[4/5] w-[40%] rounded-2xl" />}><Destinations /></Suspense>
+        </Reveal>
+      </section>
+
+      <section className="pb-20 pt-4 lg:pb-28" aria-labelledby="featured-h">
+        <Reveal className="mx-auto mb-10 flex max-w-[1600px] flex-wrap items-end justify-between gap-6 px-5 sm:px-8 lg:px-[60px]">
+          <h2 id="featured-h" className="text-[clamp(1.8rem,3.4vw,2.6rem)]">Popular <b>homes</b></h2>
+          <Link href="/listings" className="inline-flex min-h-12 items-center gap-3 rounded-xl border border-white/40 px-5 text-lg font-medium hover:bg-white/10">
+            See all homes <ArrowUpRight className="h-5 w-5" />
           </Link>
         </Reveal>
         <Reveal>
@@ -81,87 +71,37 @@ export default function Home() {
         </Reveal>
       </section>
 
-      <section id="localities" className="mx-auto grid max-w-[1600px] gap-10 px-6 py-24 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)] lg:px-[60px]" aria-label="Localities">
-        <Reveal className="flex flex-col justify-center">
-          <span aria-hidden className="mb-6 flex h-12 w-12 items-center justify-center rounded-full border border-white/40"><ShieldCheck className="h-6 w-6" strokeWidth={1.3} /></span>
-          <Heading lead="Explore" bold="Localities" text="Discover the most sought-after neighbourhoods in Hyderabad, from the financial district to the airport corridor." />
-          <Link href="/listings" className="mt-8 inline-flex w-fit rounded-lg bg-white px-5 py-3 text-[15px] font-medium text-bg transition-colors hover:bg-white/90">Discover Hyderabad</Link>
-        </Reveal>
-        <Reveal delay={120}>
-          <Suspense fallback={<Skeleton className="aspect-[4/5] w-[40%] rounded-2xl" />}><Destinations /></Suspense>
-        </Reveal>
-      </section>
-
-      <section className="grid border-y border-white/10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)]" aria-label="Services">
-        <div className="relative min-h-[22rem] overflow-hidden">
-          <Image src="/stills/s3.jpg" alt="" fill sizes="(min-width:1024px) 35vw, 100vw" className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg/90 via-bg/30 to-transparent" />
-          <Reveal className="absolute inset-x-6 bottom-8 lg:inset-x-[60px]">
-            <h2 className="text-[clamp(1.8rem,3vw,2.4rem)]">Neighbourhood <b>guides</b></h2>
-            <p className="mt-3 flex max-w-xs items-start gap-3 text-sm text-body"><Sparkles className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.3} />Discover the culture, check the commute, and picture the daily routine.</p>
-            <Link href="/stories" className="mt-4 inline-flex items-center gap-2 text-sm underline underline-offset-4">See more <ArrowUpRight className="h-4 w-4" /></Link>
-          </Reveal>
-        </div>
-        <div className="px-6 py-14 lg:px-[60px]">
-          <Reveal>
-            <h2 className="mb-8 text-[clamp(1.5rem,2.4vw,2rem)]">Our <b>Services</b></h2>
-            <SnapRow label="Services" progress>
-              {services.map((s) => <ServiceCard key={s.title} {...s} />)}
-            </SnapRow>
-          </Reveal>
-        </div>
-      </section>
-
       <section className="grid lg:grid-cols-2" aria-label="Why buyers choose us">
-        <div className="bg-taupe px-6 py-16 text-white lg:px-[60px]">
+        <div className="bg-taupe px-5 py-14 text-white sm:px-8 lg:px-[60px]">
           <Reveal>
-            <p className="flex items-center gap-3 text-sm text-white/80"><FileCheck2 className="h-6 w-6" strokeWidth={1.3} />Don&apos;t take our word for it, check the papers.</p>
-            <h2 className="mt-8 text-[clamp(1.8rem,3.2vw,2.6rem)]">Every document, <b>read for you</b></h2>
-            <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-white/85">
-              Upload the sale deed or RERA certificate and ask in plain language: who owns the land, what is approved, what
-              is pending. Answers cite the page they came from, and when the papers do not say, the assistant tells you so.
+            <p className="flex items-center gap-3 text-base text-white/85"><FileCheck2 className="h-6 w-6" strokeWidth={1.4} />Check the papers before you visit</p>
+            <h2 className="mt-6 text-[clamp(1.8rem,3.2vw,2.6rem)]">Ask about any document, <b>in plain words</b></h2>
+            <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/90">
+              Open any home and ask our assistant about the sale deed or approvals. It answers in simple language and shows
+              which page it read.
             </p>
-            <Link href="/listings" className="mt-8 inline-flex items-center gap-2 text-sm underline underline-offset-4">Try it on a listing <ArrowUpRight className="h-4 w-4" /></Link>
           </Reveal>
         </div>
-        <div className="px-6 py-16 lg:px-[60px]">
+        <div className="px-5 py-14 sm:px-8 lg:px-[60px]">
           <Reveal>
-            <p className="flex items-center gap-3"><ShieldCheck className="h-6 w-6" strokeWidth={1.3} /><span className="text-2xl font-light">How we <b className="font-bold">verify</b></span></p>
-            <ul className="mt-8 divide-y divide-white/10 text-[15px]">
-              {["RERA number shown on every listing", "Agent registration displayed beside the contact", "Price per sq ft compared with the locality average", "Documents summarised with page citations"].map((t) => (
-                <li key={t} className="flex items-center justify-between py-4"><span>{t}</span><span aria-hidden className="text-white/40">✓</span></li>
+            <p className="flex items-center gap-3 text-2xl"><ShieldCheck className="h-6 w-6" strokeWidth={1.4} />Every home is <b className="font-bold">verified</b></p>
+            <ul className="mt-6 divide-y divide-white/10 text-lg">
+              {["RERA number shown on every listing", "Agent registration shown next to the phone number", "Price per sq ft compared with the area average"].map((t) => (
+                <li key={t} className="flex items-center justify-between gap-4 py-4"><span>{t}</span><span aria-hidden className="text-white/50">✓</span></li>
               ))}
             </ul>
           </Reveal>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1600px] px-6 py-24 lg:px-[60px]" aria-label="Latest stories">
-        <Reveal className="mb-10 flex items-end justify-between gap-6">
-          <h2 className="text-[clamp(1.8rem,3vw,2.4rem)]">Latest <b>Stories</b></h2>
-          <Link href="/stories" className="flex items-center gap-2 underline underline-offset-4">All stories <ArrowUpRight className="h-4 w-4" /></Link>
-        </Reveal>
-        <div className="grid gap-5 md:grid-cols-3">
-          {stories.map((s, i) => (
-            <Reveal key={s.title} delay={i * 100}>
-              <Link href="/stories" className="group relative block aspect-[4/3] overflow-hidden rounded-lg bg-card">
-                <Image src={s.image} alt="" fill sizes="(min-width:768px) 33vw, 100vw" className="object-cover transition-transform duration-[1200ms] group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute inset-x-5 bottom-5">
-                  <h3 className="text-xl font-semibold leading-snug">{s.title}</h3>
-                  <p className="mt-2 text-xs text-white/70">{s.date} · sample content</p>
-                </div>
-              </Link>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      <section className="border-t border-white/10 px-6 py-24 text-center">
+      <section className="border-t border-white/10 px-5 py-20 text-center">
         <Reveal>
-          <h2 className="mx-auto max-w-2xl text-[clamp(1.8rem,3.4vw,2.8rem)]">Looking to sell? <b>Talk to an advisor.</b></h2>
-          <p className="mx-auto mt-4 max-w-md text-[15px] text-body">Our agents list, market and manage your property from valuation to registration.</p>
-          <Link href="/sell" className="mt-8 inline-flex rounded-lg bg-white px-6 py-3.5 text-[15px] font-medium text-bg transition-colors hover:bg-white/90">Sell with us</Link>
+          <h2 className="mx-auto max-w-2xl text-[clamp(1.8rem,3.4vw,2.8rem)]">Want to sell your property?</h2>
+          <p className="mx-auto mt-4 max-w-md text-lg text-body">Call us or tell us about it. Our agent will contact you.</p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link href="/sell" className="inline-flex min-h-14 items-center rounded-xl bg-white px-7 text-lg font-semibold text-bg hover:bg-white/90">Sell with us</Link>
+            <a href="tel:+919848001000" className="inline-flex min-h-14 items-center gap-2 rounded-xl border border-white/40 px-7 text-lg font-semibold hover:bg-white/10"><Phone className="h-5 w-5" /> +91 98480 01000</a>
+          </div>
         </Reveal>
       </section>
     </>

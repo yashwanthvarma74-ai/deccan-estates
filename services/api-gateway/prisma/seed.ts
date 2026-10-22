@@ -62,7 +62,7 @@ async function main() {
   let n = 0;
   for (const loc of locs) {
     for (let i = 0; i < 8; i++) {
-      const type = types[(n + i) % types.length];
+      const type = types[n % types.length];
       const rate = loc.avgPricePerSqft * (0.85 + (i % 4) * 0.1);
       const common = {
         type,

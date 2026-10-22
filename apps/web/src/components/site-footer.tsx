@@ -5,7 +5,7 @@ import { Logo } from "@/components/logo";
 const cols: Record<string, [string, string][]> = {
   "Premium homes": [["All homes", "/listings"], ["Villas", "/listings?type=VILLA"], ["Plots", "/listings?type=PLOT"], ["Gated communities", "/listings?type=GATED_COMMUNITY"], ["Apartments", "/listings?type=APARTMENT"]],
   "Popular localities": [["Kokapet", "/listings?locality=kokapet"], ["Gachibowli", "/listings?locality=gachibowli"], ["Kondapur", "/listings?locality=kondapur"], ["Narsingi", "/listings?locality=narsingi"], ["Shamshabad", "/listings?locality=shamshabad"]],
-  "Company": [["Agents", "/agents"], ["Stories", "/stories"], ["Sell with us", "/sell"], ["Compare", "/compare"]],
+  "Company": [["Sell your property", "/sell"], ["Our agents", "/agents"], ["Compare homes", "/compare"]],
 };
 
 export function SiteFooter() {
@@ -50,8 +50,8 @@ export function SiteFooter() {
 
         <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm text-muted">
           <div className="flex flex-wrap gap-x-8 gap-y-2">
-            <Link href="/stories" className="hover:text-white">Privacy policy</Link>
-            <Link href="/stories" className="hover:text-white">Terms of service</Link>
+            <span>Privacy policy</span>
+            <span>Terms of service</span>
             <span>RERA registration: demo only</span>
           </div>
           <p>© 2026 Deccan Estates · Demo project, sample data</p>
