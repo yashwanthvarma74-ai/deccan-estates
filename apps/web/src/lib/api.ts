@@ -54,6 +54,7 @@ export type ListingFilters = {
   sort?: string;
   q?: string;
   page?: string;
+  pageSize?: string;
 };
 
 async function get<T>(base: string, path: string, schema: z.ZodType<T>): Promise<T> {

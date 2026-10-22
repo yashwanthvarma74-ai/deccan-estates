@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { CardGridSkeleton } from "@/components/skeletons";
 import { FilterBar } from "@/components/filter-bar";
 import { ListingCard } from "@/components/listing-card";
 import { ResultsMap } from "@/components/results-map";
@@ -54,11 +55,11 @@ export default function ListingsPage({ searchParams }: PageProps<"/listings">) {
       </div>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
         <section className="order-2 pb-16 lg:order-1">
-          <Suspense fallback={<p className="py-10 text-muted">Loading homes…</p>}>
+          <Suspense fallback={<div className="pt-10"><CardGridSkeleton count={6} className="xl:grid-cols-2" /></div>}>
             <Results searchParams={sp} />
           </Suspense>
         </section>
-        <aside className="order-1 h-80 lg:sticky lg:top-0 lg:order-2 lg:h-screen lg:py-4">
+        <aside className="order-1 h-80 lg:sticky lg:top-20 lg:order-2 lg:h-[calc(100vh-5rem)] lg:py-4">
           <Suspense><ResultsMap /></Suspense>
         </aside>
       </div>

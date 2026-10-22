@@ -53,7 +53,7 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
           <div className="mt-8"><SaveButton listingId={listing.id} /></div>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-8 lg:sticky lg:top-28 lg:self-start">
           <div className="border border-line p-6">
             <p className="label text-muted">Listing agent</p>
             <p className="font-display mt-2 text-2xl">{listing.agent.name}</p>

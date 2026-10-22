@@ -74,11 +74,12 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
           <source src={footage.src} type="video/mp4" onError={() => setFailed(true)} />
         </video>
       )}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/55 via-black/10 to-transparent" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/65 via-black/20 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-black/50 to-transparent" />
 
       <div className="mx-auto flex h-full max-w-6xl flex-col px-6 pt-14">
         {slide && (
-          <div key={slide.id} aria-live={paused ? "polite" : "off"}>
+          <div key={slide.id} aria-live={paused ? "polite" : "off"} className="animate-[hero-in_700ms_ease-out_both] [text-shadow:0_2px_28px_rgb(0_0_0/0.45)]">
             <h2 className="font-display text-6xl md:text-7xl">{slide.place}</h2>
             <p className="font-display mt-8 text-2xl">
               {slide.subtitle} <span className="mx-2 text-gold">•</span> {formatInr(slide.price)}

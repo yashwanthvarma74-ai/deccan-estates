@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { HeroCarousel } from "@/components/hero-carousel";
 import { SearchBand } from "@/components/search-band";
+import { CardGridSkeleton, Skeleton } from "@/components/skeletons";
 import { ListingCard } from "@/components/listing-card";
 import { typeLabels } from "@/lib/api";
 import { getListings, getLocalities } from "@/lib/data";
@@ -32,10 +33,13 @@ async function Slides() {
 }
 
 async function Featured() {
-  const { items } = await getListings({ page: "1" });
+  const { items } = await getListings({ sort: "price_desc", page: "1", pageSize: "50" });
+  // Spread featured picks across localities instead of showing six from one place.
+  const seen = new Set<string>();
+  const featured = items.filter((l) => !seen.has(l.locality.slug) && seen.add(l.locality.slug));
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {items.slice(0, 6).map((l) => <ListingCard key={l.id} listing={l} />)}
+      {featured.slice(0, 6).map((l) => <ListingCard key={l.id} listing={l} />)}
     </div>
   );
 }
@@ -66,16 +70,17 @@ export default function Home() {
 
       <section className="mx-auto max-w-[1800px] px-6 py-20">
         <div className="mb-8 flex items-end justify-between">
-          <h2 className="text-4xl">Featured properties</h2>
+          <div><p className="label text-gold">Handpicked</p><h2 className="mt-2 text-4xl">Featured properties</h2></div>
           <Link href="/listings" className="label text-navy underline underline-offset-4">View all</Link>
         </div>
-        <Suspense fallback={<p className="text-muted">Loading…</p>}><Featured /></Suspense>
+        <Suspense fallback={<CardGridSkeleton count={6} className="lg:grid-cols-3" />}><Featured /></Suspense>
       </section>
 
       <section className="bg-surface">
         <div className="mx-auto max-w-[1800px] px-6 py-20">
-          <h2 className="mb-8 text-4xl">Explore localities</h2>
-          <Suspense fallback={<p className="text-muted">Loading…</p>}><Localities /></Suspense>
+          <p className="label text-gold">Neighbourhoods</p>
+          <h2 className="mb-8 mt-2 text-4xl">Explore localities</h2>
+          <Suspense fallback={<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="aspect-[4/5]" />)}</div>}><Localities /></Suspense>
         </div>
       </section>
 

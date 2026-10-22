@@ -8,7 +8,7 @@ const cols: Record<string, string[]> = {
 
 export function SiteFooter() {
   return (
-    <footer className="bg-navy text-white">
+    <footer className="border-t-2 border-gold bg-navy text-white">
       <div className="mx-auto grid max-w-[1800px] gap-10 px-6 py-14 md:grid-cols-4">
         <div>
           <p className="font-display text-2xl">Deccan Estates</p>

@@ -137,7 +137,7 @@ export function ResultsMap() {
   const btn = "label flex h-12 cursor-pointer items-center gap-2 border border-line bg-white px-5 text-navy shadow-sm hover:border-navy";
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full bg-surface">
       <div ref={el} className="h-full w-full" role="region" aria-label="Map of matching listings" />
       <div className="absolute left-4 top-4 flex gap-2">
         {locality && (
