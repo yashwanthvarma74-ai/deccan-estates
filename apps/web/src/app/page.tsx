@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Counter } from "@/components/counter";
 import { FeatureSlider } from "@/components/feature-slider";
-import { HeroScroller, type HeroSlide } from "@/components/hero-scroller";
+import { HeroStack, type HeroSlide } from "@/components/hero-stack";
 import { Marquee } from "@/components/marquee";
 import { Skeleton } from "@/components/skeletons";
 import { StackedWords } from "@/components/stacked-words";
@@ -37,7 +37,7 @@ async function Hero() {
       video: own?.video ?? (i === 0 ? "/videos/hero.mp4" : undefined),
     };
   });
-  return <HeroScroller slides={slides} localities={localities} />;
+  return <HeroStack slides={slides} localities={localities} />;
 }
 
 const words = [
@@ -131,7 +131,7 @@ export default function Home() {
         <Suspense fallback={<Skeleton className="h-16 w-full" />}><Cities /></Suspense>
       </section>
 
-      <section className="bg-black px-6 py-28 text-center text-white md:py-40">
+      <section className="bg-black px-6 py-28 text-center text-white will-change-[filter,opacity] md:py-40 [filter:blur(calc(var(--reveal,0)*10px))] [opacity:calc(1-var(--reveal,0)*0.55)]">
         <h2 className="mx-auto max-w-4xl text-[clamp(2.2rem,6vw,5rem)] text-white">Find your place in Hyderabad, right now.</h2>
         <Link href="/listings" className="label mt-12 inline-flex h-14 items-center bg-white px-10 text-black transition-colors hover:bg-white/85">
           Start searching

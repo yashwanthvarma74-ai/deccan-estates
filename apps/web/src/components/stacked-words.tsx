@@ -5,8 +5,9 @@ import { useEffect, useRef } from "react";
 export type Word = { label: string; href: string };
 
 /**
- * Large uppercase list whose rows fade and blur with distance from the viewport centre,
- * so the row in focus is crisp and the rest recede.
+ * Large uppercase list. Rows tilt, blur and fade with their distance from the viewport centre, so the
+ * row in focus is straight and crisp and the rest swing away from it as the page scrolls.
+ * The first word of each label is dark; the rest is lighter, so long labels read in two tones.
  */
 export function StackedWords({ words }: { words: Word[] }) {
   const refs = useRef<(HTMLLIElement | null)[]>([]);
@@ -16,14 +17,17 @@ export function StackedWords({ words }: { words: Word[] }) {
     let raf = 0;
     const update = () => {
       raf = 0;
-      const mid = window.innerHeight * 0.55;
+      const vh = window.innerHeight;
+      const mid = vh * 0.55;
       for (const el of refs.current) {
         if (!el) continue;
         const r = el.getBoundingClientRect();
-        const d = Math.min(1, Math.abs(r.top + r.height / 2 - mid) / (window.innerHeight * 0.45));
-        el.style.opacity = String(1 - d * 0.85);
-        el.style.filter = `blur(${(d * 6).toFixed(1)}px)`;
-        el.style.transform = `translateX(${(d * 12).toFixed(1)}px)`;
+        const signed = Math.max(-1, Math.min(1, (r.top + r.height / 2 - mid) / (vh * 0.5)));
+        const d = Math.abs(signed);
+        el.style.opacity = String(1 - d * 0.9);
+        el.style.filter = `blur(${(d * 9).toFixed(1)}px)`;
+        // Rows above centre tilt one way, rows below the other: the list appears to twist around the focus row.
+        el.style.transform = `rotate(${(signed * 5).toFixed(2)}deg) translateX(${(d * 28).toFixed(1)}px) scale(${(1 - d * 0.05).toFixed(3)})`;
       }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
@@ -39,13 +43,17 @@ export function StackedWords({ words }: { words: Word[] }) {
 
   return (
     <ul>
-      {words.map((w, i) => (
-        <li key={w.label} ref={(el) => { refs.current[i] = el; }} className="will-change-[opacity,filter,transform]">
-          <Link href={w.href} className="block py-1 text-[clamp(2rem,6.4vw,5.5rem)] font-light uppercase leading-[1.02] tracking-[-0.025em] text-ink transition-colors hover:text-muted">
-            {w.label}
-          </Link>
-        </li>
-      ))}
+      {words.map((w, i) => {
+        const [first, ...rest] = w.label.split(" ");
+        return (
+          <li key={w.label} ref={(el) => { refs.current[i] = el; }} className="origin-left will-change-[opacity,filter,transform]">
+            <Link href={w.href} className="block py-1 text-[clamp(2rem,6.4vw,5.5rem)] font-light uppercase leading-[1.02] tracking-[-0.025em] text-ink transition-opacity hover:opacity-60">
+              {first}
+              {rest.length > 0 && <span className="text-muted"> {rest.join(" ")}</span>}
+            </Link>
+          </li>
+        );
+      })}
     </ul>
   );
 }
