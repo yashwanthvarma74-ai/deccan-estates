@@ -104,7 +104,7 @@ export function FilterBar({ localities, agents }: { localities: Locality[]; agen
               </label>
               <label className="label block text-muted">Max
                 <select className={cn(select, "mt-1")} value={max} onChange={(e) => set({ maxPrice: e.target.value || undefined })}>
-                  <option value="">No max (20 Cr+)</option>
+                  <option value="">No max</option>
                   {PRICE_STEPS.map((v) => <option key={v} value={v}>{formatInr(v)}</option>)}
                 </select>
               </label>

@@ -12,7 +12,17 @@ type Locality = { id: string; name: string; slug: string };
 
 function Field({ icon: Icon, label, active, children }: { icon: typeof Home; label: string; active?: boolean; children: React.ReactNode }) {
   return (
-    <label className={cn("relative flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors", active ? "bg-bg text-white" : "hover:bg-black/5")}>
+    <label
+      onClick={(e) => {
+        // A click anywhere on the field (icon, label, chevron) opens its dropdown, not just a click on the text.
+        const sel = e.currentTarget.querySelector("select");
+        if (sel && e.target !== sel) {
+          e.preventDefault();
+          try { sel.showPicker(); } catch { sel.focus(); }
+        }
+      }}
+      className={cn("relative flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors", active ? "bg-bg text-white" : "hover:bg-black/5")}
+    >
       <Icon className="h-6 w-6 shrink-0 opacity-80" strokeWidth={1.3} />
       <span className="min-w-0 flex-1">
         <span className="block text-xs opacity-70">{label}</span>
@@ -59,7 +69,7 @@ export function SearchPanel({ localities, agents }: { localities: Locality[]; ag
         </Field>
         <Field icon={Wallet} label="Budget">
           <select value={v.maxPrice ?? ""} onChange={set("maxPrice")} className={select} aria-label="Maximum budget">
-            <option value="">Any budget (20 Cr+)</option>
+            <option value="">Any budget</option>
             {PRICE_STEPS.map((b) => <option key={b} value={b}>Up to {formatInr(b)}</option>)}
           </select>
         </Field>

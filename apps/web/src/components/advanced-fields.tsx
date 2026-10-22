@@ -29,7 +29,17 @@ const control = "mt-1.5 h-11 w-full rounded-lg border border-line bg-card px-3 t
 
 function Box({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
-    <label className={cn("block", className)}>
+    <label
+      className={cn("block", className)}
+      onClick={(e) => {
+        // Clicking the caption opens the dropdown too.
+        const sel = e.currentTarget.querySelector("select");
+        if (sel && e.target !== sel) {
+          e.preventDefault();
+          try { sel.showPicker(); } catch { sel.focus(); }
+        }
+      }}
+    >
       <span className="text-xs text-muted">{label}</span>
       {children}
     </label>
@@ -45,7 +55,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Chips({ label, options, value, onChange, className }: { label: string; options: Record<string, string>; value: string; onChange: (v: string) => void; className?: string }) {
+function Chips({ label, options, value, onChange, className, dark }: { label: string; options: Record<string, string>; value: string; onChange: (v: string) => void; className?: string; dark: boolean }) {
   const selected = new Set(value ? value.split(",") : []);
   const toggle = (k: string) => {
     const next = new Set(selected);
@@ -64,7 +74,12 @@ function Chips({ label, options, value, onChange, className }: { label: string; 
               type="button"
               aria-pressed={on}
               onClick={() => toggle(k)}
-              className={cn("cursor-pointer rounded-full border px-3.5 py-1.5 text-sm transition-colors", on ? "border-white bg-white text-bg" : "border-white/25 text-white/85 hover:border-white/60")}
+              className={cn(
+                "cursor-pointer rounded-full border px-3.5 py-1.5 text-sm transition-colors",
+                dark
+                  ? on ? "border-white bg-white text-bg" : "border-white/25 text-white/85 hover:border-white/60"
+                  : on ? "border-bg bg-bg text-white" : "border-bg/25 text-bg/80 hover:border-bg/60",
+              )}
             >
               {text}
             </button>
@@ -75,10 +90,10 @@ function Chips({ label, options, value, onChange, className }: { label: string; 
   );
 }
 
-function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({ label, checked, onChange, dark }: { label: string; checked: boolean; onChange: (v: boolean) => void; dark: boolean }) {
   return (
-    <label className="flex h-11 cursor-pointer items-center gap-3 self-end rounded-lg border border-line bg-card px-3 text-[15px]">
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="h-4 w-4 accent-white" />
+    <label className={cn("flex h-11 cursor-pointer items-center gap-3 self-end rounded-lg border px-3 text-[15px]", dark ? "border-line bg-card text-white" : "border-bg/15 bg-white text-bg")}>
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className={cn("h-4 w-4", dark ? "accent-white" : "accent-[#070c26]")} />
       {label}
     </label>
   );
@@ -141,7 +156,7 @@ export function AdvancedFields({ values, onChange, localities, agents, dark = tr
           </select>
         </Box>
         {select("minPrice", "Min price", "No minimum", PRICE_STEPS.map((p) => ({ value: p, label: p === TOP_PRICE ? `${formatInr(p)}+` : formatInr(p) })))}
-        {select("maxPrice", "Max price", "No maximum (20 Cr+)", PRICE_STEPS.map((p) => ({ value: p, label: formatInr(p) })))}
+        {select("maxPrice", "Max price", "No maximum", PRICE_STEPS.map((p) => ({ value: p, label: formatInr(p) })))}
         {has("ppsf") && select("minPpsf", `Min price per ${type === "PLOT" ? "sq yd" : "sq ft"}`, "No minimum", ppsfOptions(perUnit))}
         {has("ppsf") && select("maxPpsf", `Max price per ${type === "PLOT" ? "sq yd" : "sq ft"}`, "No maximum", ppsfOptions(perUnit))}
         {select("agent", "Listing agent", "Any agent", agents.map((a) => ({ value: a.id, label: `${a.name} (${a.listingCount})` })))}
@@ -172,19 +187,19 @@ export function AdvancedFields({ values, onChange, localities, agents, dark = tr
       </Section>
 
       <Section title="Details">
-        {has("possession") && <Chips label="Possession" options={POSSESSION_LABELS} value={v("possession")} onChange={(x) => onChange("possession", x)} />}
-        {has("approval") && <Chips label="Approval" options={APPROVAL_LABELS} value={v("approval")} onChange={(x) => onChange("approval", x)} />}
-        {has("facing") && <Chips label="Facing" options={FACING_LABELS} value={v("facing")} onChange={(x) => onChange("facing", x)} />}
-        {has("furnishing") && <Chips label="Furnishing" options={FURNISHING_LABELS} value={v("furnishing")} onChange={(x) => onChange("furnishing", x)} />}
+        {has("possession") && <Chips dark={dark} label="Possession" options={POSSESSION_LABELS} value={v("possession")} onChange={(x) => onChange("possession", x)} />}
+        {has("approval") && <Chips dark={dark} label="Approval" options={APPROVAL_LABELS} value={v("approval")} onChange={(x) => onChange("approval", x)} />}
+        {has("facing") && <Chips dark={dark} label="Facing" options={FACING_LABELS} value={v("facing")} onChange={(x) => onChange("facing", x)} />}
+        {has("furnishing") && <Chips dark={dark} label="Furnishing" options={FURNISHING_LABELS} value={v("furnishing")} onChange={(x) => onChange("furnishing", x)} />}
         {has("parking") && select("minParking", "Car parking", "Any", [1, 2, 3].map((n) => ({ value: n, label: `${n}+ covered` })))}
         {has("age") && select("maxAge", "Age of property", "Any", [{ value: 0, label: "New / under construction" }, { value: 1, label: "Up to 1 year" }, { value: 3, label: "Up to 3 years" }, { value: 5, label: "Up to 5 years" }, { value: 10, label: "Up to 10 years" }])}
-        {has("corner") && <Toggle label="Corner plot only" checked={v("corner") === "1"} onChange={(c) => onChange("corner", c ? "1" : "")} />}
-        {has("gated") && <Toggle label={type === "PLOT" ? "Gated layout only" : "Gated community only"} checked={v("gated") === "1"} onChange={(c) => onChange("gated", c ? "1" : "")} />}
+        {has("corner") && <Toggle dark={dark} label="Corner plot only" checked={v("corner") === "1"} onChange={(c) => onChange("corner", c ? "1" : "")} />}
+        {has("gated") && <Toggle dark={dark} label={type === "PLOT" ? "Gated layout only" : "Gated community only"} checked={v("gated") === "1"} onChange={(c) => onChange("gated", c ? "1" : "")} />}
       </Section>
 
       {has("amenities") && (
         <Section title="Amenities">
-          <Chips label="Must have all selected" options={amenityOptions} value={v("amenities")} onChange={(x) => onChange("amenities", x)} />
+          <Chips dark={dark} label="Must have all selected" options={amenityOptions} value={v("amenities")} onChange={(x) => onChange("amenities", x)} />
         </Section>
       )}
 
