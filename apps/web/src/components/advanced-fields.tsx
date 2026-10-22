@@ -179,7 +179,7 @@ export function AdvancedFields({ values, onChange, localities, agents, dark = tr
         {has("carpet") && select("minCarpet", "Min carpet area (sq ft)", "No minimum", areaOptions(CARPET, "sq ft", false, true))}
         {has("carpet") && select("maxCarpet", "Max carpet area (sq ft)", "No maximum", areaOptions(CARPET, "sq ft", false, false))}
         {has("builtUp") && select("minArea", `Min ${type === "ANY" ? "area" : "built-up area"} (sq ft)`, "No minimum", areaOptions(BUILT_UP, "sq ft", true, true))}
-        {has("builtUp") && select("maxArea", `Max ${type === "ANY" ? "area" : "built-up area"} (sq ft)`, "No maximum (10,000+)", areaOptions(BUILT_UP, "sq ft", true, false))}
+        {has("builtUp") && select("maxArea", `Max ${type === "ANY" ? "area" : "built-up area"} (sq ft)`, "No maximum", areaOptions(BUILT_UP, "sq ft", true, false))}
         {has("floor") && select("minFloor", "Min floor", "Any", [1, 3, 5, 10, 15, 20, 25].map((f) => ({ value: f, label: `Floor ${f}+` })))}
         {has("floor") && select("maxFloor", "Max floor", "Any", [3, 5, 10, 15, 20, 25, 30, 40].map((f) => ({ value: f, label: `Up to floor ${f}` })))}
         {has("storeys") && select("minStoreys", "Floors in the villa", "Any", [{ value: 2, label: "G+1 or more" }, { value: 3, label: "G+2 or more" }])}
