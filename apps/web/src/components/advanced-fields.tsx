@@ -5,7 +5,8 @@ import { formatInr, PRICE_STEPS, TOP_PRICE } from "@/lib/utils";
 type Locality = { id: string; name: string; slug: string };
 export type FilterValues = Partial<Record<FilterKey, string>>;
 
-const AREAS = [500, 1000, 1500, 2000, 3000, 5000];
+const AREAS = [500, 1000, 1500, 2000, 3000, 4000, 5000, 7000, 10000];
+const TOP_AREA = AREAS[AREAS.length - 1];
 
 const box = "mt-1.5 h-11 w-full rounded-lg border border-line bg-card px-3 text-[15px] text-white outline-none focus-visible:border-white/60 [&>option]:text-black";
 
@@ -79,12 +80,12 @@ export function AdvancedFields({ values, onChange, localities, agents, dark = tr
       <Field label="Min area (sq ft)" className={labelCls}>
         <select value={v("minArea")} onChange={(e) => onChange("minArea", e.target.value)} className={field}>
           <option value="">No minimum</option>
-          {AREAS.map((a) => <option key={a} value={a}>{a.toLocaleString("en-IN")} sq ft</option>)}
+          {AREAS.map((a) => <option key={a} value={a}>{a.toLocaleString("en-IN")}{a === TOP_AREA ? "+" : ""} sq ft</option>)}
         </select>
       </Field>
       <Field label="Max area (sq ft)" className={labelCls}>
         <select value={v("maxArea")} onChange={(e) => onChange("maxArea", e.target.value)} className={field}>
-          <option value="">No maximum</option>
+          <option value="">No maximum (10,000+)</option>
           {AREAS.map((a) => <option key={a} value={a}>{a.toLocaleString("en-IN")} sq ft</option>)}
         </select>
       </Field>
