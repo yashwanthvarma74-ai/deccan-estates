@@ -4,7 +4,7 @@ import { ArrowUpRight, Compass, FileCheck2, FileText, MapPin, Phone, ShieldCheck
 import { Suspense } from "react";
 import { DestinationCard, FeaturedCard, ServiceCard } from "@/components/home-cards";
 import { ServicesCarousel } from "@/components/services-carousel";
-import { HeroHome, type TypeCounts } from "@/components/hero-home";
+import { BuildStory, type TypeCounts } from "@/components/build-story";
 import { Reveal } from "@/components/reveal";
 import { Skeleton } from "@/components/skeletons";
 import { SnapRow } from "@/components/snap-row";
@@ -12,14 +12,11 @@ import { getListings, getLocalities } from "@/lib/data";
 
 const STILLS = ["/stills/s1.jpg", "/stills/s2.jpg", "/stills/s3.jpg", "/stills/s4.jpg", "/stills/s6.jpg", "/stills/s5.jpg"];
 
-async function Hero() {
-  const types = ["PLOT", "APARTMENT", "VILLA", "GATED_COMMUNITY"] as const;
-  const [localities, ...pages] = await Promise.all([
-    getLocalities(),
-    ...types.map((type) => getListings({ type, page: "1", pageSize: "1" })),
-  ]);
+async function Story() {
+  const types = ["PLOT", "APARTMENT", "VILLA", "GATED_COMMUNITY", "COMMERCIAL"] as const;
+  const pages = await Promise.all(types.map((type) => getListings({ type, page: "1", pageSize: "1" })));
   const counts = Object.fromEntries(types.map((t, i) => [t, pages[i].total])) as TypeCounts;
-  return <HeroHome localities={localities} counts={counts} />;
+  return <BuildStory counts={counts} />;
 }
 
 async function Featured() {
@@ -46,6 +43,14 @@ async function Destinations() {
   );
 }
 
+const paths = [
+  { type: "PLOT", mono: "Plots", title: "I want land to build on", text: "Approved plots with clear titles, measured in sq yd or acres.", image: "/stills/s5.jpg" },
+  { type: "APARTMENT", mono: "Flats", title: "I want a ready flat", text: "2, 3 and 4 BHK homes in towers with lifts, parking and amenities.", image: "/stills/s2.jpg" },
+  { type: "VILLA", mono: "Villas", title: "I want my own villa", text: "Independent houses on their own plot, built and ready to move in.", image: "/stills/s4.jpg" },
+  { type: "GATED_COMMUNITY", mono: "Gated", title: "I want a secure community", text: "Villas inside gated layouts with clubhouse, parks and 24x7 security.", image: "/stills/s6.jpg" },
+  { type: "COMMERCIAL", mono: "Commercial", title: "I want an office", text: "Grade-A floors in towers across Hyderabad's business districts.", image: "/stills/s1.jpg" },
+];
+
 const services = [
   { title: "Verified Listings", text: "Every plot, flat and villa shows its RERA number and a named agent.", image: "/stills/s2.jpg", icon: <ShieldCheck className="h-5 w-5" strokeWidth={1.4} /> },
   { title: "Papers Explained", text: "Ask the assistant about the sale deed and approvals, with page citations.", image: "/stills/s4.jpg", icon: <FileText className="h-5 w-5" strokeWidth={1.4} /> },
@@ -56,7 +61,31 @@ const services = [
 export default function Home() {
   return (
     <>
-      <Suspense fallback={<div className="min-h-screen bg-bg" />}><Hero /></Suspense>
+      <Suspense fallback={<div className="h-screen bg-black" />}><Story /></Suspense>
+
+      <section className="bg-paper px-5 py-24 text-paper-ink sm:px-8 lg:py-32" aria-labelledby="path-h">
+        <div className="mx-auto max-w-[1320px]">
+          <Reveal>
+            <p className="mono-label text-paper-ink/60">Choose your path</p>
+            <h2 id="path-h" className="mt-5 max-w-[16ch] text-[clamp(2.2rem,4.1vw,3.65rem)] font-normal leading-[1.04] tracking-[-0.045em] text-paper-ink">Start where you are. Build from there.</h2>
+          </Reveal>
+          <ul className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {paths.map((p, i) => (
+              <Reveal as="li" key={p.type} delay={i * 80}>
+                <Link href={`/listings?type=${p.type}`} className="group flex h-full flex-col rounded-[20px] bg-paper-card p-7 transition-colors hover:bg-[#e1e3e3]">
+                  <p className="mono-label text-paper-ink/60">{String(i + 1).padStart(2, "0")} {p.mono}</p>
+                  <h3 className="mt-3 text-[clamp(1.2rem,1.4vw,1.5rem)] font-normal tracking-[-0.025em] text-paper-ink">{p.title}</h3>
+                  <p className="mt-3 max-w-xs text-lg leading-snug text-paper-ink/65">{p.text}</p>
+                  <div className="relative mt-7 aspect-[4/3] overflow-hidden rounded-xl bg-paper-ink/10">
+                    <Image src={p.image} alt="" fill sizes="(min-width:1024px) 28vw, 90vw" className="object-cover transition-transform duration-[1200ms] group-hover:scale-105" />
+                  </div>
+                  <span className="mono-label mt-7 flex h-12 items-center justify-center rounded-lg bg-paper-ink/[0.07] text-paper-ink transition-colors group-hover:bg-paper-ink group-hover:text-white">Browse {p.mono.toLowerCase()}</span>
+                </Link>
+              </Reveal>
+            ))}
+          </ul>
+        </div>
+      </section>
 
       <section id="localities" className="mx-auto grid max-w-[1320px] items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,2.4fr)] lg:gap-[4.5rem] lg:py-[7.5rem]" aria-labelledby="areas-h">
         <Reveal>

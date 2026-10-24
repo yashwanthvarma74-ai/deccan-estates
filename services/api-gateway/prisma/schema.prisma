@@ -12,6 +12,7 @@ enum PropertyType {
   VILLA
   APARTMENT
   GATED_COMMUNITY
+  COMMERCIAL
 }
 
 enum Facing {

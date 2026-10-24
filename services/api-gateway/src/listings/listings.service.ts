@@ -22,7 +22,7 @@ const list = <T extends readonly [string, ...string[]]>(values: T) =>
 
 export const listingQuery = z.object({
   locality: z.string().optional(),
-  type: z.enum(['PLOT', 'VILLA', 'APARTMENT', 'GATED_COMMUNITY']).optional(),
+  type: z.enum(['PLOT', 'VILLA', 'APARTMENT', 'GATED_COMMUNITY', 'COMMERCIAL']).optional(),
   minPrice: z.coerce.number().int().nonnegative().optional(),
   maxPrice: z.coerce.number().int().positive().optional(),
   minBeds: z.coerce.number().int().min(0).max(10).optional(),

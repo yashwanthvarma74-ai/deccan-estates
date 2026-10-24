@@ -25,6 +25,7 @@ export const AMENITIES_BY_TYPE: Record<PropertyType | "ANY", string[]> = {
   APARTMENT: ["LIFT", "GYM", "SWIMMING_POOL", "CLUBHOUSE", "POWER_BACKUP", "SECURITY_24X7", "PARK", "KIDS_PLAY_AREA"],
   VILLA: ["PRIVATE_GARDEN", "PRIVATE_POOL", "SECURITY_24X7", "POWER_BACKUP", "PARK", "CLUBHOUSE"],
   GATED_COMMUNITY: ["CLUBHOUSE", "SWIMMING_POOL", "GYM", "PARK", "JOGGING_TRACK", "KIDS_PLAY_AREA", "SECURITY_24X7", "POWER_BACKUP"],
+  COMMERCIAL: ["LIFT", "POWER_BACKUP", "SECURITY_24X7", "PARK", "GYM", "CLUBHOUSE"],
 };
 
 /**
@@ -42,6 +43,7 @@ export const FIELDS_BY_TYPE: Record<PropertyType | "ANY", FieldGroup[]> = {
   APARTMENT: ["beds", "baths", "carpet", "builtUp", "floor", "furnishing", "parking", "age", "possession", "facing", "amenities", "ppsf"],
   VILLA: ["beds", "baths", "plotArea", "builtUp", "carpet", "storeys", "furnishing", "parking", "age", "possession", "facing", "gated", "amenities", "ppsf"],
   GATED_COMMUNITY: ["beds", "baths", "plotArea", "builtUp", "carpet", "furnishing", "parking", "age", "possession", "facing", "amenities", "ppsf"],
+  COMMERCIAL: ["baths", "carpet", "builtUp", "floor", "furnishing", "parking", "age", "possession", "facing", "amenities", "ppsf"],
 };
 
 /** URL keys owned by each field group, used to drop filters that no longer apply when the type changes. */
@@ -78,7 +80,7 @@ export function areaSummary(l: Listing): string {
   if (l.type === "PLOT" && sqyd) return `${formatArea(sqyd)}${sqyd >= SQYD_PER_ACRE / 2 ? ` · ${formatArea(sqyd, "acre")}` : ""}`;
   const parts: string[] = [];
   if (l.bedrooms) parts.push(`${l.bedrooms} BHK`);
-  if (l.type === "APARTMENT") {
+  if (l.type === "APARTMENT" || l.type === "COMMERCIAL") {
     if (l.carpetSqft) parts.push(`${l.carpetSqft.toLocaleString("en-IN")} sq ft carpet`);
     else parts.push(`${l.areaSqft.toLocaleString("en-IN")} sq ft`);
   } else {
@@ -108,7 +110,7 @@ export function specsFor(l: Listing, formatPrice: (n: number) => string): [strin
   if (l.bedrooms) rows.push(["Bedrooms", String(l.bedrooms)]);
   if (l.bathrooms) rows.push(["Bathrooms", String(l.bathrooms)]);
   if (l.floor) rows.push(["Floor", l.totalFloors ? `${l.floor} of ${l.totalFloors}` : String(l.floor)]);
-  else if (l.type !== "APARTMENT" && l.type !== "PLOT" && l.totalFloors) rows.push(["Floors", `G+${l.totalFloors - 1}`]);
+  else if (l.type !== "APARTMENT" && l.type !== "COMMERCIAL" && l.type !== "PLOT" && l.totalFloors) rows.push(["Floors", `G+${l.totalFloors - 1}`]);
   if (l.parking) rows.push(["Car parking", `${l.parking} covered`]);
   rows.push(["Facing", l.facing ? FACING_LABELS[l.facing] ?? l.facing : null]);
   if (l.furnishing) rows.push(["Furnishing", FURNISHING_LABELS[l.furnishing] ?? l.furnishing]);

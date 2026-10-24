@@ -3,19 +3,23 @@
 /* Design tokens: midnight-navy stage, white type, soft glass cards, taupe accent panel, rounded pills.
    Headlines are light weight with one bold emphasised word. */
 @theme inline {
-  --color-bg: #070c26;
-  --color-card: #0e1433;
-  --color-card-hi: #161d47;
+  --color-bg: #000000;
+  --color-card: #0b0c0d;
+  --color-card-hi: #17191a;
   --color-taupe: #83776d;
   --color-ink: #ffffff;
-  --color-body: #c8cce0;
-  --color-muted: #8f95b6;
+  --color-body: #b4b8b8;
+  --color-muted: #7d8282;
   --color-line: rgb(255 255 255 / 0.12);
-  --color-surface: #0e1433;
-  --color-navy: #070c26;
-  --color-navy-deep: #040719;
+  --color-surface: #0b0c0d;
+  --color-navy: #000000;
+  --color-navy-deep: #000000;
+  --color-paper: #ffffff;
+  --color-paper-ink: #052424;
+  --color-paper-card: #ebecec;
   --color-gold: #b9ad9f;
-  --font-sans: var(--font-dm-sans), "Satoshi", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-sans: var(--font-inter-tight), "Suisse Intl", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-serif: var(--font-sans);
   --font-accent: var(--font-instrument), Georgia, serif;
 }
@@ -36,15 +40,16 @@
 
   h1, h2, h3, .font-display {
     font-family: var(--font-sans);
-    font-weight: 300;
-    letter-spacing: -0.01em;
-    line-height: 1.15;
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
     color: var(--color-ink);
   }
-  h3 { font-weight: 600; }
+  h1 { letter-spacing: -0.05em; line-height: 1.02; }
+  h3 { font-weight: 500; letter-spacing: -0.02em; }
   /* One emphasised word per headline is set heavier, in the same typeface. */
-  h1 b, h2 b, h1 strong, h2 strong { font-weight: 700; }
-  .accent { font-weight: 700; }
+  h1 b, h2 b, h1 strong, h2 strong { font-weight: 500; }
+  .accent { font-weight: 500; }
 }
 
 /* Small UI label (nav, filters, buttons). Sentence case, not shouty. */
@@ -91,3 +96,19 @@
 /* Full-bleed panels keep their text aligned to the 1320px page container. */
 @utility pad-l { padding-left: max(1.25rem, calc((100vw - 1320px) / 2)); }
 @utility pad-r { padding-right: max(1.25rem, calc((100vw - 1320px) / 2)); }
+
+/* Small mono caps label ("01 — PLOT"), used for chapter and card eyebrows. */
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@keyframes scroll-cue {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}

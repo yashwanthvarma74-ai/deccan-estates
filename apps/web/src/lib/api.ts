@@ -18,7 +18,7 @@ export const listingSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string(),
-  type: z.enum(["PLOT", "VILLA", "APARTMENT", "GATED_COMMUNITY"]),
+  type: z.enum(["PLOT", "VILLA", "APARTMENT", "GATED_COMMUNITY", "COMMERCIAL"]),
   priceInr: z.number(),
   areaSqft: z.number(),
   plotAreaSqYd: z.number().nullable(),
@@ -59,6 +59,7 @@ export const typeLabels: Record<Listing["type"], string> = {
   VILLA: "Villa",
   APARTMENT: "Apartment",
   GATED_COMMUNITY: "Gated community",
+  COMMERCIAL: "Commercial",
 };
 
 export type ListingFilters = Partial<Record<FilterKey | "page" | "pageSize", string>>;

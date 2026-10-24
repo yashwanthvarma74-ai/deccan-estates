@@ -38,12 +38,13 @@ async function main() {
     ),
   );
 
-  const types: PropertyType[] = ['PLOT', 'VILLA', 'APARTMENT', 'GATED_COMMUNITY'];
+  const types: PropertyType[] = ['PLOT', 'VILLA', 'APARTMENT', 'GATED_COMMUNITY', 'COMMERCIAL'];
   const names: Record<PropertyType, string> = {
     PLOT: 'DTCP-approved plot',
     VILLA: 'Independent villa',
     APARTMENT: 'apartment',
     GATED_COMMUNITY: 'Villa in gated community',
+    COMMERCIAL: 'Office space',
   };
 
   const facings: Facing[] = ['EAST', 'NORTH', 'WEST', 'SOUTH', 'NORTH_EAST', 'SOUTH_EAST', 'NORTH_WEST', 'SOUTH_WEST'];
@@ -52,6 +53,7 @@ async function main() {
   const aptAmenities = ['LIFT', 'GYM', 'SWIMMING_POOL', 'CLUBHOUSE', 'POWER_BACKUP', 'SECURITY_24X7', 'PARK', 'KIDS_PLAY_AREA'];
   const villaAmenities = ['PRIVATE_GARDEN', 'PRIVATE_POOL', 'SECURITY_24X7', 'POWER_BACKUP', 'PARK', 'CLUBHOUSE'];
   const communityAmenities = ['CLUBHOUSE', 'SWIMMING_POOL', 'GYM', 'PARK', 'JOGGING_TRACK', 'KIDS_PLAY_AREA', 'SECURITY_24X7', 'POWER_BACKUP'];
+  const officeAmenities = ['LIFT', 'POWER_BACKUP', 'SECURITY_24X7', 'PARK', 'GYM', 'CLUBHOUSE'];
   const plotSizesSqYd = [150, 200, 240, 267, 300, 400, 500, 600, 1000, 2420, 4840];
 
   // Deterministic pick so reseeding gives the same data.
@@ -122,6 +124,29 @@ async function main() {
           possession,
           gated: true,
           amenities: subset(aptAmenities, n, 4 + (n % 3)),
+        };
+      } else if (type === 'COMMERCIAL') {
+        const builtUp = [800, 1200, 2000, 3500, 5000, 8000, 12000, 20000][n % 8];
+        const price = Math.round((builtUp * rate * 1.05) / 10000) * 10000;
+        const floor = 1 + ((n * 3) % 24);
+        const possession: Possession = n % 6 === 0 ? 'UNDER_CONSTRUCTION' : n % 9 === 0 ? 'NEW_LAUNCH' : 'READY';
+        data = {
+          ...common,
+          title: `${names.COMMERCIAL} in ${loc.name}`,
+          description: `${builtUp} sq ft office space on floor ${floor} in ${loc.name}, Hyderabad (${loc.zone}). Grade-A building with power backup and 24x7 security. RERA registered.`,
+          priceInr: BigInt(price),
+          areaSqft: builtUp,
+          carpetSqft: Math.round(builtUp * 0.75),
+          pricePerSqft: Math.round(price / builtUp),
+          bathrooms: 2 + Math.floor(builtUp / 4000),
+          floor,
+          totalFloors: floor + 3 + (n % 12),
+          parking: 1 + Math.floor(builtUp / 2500),
+          ageYears: possession === 'READY' ? n % 8 : 0,
+          furnishing: pick(furnishings, n, 2),
+          possession,
+          gated: true,
+          amenities: subset(officeAmenities, n, 4),
         };
       } else {
         const community = type === 'GATED_COMMUNITY';
