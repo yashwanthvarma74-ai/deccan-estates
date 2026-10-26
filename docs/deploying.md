@@ -19,3 +19,7 @@ Source footage for the hero is kept outside the repo and is not needed at runtim
 ## Listings service (Phase 2)
 
 `services/listings` serves read-only listing queries over tRPC on port 4100 (`DATABASE_URL`, optional `LISTINGS_PORT`). Run it with `pnpm --filter @hyd/listings start`; test it with `DATABASE_URL=... pnpm --filter @hyd/listings test`. The web app does not call it yet. See ADR 0008.
+
+## Verification service (Phase 2)
+
+`services/verification` is a Go gRPC service on port 4200. Run it with `go run ./cmd/server` from that folder, or build `infra/docker/verification.Dockerfile`. The gateway does not call it yet. See ADR 0009.
