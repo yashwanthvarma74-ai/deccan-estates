@@ -355,7 +355,9 @@ export function makeProjector(cam: Camera, w: number, h: number, p = 0) {
   // On a tall phone screen the drawing is centred in the upper part of the stage and stretched upward,
   // so buildings fill the height and the text underneath never overlaps them.
   const portrait = h > w * 1.1;
-  const ref = portrait ? w * 1.15 : Math.min(w, h * 1.5);
+  // Tablets held upright have far more room than phones, so the scene grows with the width instead of leaving the top empty.
+  const tablet = portrait ? 1 + 0.35 * Math.min(1, Math.max(0, (w - 480) / 432)) : 1;
+  const ref = portrait ? w * 1.15 * tablet : Math.min(w, h * 1.5);
   // the gated-community stage is small on screen, so on phones it is drawn larger and taller; the skyscraper keeps the base size
   const sm = (x: number) => { const t = Math.min(1, Math.max(0, x)); return t * t * (3 - 2 * t); };
   const boost = portrait ? sm((p - 0.45) / 0.12) * (1 - 0.85 * sm((p - 0.72) / 0.1)) : 0;

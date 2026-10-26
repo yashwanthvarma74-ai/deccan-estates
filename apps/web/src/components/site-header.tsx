@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Logo } from "@/components/logo";
+import { AccountMenu, firstName, useGreeting } from "@/components/account-menu";
 import { cn } from "@/lib/utils";
 
 type Item = { label: string; href: string };
@@ -37,6 +38,7 @@ export function SiteHeader() {
   const home = pathname === "/";
   const [open, setOpen] = useState(false);
   const { data: session } = authClient.useSession();
+  const greeting = useGreeting();
 
   const resources: Item[] = [
     ...(session ? [{ label: "My listings", href: "/account" }] : []),
@@ -45,7 +47,7 @@ export function SiteHeader() {
     { label: "Compare homes", href: "/compare" },
     session ? { label: "Log out", href: "#logout" } : { label: "Log in", href: "/login" },
   ];
-  const btn = "mono-label flex h-[42px] w-[112px] items-center justify-center rounded-[7px] px-3 text-center leading-[1.15] transition-transform hover:scale-[1.03] active:scale-95";
+  const btn = "flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-5 text-[13px] font-medium uppercase tracking-[0.12em] transition-transform hover:scale-[1.03] active:scale-95";
 
   return (
     <>
@@ -81,11 +83,11 @@ export function SiteHeader() {
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
-            <Link href="/post" className={cn(btn, "bg-[#b6f400] text-black")}>Post<br />property</Link>
+            <Link href="/post" className={cn(btn, "bg-[#b6f400] text-black")}>Post property</Link>
             {session
-              ? <Link href="/account" className={cn(btn, "hidden bg-white text-black sm:flex")}>My<br />listings</Link>
-              : <Link href="/login" className={cn(btn, "hidden bg-white text-black sm:flex")}>Log in<br />or sign up</Link>}
-            <a href="tel:+919985079998" className={cn(btn, "hidden bg-[#d9dada] text-[#2b3030] min-[1180px]:flex")}>Contact<br />us</a>
+              ? <AccountMenu />
+              : <Link href="/login" className={cn(btn, "hidden bg-white text-black sm:flex")}>Log in</Link>}
+            <a href="tel:+919985079998" className={cn(btn, "hidden bg-[#d9dada] text-[#2b3030] min-[1180px]:flex")}>Contact us</a>
             <button aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} onClick={() => setOpen((v) => !v)} className="ml-1 flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-white min-[1180px]:hidden">
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -94,6 +96,7 @@ export function SiteHeader() {
 
         {open && (
           <nav aria-label="Mobile" className="mx-auto mt-2 max-w-[1036px] rounded-xl bg-black/90 p-4 backdrop-blur-xl min-[1180px]:hidden">
+            {session && <p className="px-3 pb-2 pt-1 text-[15px] text-white/80">{greeting || "Hello"}, <span className="font-medium text-white">{firstName(session.user.name, session.user.email)}</span></p>}
             <ul className="grid gap-1 text-[16px]">
               {[{ label: "Post your property", href: "/post" }, ...MENUS[0].items!, { label: "Verified listings", href: "/listings?verified=1" }, ...resources.filter((r) => r.href !== "#logout"), { label: "Guides", href: "/stories" }, ...(session ? [] : [{ label: "Log in or sign up", href: "/login" }])].map((it) => (
                 <li key={it.label}><Link href={it.href} onClick={() => setOpen(false)} className="block rounded-lg px-3 py-3 text-white/90 hover:bg-white/10">{it.label}</Link></li>

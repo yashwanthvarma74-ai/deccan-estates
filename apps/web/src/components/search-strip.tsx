@@ -185,7 +185,7 @@ export function SearchStrip({ localities, agents }: { localities: Locality[]; ag
     </>
   );
 
-  if (["/login", "/sell", "/post", "/account", "/privacy", "/terms", "/credits"].includes(pathname)) return null;
+  if (["/login", "/sell", "/post", "/account", "/account/profile", "/account/settings", "/privacy", "/terms", "/credits"].includes(pathname)) return null;
   return (
     <div ref={root} className="sticky top-[98px] z-40 border-b border-white/10 bg-bg/85 backdrop-blur-xl">
       <form onSubmit={submit} role="search" aria-label="Change your search" className="mx-auto max-w-[1600px] px-4 py-3 sm:px-6 lg:px-[60px]">

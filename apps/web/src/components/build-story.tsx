@@ -128,7 +128,7 @@ export function BuildStory({ counts, intro = true }: { counts: TypeCounts; intro
       <div className="sticky top-0 h-screen overflow-hidden">
         <canvas ref={canvas} aria-hidden className="absolute inset-0 h-full w-full" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_80%,transparent_0%,rgb(0_0_0/0.55)_100%)]" />
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,#000_0%,#000_26%,transparent_44%)] md:hidden" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,#000_0%,#000_26%,transparent_44%)] md:landscape:hidden" />
 
         {/* Intro: one clear question and one-tap answers. */}
         {intro && <div className={cn("absolute inset-0 flex flex-col justify-center px-5 pb-10 pt-24 transition-all duration-700 sm:px-8", chapter === "intro" ? "opacity-100" : "pointer-events-none -translate-y-6 opacity-0")}>
@@ -155,7 +155,7 @@ export function BuildStory({ counts, intro = true }: { counts: TypeCounts; intro
 
         {/* Chapter copy */}
         {copy && chapter !== "intro" && (
-          <div key={chapter} className="absolute bottom-[12vh] left-5 right-5 animate-[fade-up_700ms_ease-out_both] sm:left-8 md:bottom-auto md:left-[max(2rem,calc((100vw-1320px)/2))] md:right-auto md:top-1/2 md:max-w-[26rem] md:-translate-y-1/2">
+          <div key={chapter} className="absolute bottom-[12vh] left-5 right-5 animate-[fade-up_700ms_ease-out_both] sm:left-8 md:landscape:bottom-auto md:landscape:left-[max(2rem,calc((100vw-1320px)/2))] md:landscape:right-auto md:landscape:top-1/2 md:landscape:max-w-[26rem] md:landscape:-translate-y-1/2 md:portrait:max-w-[36rem]">
             <p className="mono-label text-white/60">{copy.label}</p>
             <h2 className="mt-4 text-[clamp(2rem,3.6vw,3.4rem)] font-normal leading-[1.05] text-white">{copy.title}</h2>
             <p className="mt-4 max-w-sm text-base leading-relaxed text-white/70">{copy.text}</p>

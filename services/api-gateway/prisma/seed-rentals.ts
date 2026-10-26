@@ -40,10 +40,11 @@ async function main() {
   if ((await prisma.listing.count({ where: { dealType: { in: ['RENT', 'LEASE'] } } })) > 0) return console.log('rent/lease listings already exist; nothing added');
   const agents = await prisma.agent.findMany({ orderBy: { id: 'asc' } });
   const locs = await prisma.locality.findMany();
+  const used = new Set<string>();
   let n = 0;
   for (const r of RENTALS) {
     const loc = locs.find((l) => l.slug === r.loc)!;
-    const images = placeImages(loc.slug, r.type, n);
+    const images = placeImages(loc.slug, r.type, n, used);
     await prisma.listing.create({
       data: {
         title: r.title,

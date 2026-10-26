@@ -46,7 +46,7 @@ async function main() {
   const agents = await Promise.all(
     ['Ravi Teja', 'Akhil Yadav', 'Imran Khan', 'Mahesh'].map((name, i) =>
       prisma.agent.create({
-        data: { name, phone: `+91 98480 0${1000 + i}`, reraId: `A5560${1000 + i}` },
+        data: { name, phone: "+91 99850 79998", reraId: `A5560${1000 + i}` },
       }),
     ),
   );
@@ -74,6 +74,8 @@ async function main() {
   const subset = (list: string[], n: number, count: number) =>
     Array.from({ length: count }, (_, i) => list[(n + i * 3) % list.length]).filter((v, i, arr) => arr.indexOf(v) === i);
 
+  // One shared set so no two listings get the same cover photo.
+  const usedCovers = new Set<string>();
   let n = 0;
   for (const loc of locs) {
     for (let i = 0; i < 8; i++) {
@@ -84,8 +86,7 @@ async function main() {
         localityId: loc.id,
         agentId: agents[n % agents.length].id,
         reraNumber: `P0220000${n.toString().padStart(4, '0')}`,
-        imageUrl: placeImages(slug(loc.name), type, n)[0],
-        images: placeImages(slug(loc.name), type, n),
+        ...(({ images }) => ({ imageUrl: images[0], images }))({ images: placeImages(slug(loc.name), type, n, usedCovers) }),
         lat: loc.lat + (((n * 37) % 100) - 50) / 3000,
         lng: loc.lng + (((n * 53) % 100) - 50) / 3000,
         facing: pick(facings, n),

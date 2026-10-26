@@ -50,8 +50,8 @@ function Gate() {
 /** Content sits inside a compound: gate on top with walls running to the screen edges, brick walls down both sides and along the bottom. */
 export function CompoundFrame({ children, level = 0.3 }: { children: ReactNode; level?: number }) {
   // The wall keeps its thickness. The price only moves the walls: less room inside and outside means walls close to the content.
-  // inverted on request: the lower the price, the more room; the higher the price, the tighter the walls
-  const lvl = 1 - Math.min(1, Math.max(0, level));
+  // The lowest price hugs the content; the highest gives it the most room.
+  const lvl = Math.min(1, Math.max(0, level));
   return (
     <div
       className="relative transition-[margin] duration-300 ease-out"

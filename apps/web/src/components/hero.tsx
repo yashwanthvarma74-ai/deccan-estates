@@ -12,7 +12,6 @@ const TYPES = [
 const NARROW = "(max-width: 767px)";
 const subscribeNarrow = (cb: () => void) => { const m = window.matchMedia(NARROW); m.addEventListener("change", cb); return () => m.removeEventListener("change", cb); };
 /** On phones the whole villa has to fit across the width, so the scene is shown 'contain' over a matching sky and ground. */
-const MOBILE_SKY = "linear-gradient(180deg,#cfc5d4 0%,#e3c7bb 20%,#efc19a 36%,#f3b070 46%,#f2a34a 53.5%,#1d100b 53.6%,#0d0604 62%,#060302 100%)";
 
 const smooth = (x: number) => { const t = Math.min(1, Math.max(0, x)); return t * t * (3 - 2 * t); };
 
@@ -85,8 +84,8 @@ export function Hero({ counts }: { counts: TypeCounts }) {
       <div className="sticky top-0 h-screen overflow-hidden bg-[#0d0604]">
         <CosmosCanvas pRef={pRef} />
         <div className="absolute inset-0" style={{ transform: `translate3d(0, ${ascend * 105}vh, 0) scale(${1 + ascend * 0.25})`, transformOrigin: "50% 100%", opacity: 1 - smooth((p - 0.5) / 0.16), visibility: p > 0.68 ? "hidden" : "visible" }}>
-        {narrow && <div aria-hidden className="absolute inset-0" style={{ background: MOBILE_SKY, opacity: 1 - night }} />}
-        <svg aria-hidden viewBox="0 0 1920 1080" preserveAspectRatio={narrow ? "xMidYMid meet" : "xMidYMid slice"} className="absolute inset-0 h-full w-full">
+        {/* On a phone the scene fills the whole screen and is cropped to the middle of the house, rather than shrinking into bands. */}
+        <svg aria-hidden viewBox={narrow ? "330 0 1100 1080" : "0 0 1920 1080"} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
           <defs>
             <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stopColor="#cfc5d4" /><stop offset="0.22" stopColor="#e3c7bb" /><stop offset="0.42" stopColor="#efc19a" />
