@@ -17,14 +17,6 @@ const nextConfig: NextConfig = {
     // The API is on localhost in development, which Next blocks by default.
     dangerouslyAllowLocalIP: uploads.hostname === "localhost" || uploads.hostname === "127.0.0.1",
   },
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
 };
 
 export default nextConfig;

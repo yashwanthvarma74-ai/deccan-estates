@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
+    "@tailwindcss/postcss": "^4.3.3",
     "@tailwindcss/turbopack": "^4",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
