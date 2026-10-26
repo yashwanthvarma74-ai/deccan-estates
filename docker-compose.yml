@@ -29,6 +29,11 @@ services:
       timeout: 3s
       retries: 10
 
+  verification:
+    profiles: ["app"]
+    build: { context: ., dockerfile: infra/docker/verification.Dockerfile }
+    ports: ["4200:4200"]
+
   api:
     profiles: ["app"]
     build: { context: ., dockerfile: infra/docker/api.Dockerfile }
@@ -36,8 +41,10 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-hyd}:${POSTGRES_PASSWORD:-hyd_dev_password}@postgres:5432/${POSTGRES_DB:-hyd_realestate}
       REDIS_URL: redis://redis:6379
       WEB_ORIGIN: http://localhost:3000
+      VERIFICATION_GRPC_ADDR: verification:4200
     ports: ["4000:4000"]
     depends_on:
+      verification: { condition: service_started }
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
 

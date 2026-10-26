@@ -13,6 +13,7 @@ spec:
           ports: [{ containerPort: 4000 }]
           env:
             - { name: WEB_ORIGIN, value: "https://{{ .Values.host }}" }
+            - { name: VERIFICATION_GRPC_ADDR, value: "verification:4200" }
             - { name: OTEL_EXPORTER_OTLP_ENDPOINT, value: {{ .Values.otlpEndpoint | quote }} }
           envFrom: [{ secretRef: { name: {{ .Values.secretName }} } }]
           readinessProbe: { httpGet: { path: /health, port: 4000 } }

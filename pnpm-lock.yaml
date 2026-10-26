@@ -126,6 +126,12 @@ importers:
 
   services/api-gateway:
     dependencies:
+      '@grpc/grpc-js':
+        specifier: ^1.14.6
+        version: 1.14.6
+      '@grpc/proto-loader':
+        specifier: ^0.8.1
+        version: 0.8.1
       '@nestjs/common':
         specifier: ^11.2.7
         version: 11.2.7(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)

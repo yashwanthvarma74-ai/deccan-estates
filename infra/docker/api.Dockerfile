@@ -6,6 +6,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY services/api-gateway/package.json services/api-gateway/
 RUN pnpm install --frozen-lockfile --filter @hyd/api-gateway...
 COPY services/api-gateway services/api-gateway
+COPY services/verification/proto services/verification/proto
 RUN pnpm --filter @hyd/api-gateway exec prisma generate && pnpm --filter @hyd/api-gateway build
 
 FROM node:22-slim
