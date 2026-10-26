@@ -17,6 +17,7 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, config));
-  await app.listen(Number(process.env.API_PORT ?? 4000));
+  // Hosts such as Render tell the app which port to use through PORT.
+  await app.listen(Number(process.env.API_PORT ?? process.env.PORT ?? 4000), '0.0.0.0');
 }
 bootstrap();
