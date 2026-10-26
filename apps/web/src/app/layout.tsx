@@ -7,12 +7,13 @@ import { Providers } from "@/components/providers";
 import { SearchStripLoader } from "@/components/search-strip-loader";
 import { SiteFooter } from "@/components/site-footer";
 import { AskAI } from "@/components/ask-ai";
+import { siteUrl } from "@/lib/site-url";
 
 const interTight = Inter_Tight({ variable: "--font-inter-tight", subsets: ["latin"], weight: ["300", "400", "500", "600"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], weight: ["400", "500", "600"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(siteUrl()),
   title: { default: "Deccan Estates: plots, flats, villas and offices in Hyderabad", template: "%s · Deccan Estates" },
   description: "Search plots, flats, villas, gated communities and offices in Hyderabad. Every listing shows a verification score for its papers, approvals and title.",
   openGraph: { type: "website", siteName: "Deccan Estates", title: "Deccan Estates: papers checked before you pay", description: "Plots, flats, villas and offices in Hyderabad with a verification score on every listing.", images: ["/stills/s1.jpg"] },
