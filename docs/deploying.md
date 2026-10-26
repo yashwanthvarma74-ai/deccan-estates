@@ -27,3 +27,9 @@ Source footage for the hero is kept outside the repo and is not needed at runtim
 ## Enquiry events (Phase 2)
 
 Set `KAFKA_BROKERS` on the API to publish `enquiry.created`, and run `services/notifier` (`KAFKA_BROKERS`, optional `NOTIFY_WEBHOOK_URL` for a Slack-style webhook). Compose runs a single-node Kafka and the notifier under `--profile app`; in Helm set `kafkaBrokers`. Leave `KAFKA_BROKERS` unset to turn events off. Events are saved in the database first (outbox) and replayed if Kafka is down, so run `prisma migrate deploy` before upgrading. See ADR 0010. The broker path itself has not been run against a real Kafka.
+
+## Wiring the listings service in containers
+
+- Compose (`--profile app`) now runs `listings` on 4100 and builds the web image with `NEXT_PUBLIC_LISTINGS_URL=http://localhost:4100`; the web server reads it at `http://listings:4100`.
+- The browser address is fixed when the web image is built, so pass `--build-arg NEXT_PUBLIC_LISTINGS_URL=https://your-domain.example` (the Helm ingress sends `/trpc` on the same host to the listings service). Set `listings.enabled: false` to run without it; the web app then uses the API.
+- Build it with `docker build -f infra/docker/listings.Dockerfile -t deccan-listings .`. Not yet built or deployed, since Docker, `helm` and `terraform` are not available on this machine.

@@ -13,6 +13,9 @@ spec:
           ports: [{ containerPort: 3000 }]
           env:
             - { name: API_URL, value: "http://api:4000" }
+{{- if .Values.listings.enabled }}
+            - { name: LISTINGS_URL, value: "http://listings:4100" }
+{{- end }}
             - { name: AUTH_URL, value: "https://{{ .Values.host }}" }
           envFrom: [{ secretRef: { name: {{ .Values.secretName }} } }]
           readinessProbe: { httpGet: { path: /robots.txt, port: 3000 } }

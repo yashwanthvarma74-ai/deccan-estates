@@ -5,7 +5,12 @@ web:
 api:
   image: ghcr.io/your-org/deccan-api:latest
   replicas: 2
-# Name of an existing Secret holding DATABASE_URL, REDIS_URL, BETTER_AUTH_SECRET
+listings:
+  enabled: true
+  image: ghcr.io/your-org/deccan-listings:latest
+  replicas: 2
+  # public address the browser uses for the map (also passed as a build argument to the web image)
+  publicUrl: ""
 verification:
   image: ghcr.io/your-org/deccan-verification:latest
   replicas: 2
@@ -14,5 +19,6 @@ notifier:
   replicas: 1
 # Kafka bootstrap servers, e.g. managed Kafka or an in-cluster broker; leave empty to turn events off
 kafkaBrokers: ""
+# Name of an existing Secret holding DATABASE_URL, REDIS_URL, BETTER_AUTH_SECRET
 secretName: deccan-secrets
 otlpEndpoint: ""

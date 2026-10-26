@@ -10,4 +10,7 @@ spec:
       http:
         paths:
           - { path: /api/auth, pathType: Prefix, backend: { service: { name: web, port: { number: 3000 } } } }
+{{- if .Values.listings.enabled }}
+          - { path: /trpc, pathType: Prefix, backend: { service: { name: listings, port: { number: 4100 } } } }
+{{- end }}
           - { path: /, pathType: Prefix, backend: { service: { name: web, port: { number: 3000 } } } }

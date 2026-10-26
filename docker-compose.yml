@@ -56,6 +56,16 @@ services:
     depends_on:
       kafka: { condition: service_healthy }
 
+  listings:
+    profiles: ["app"]
+    build: { context: ., dockerfile: infra/docker/listings.Dockerfile }
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hyd}:${POSTGRES_PASSWORD:-hyd_dev_password}@postgres:5432/${POSTGRES_DB:-hyd_realestate}
+      WEB_ORIGIN: http://localhost:3000
+    ports: ["4100:4100"]
+    depends_on:
+      postgres: { condition: service_healthy }
+
   verification:
     profiles: ["app"]
     build: { context: ., dockerfile: infra/docker/verification.Dockerfile }
@@ -84,13 +94,15 @@ services:
       args:
         NEXT_PUBLIC_SITE_URL: http://localhost:3000
         NEXT_PUBLIC_API_URL: http://localhost:4000
+        NEXT_PUBLIC_LISTINGS_URL: http://localhost:4100
     environment:
       API_URL: http://api:4000
+      LISTINGS_URL: http://listings:4100
       AUTH_URL: http://localhost:3000
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-only-secret-change-me-please-32chars}
       DATABASE_URL: postgresql://${POSTGRES_USER:-hyd}:${POSTGRES_PASSWORD:-hyd_dev_password}@postgres:5432/${POSTGRES_DB:-hyd_realestate}
     ports: ["3000:3000"]
-    depends_on: [api]
+    depends_on: [api, listings]
 
 volumes:
   postgres_data:

@@ -1,0 +1,28 @@
+{{- if .Values.listings.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: listings }
+spec:
+  replicas: {{ .Values.listings.replicas }}
+  selector: { matchLabels: { app: listings } }
+  template:
+    metadata: { labels: { app: listings } }
+    spec:
+      containers:
+        - name: listings
+          image: {{ .Values.listings.image }}
+          ports: [{ containerPort: 4100 }]
+          env:
+            - { name: WEB_ORIGIN, value: "https://{{ .Values.host }}" }
+          envFrom: [{ secretRef: { name: {{ .Values.secretName }} } }]
+          readinessProbe: { httpGet: { path: /health, port: 4100 } }
+          livenessProbe: { httpGet: { path: /health, port: 4100 }, initialDelaySeconds: 20 }
+          resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { memory: 384Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: listings }
+spec:
+  selector: { app: listings }
+  ports: [{ port: 4100, targetPort: 4100 }]
+{{- end }}
