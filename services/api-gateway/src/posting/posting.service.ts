@@ -1,14 +1,12 @@
 import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { mkdir, unlink, writeFile } from 'node:fs/promises';
-import path from 'node:path';
 import { PrismaService } from '../common/prisma.service';
 import { RedisService } from '../common/redis.service';
-import { toDto } from '../listings/listings.service';
+import { publicImage, toDto } from '../listings/listings.service';
+import { StorageService } from './storage.service';
 import { assertImage } from './images';
 import type { PostBody } from './posting.schema';
 
-export const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR ?? path.join(process.cwd(), 'uploads'));
 const MAX_ACTIVE = 20;
 const POSTS_PER_HOUR = 10;
 const UPLOADS_PER_HOUR = 60;
@@ -24,7 +22,7 @@ function jitter(id: string, salt: number) {
 
 @Injectable()
 export class PostingService {
-  constructor(private prisma: PrismaService, private redis: RedisService) {}
+  constructor(private prisma: PrismaService, private redis: RedisService, private storage: StorageService) {}
 
   /** Counts actions per user per hour; fails open if Redis is down. */
   private async limit(userId: string, what: string, max: number) {
@@ -42,9 +40,8 @@ export class PostingService {
     await this.limit(userId, 'upload', UPLOADS_PER_HOUR);
     const { ext } = assertImage(file);
     const name = `${randomUUID()}.${ext}`;
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    await writeFile(path.join(UPLOAD_DIR, name), file!.buffer, { flag: 'wx' });
-    return { file: name, url: `/uploads/${name}` };
+    await this.storage.put(name, file!.buffer);
+    return { file: name, url: publicImage(`/uploads/${name}`) };
   }
 
   async create(userId: string, b: PostBody) {
@@ -122,7 +119,7 @@ export class PostingService {
   async remove(userId: string, id: string) {
     const row = await this.owned(userId, id);
     await this.prisma.listing.delete({ where: { id } });
-    await Promise.all(row.images.map((u) => unlink(path.join(UPLOAD_DIR, path.basename(u))).catch(() => undefined)));
+    await Promise.all(row.images.map((u) => this.storage.remove(u)));
     await this.redis.invalidateListings();
   }
 

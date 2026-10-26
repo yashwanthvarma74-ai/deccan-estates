@@ -83,7 +83,7 @@ export function PostForm() {
         const body = new FormData();
         body.append("photo", f);
         const r = await authedRequest<{ file: string; url: string }>("/uploads", { method: "POST", body });
-        setPhotos((p) => [...p, { file: r.file, url: `${PUBLIC_API_URL}${r.url}` }]);
+        setPhotos((p) => [...p, { file: r.file, url: r.url }]);
       } catch (e) {
         setErrors((x) => [...x, (e as Error).message]);
       } finally {

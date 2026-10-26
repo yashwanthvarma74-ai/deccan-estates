@@ -33,3 +33,14 @@ Set `KAFKA_BROKERS` on the API to publish `enquiry.created`, and run `services/n
 - Compose (`--profile app`) now runs `listings` on 4100 and builds the web image with `NEXT_PUBLIC_LISTINGS_URL=http://localhost:4100`; the web server reads it at `http://listings:4100`.
 - The browser address is fixed when the web image is built, so pass `--build-arg NEXT_PUBLIC_LISTINGS_URL=https://your-domain.example` (the Helm ingress sends `/trpc` on the same host to the listings service). Set `listings.enabled: false` to run without it; the web app then uses the API.
 - Build it with `docker build -f infra/docker/listings.Dockerfile -t deccan-listings .`. Not yet built or deployed, since Docker, `helm` and `terraform` are not available on this machine.
+
+## Free hosting: Vercel + Neon + Upstash + Render + R2
+
+1. Push the repo to GitHub (it has no remote yet).
+2. **Neon** (Postgres): create a project. Use the direct, non-pooled connection string for the web app (the auth tables rely on a `search_path` setting that pooled connections reject). From your computer run `prisma migrate deploy`, `npx @better-auth/cli migrate`, then the seed scripts (`prisma db seed`, `prisma/seed-rentals.ts`, `prisma/apply-place-photos.ts`) against it.
+3. **Upstash**: create a Redis database and copy its `rediss://` URL into `REDIS_URL`.
+4. **Cloudflare R2** (photo storage, 10 GB free): create a bucket, turn on its public address, and create an access key. On the API set `S3_BUCKET`, `S3_ENDPOINT` (`https://<account>.r2.cloudflarestorage.com`), `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, and `PUBLIC_UPLOADS_BASE` to the bucket's public address. On Vercel set `NEXT_PUBLIC_UPLOADS_URL` to the same address. Any S3-compatible store works the same way.
+5. **Render** (API): Web Service from the repo. Build: `pnpm install && pnpm --filter @hyd/api-gateway exec prisma generate && pnpm --filter @hyd/api-gateway build`. Start: `node services/api-gateway/dist/main`. Set `DATABASE_URL`, `REDIS_URL`, `WEB_ORIGIN` and `AUTH_URL` (your Vercel address) and the storage variables above. The free plan sleeps when idle.
+6. **Vercel** (web): import the repo, root directory `apps/web`, include files outside the root. Set `DATABASE_URL`, `BETTER_AUTH_SECRET`, `AUTH_URL`, `NEXT_PUBLIC_SITE_URL`, `API_URL`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_UPLOADS_URL`. Leave the listings-service variables empty.
+
+Vercel's free Hobby plan is for non-commercial use; use a paid plan for a business site.

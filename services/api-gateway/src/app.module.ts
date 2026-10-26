@@ -14,6 +14,7 @@ import { SavedController } from './saved/saved.controller';
 import { EnquiriesController } from './enquiries/enquiries.controller';
 import { PostingController } from './posting/posting.controller';
 import { PostingService } from './posting/posting.service';
+import { StorageService } from './posting/storage.service';
 import { EventsService } from './events/events.service';
 import { OutboxService } from './events/outbox.service';
 import { VerificationController } from './verification/verification.controller';
@@ -28,6 +29,7 @@ import { VerificationService } from './verification/verification.service';
     ListingsService,
     VerificationService,
     PostingService,
+    StorageService,
     EventsService,
     OutboxService,
     AuthGuard,

@@ -46,7 +46,8 @@ describe('post body', () => {
     client: { incr: async (k: string) => { counters.set(k, (counters.get(k) ?? 0) + 1); return counters.get(k)!; }, expire: async () => 1 },
     invalidateListings: async () => undefined,
   };
-  const svc = new PostingService(prisma as never, redis as never);
+  const storage = { put: async () => undefined, remove: async () => undefined };
+  const svc = new PostingService(prisma as never, redis as never, storage as never);
   const alice = 'test-user-alice';
   const bob = 'test-user-bob';
   const clean = () => prisma.listing.deleteMany({ where: { ownerId: { in: [alice, bob] } } });
