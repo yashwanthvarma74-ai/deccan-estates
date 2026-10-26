@@ -52,7 +52,7 @@ export function EmiCalculator() {
           </div>
           <div className="mt-10">
             <div className="flex items-baseline justify-between">
-              <label htmlFor="price-range" className="text-[15px] text-paper-ink/80">Drag to set the price</label>
+              <label htmlFor="price-range" className="text-[15px] text-paper-ink/80">Drag to set the price <span className="text-paper-ink/55">(watch the walls and the house move)</span></label>
               <span className="text-[1.6rem] tracking-[-0.03em] tabular-nums text-paper-ink">{priceLabel}</span>
             </div>
             <input id="price-range" type="range" min={20} max={1000} step={5} value={Math.min(1000, Math.max(20, priceL || 20))} onChange={(ev) => setPriceL(Number(ev.target.value))} className="mt-5 h-1.5 w-full cursor-pointer appearance-none rounded bg-paper-ink/20 accent-[#0d2a22]" />
