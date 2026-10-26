@@ -2,9 +2,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Logo } from "@/components/logo";
+import { Dropdown } from "@/components/dropdown";
 import { AccountMenu, firstName, useGreeting, useSignOut } from "@/components/account-menu";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,7 @@ type Item = { label: string; href: string };
 const MENUS: { label: string; items?: Item[]; href?: string; wide?: boolean }[] = [
   {
     label: "Buy",
+    href: "/listings",
     items: [
       { label: "All homes for sale", href: "/listings" },
       { label: "Plots", href: "/listings?type=PLOT" },
@@ -23,6 +25,7 @@ const MENUS: { label: string; items?: Item[]; href?: string; wide?: boolean }[] 
   },
   {
     label: "Rent",
+    href: "/listings?deal=RENT",
     items: [
       { label: "All rentals", href: "/listings?deal=RENT" },
       { label: "Flats for rent", href: "/listings?deal=RENT&type=APARTMENT" },
@@ -32,6 +35,7 @@ const MENUS: { label: string; items?: Item[]; href?: string; wide?: boolean }[] 
   },
   {
     label: "Commercial",
+    href: "/listings?deal=LEASE",
     items: [
       { label: "All commercial for lease", href: "/listings?deal=LEASE" },
       { label: "Offices and shops for lease", href: "/listings?deal=LEASE&type=COMMERCIAL" },
@@ -81,22 +85,17 @@ export function SiteHeader() {
               const items = m.label === "Resources" ? resources : m.items;
               if (!items) return <Link key={m.label} href={m.href!} className={cn("h-11 items-center px-3 text-[15px] font-medium text-white/95 hover:text-white", m.wide ? "hidden min-[1280px]:flex" : "flex")}>{m.label}</Link>;
               return (
-                <div key={m.label} className="group relative">
-                  <button className="flex h-11 cursor-pointer items-center gap-1.5 px-3 text-[15px] font-medium text-white/95 hover:text-white" aria-haspopup="menu">
-                    {m.label}<ChevronDown className="h-3.5 w-3.5 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
-                  </button>
-                  <div className="invisible absolute left-0 top-full z-10 pt-3 opacity-0 transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-                    <ul role="menu" className="min-w-52 rounded-xl border border-white/10 bg-black/90 p-2 backdrop-blur-xl">
-                      {items.map((it) => (
-                        <li key={it.label} role="none">
-                          {it.href === "#logout"
-                            ? <button role="menuitem" onClick={() => authClient.signOut()} className="block w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-[15px] text-white/85 hover:bg-white/10 hover:text-white">{it.label}</button>
-                            : <Link role="menuitem" href={it.href} className="block rounded-lg px-3 py-2.5 text-[15px] text-white/85 hover:bg-white/10 hover:text-white">{it.label}</Link>}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
+                <Dropdown key={m.label} href={m.href} trigger={m.label} buttonClassName="flex h-11 cursor-pointer items-center gap-1.5 px-3 text-[15px] font-medium text-white/95 hover:text-white">
+                  <ul role="menu" className="min-w-52 rounded-xl border border-white/10 bg-black/90 p-2 backdrop-blur-xl">
+                    {items.map((it) => (
+                      <li key={it.label} role="none">
+                        {it.href === "#logout"
+                          ? <button role="menuitem" onClick={() => authClient.signOut()} className="block w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-[15px] text-white/85 hover:bg-white/10 hover:text-white">{it.label}</button>
+                          : <Link role="menuitem" href={it.href} className="block rounded-lg px-3 py-2.5 text-[15px] text-white/85 hover:bg-white/10 hover:text-white">{it.label}</Link>}
+                      </li>
+                    ))}
+                  </ul>
+                </Dropdown>
               );
             })}
           </nav>

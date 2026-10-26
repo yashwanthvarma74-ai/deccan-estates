@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 import { ChevronDown, Heart, List, LogOut, PlusSquare, Scale, Settings, User } from "lucide-react";
+import { Dropdown } from "@/components/dropdown";
 import { authClient } from "@/lib/auth-client";
 
 /** Time-of-day greeting; empty until the browser has told us the local time, so server and client markup match. */
@@ -50,19 +51,22 @@ export function AccountMenu() {
   const name = firstName(session.user.name, session.user.email);
 
   return (
-    <div className="group relative hidden sm:block">
-      <button
-        aria-haspopup="menu"
-        className="flex h-11 cursor-pointer items-center gap-2.5 rounded-lg bg-white/10 py-0 pl-1.5 pr-3 text-left text-white transition-colors hover:bg-white/15"
+    <div className="hidden sm:block">
+      <Dropdown
+        align="right"
+        chevron={false}
+        trigger={
+          <>
+            <span aria-hidden className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-[#b6f400] text-[14px] font-semibold uppercase text-black">{name[0]}</span>
+            <span className="min-w-0 text-left leading-[1.15]">
+              <span className="block max-w-[150px] truncate text-[11px] text-white/70">{greeting || "Hello"},</span>
+              <span className="mono-label block max-w-[150px] truncate">{name}</span>
+            </span>
+            <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+          </>
+        }
+        buttonClassName="flex h-11 cursor-pointer items-center gap-2.5 rounded-lg bg-white/10 py-0 pl-1.5 pr-3 text-white transition-colors hover:bg-white/15"
       >
-        <span aria-hidden className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-[#b6f400] text-[14px] font-semibold uppercase text-black">{name[0]}</span>
-        <span className="hidden min-w-0 leading-[1.15] sm:block">
-          <span className="block max-w-[150px] truncate text-[11px] text-white/70">{greeting || "Hello"},</span>
-          <span className="mono-label block max-w-[150px] truncate">{name}</span>
-        </span>
-        <ChevronDown className="hidden h-3.5 w-3.5 opacity-70 transition-transform group-hover:rotate-180 group-focus-within:rotate-180 sm:block" />
-      </button>
-      <div className="invisible absolute right-0 top-full z-20 pt-3 opacity-0 transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
         <div role="menu" className="w-64 rounded-xl border border-white/10 bg-black/95 p-2 shadow-2xl backdrop-blur-xl">
           <div className="border-b border-white/10 px-3 pb-3 pt-2">
             <p className="text-[13px] text-white/70">{greeting || "Hello"},</p>
@@ -82,7 +86,7 @@ export function AccountMenu() {
             <LogOut className="h-[18px] w-[18px] text-white/60" strokeWidth={1.6} /> Log out
           </button>
         </div>
-      </div>
+      </Dropdown>
     </div>
   );
 }
