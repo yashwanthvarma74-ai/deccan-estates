@@ -15,3 +15,7 @@ Source footage for the hero is kept outside the repo and is not needed at runtim
 - Data stores: `infra/terraform` creates Postgres and Redis on AWS (`terraform init && terraform apply`).
 - Tracing: set `OTEL_EXPORTER_OTLP_ENDPOINT` on the API and it exports OpenTelemetry traces; leave it unset to turn tracing off.
 - Not yet run: the Docker images, Helm chart and Terraform were written but not built or applied, because Docker was not running and `helm` and `terraform` are not installed here.
+
+## Listings service (Phase 2)
+
+`services/listings` serves read-only listing queries over tRPC on port 4100 (`DATABASE_URL`, optional `LISTINGS_PORT`). Run it with `pnpm --filter @hyd/listings start`; test it with `DATABASE_URL=... pnpm --filter @hyd/listings test`. The web app does not call it yet. See ADR 0008.
