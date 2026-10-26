@@ -35,7 +35,7 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
         </div>
       </div>
 
-      <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_420px]">
+      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12 [&>*]:min-w-0">
         <div>
           <p className="label text-muted">{typeLabels[listing.type]} · {listing.locality.name}</p>
           <h1 className="mt-3 text-4xl font-semibold md:text-5xl">{listing.title}</h1>

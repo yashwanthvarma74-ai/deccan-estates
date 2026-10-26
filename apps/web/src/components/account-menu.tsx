@@ -50,7 +50,7 @@ export function AccountMenu() {
   const name = firstName(session.user.name, session.user.email);
 
   return (
-    <div className="group relative">
+    <div className="group relative hidden sm:block">
       <button
         aria-haspopup="menu"
         className="flex h-11 cursor-pointer items-center gap-2.5 rounded-lg bg-white/10 py-0 pl-1.5 pr-3 text-left text-white transition-colors hover:bg-white/15"
