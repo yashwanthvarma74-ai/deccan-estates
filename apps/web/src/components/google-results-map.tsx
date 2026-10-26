@@ -1,11 +1,11 @@
 "use client";
-import { importLibrary, setOptions } from "@googlemaps/js-api-loader";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { List, Star } from "lucide-react";
 import { PUBLIC_API_URL, fetchLocalities, fetchMapPoints, type ListingFilters } from "@/lib/api";
+import { loadGoogleMaps } from "@/lib/google-maps";
 import { cardHtml } from "@/lib/map-card";
 
 const HYDERABAD = { lat: 17.385, lng: 78.4867 };
@@ -48,9 +48,7 @@ export function GoogleResultsMap({ apiKey, onFail }: { apiKey: string; onFail: (
     (window as unknown as { gm_authFailure?: () => void }).gm_authFailure = () => onFail();
     (async () => {
       try {
-        setOptions({ key: apiKey, v: "weekly", language: "en", region: "IN" });
-        const { Map, InfoWindow, Circle } = await importLibrary("maps");
-        await importLibrary("marker");
+        const { Map, InfoWindow, Circle } = await loadGoogleMaps(apiKey);
         if (cancelled || !el.current) return;
         const m = new Map(el.current, {
           center: HYDERABAD, zoom: 10, mapId: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || "DEMO_MAP_ID",

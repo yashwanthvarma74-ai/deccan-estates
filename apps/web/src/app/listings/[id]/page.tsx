@@ -8,6 +8,7 @@ import { typeLabels } from "@/lib/api";
 import { getListing } from "@/lib/data";
 import { specsFor } from "@/lib/listing-meta";
 import { ContactBox } from "@/components/contact-box";
+import { LocationMap } from "@/components/location-map";
 import { PhotoGallery } from "@/components/photo-gallery";
 import { formatInr, priceLabel } from "@/lib/utils";
 
@@ -44,6 +45,7 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
               </div>
             ))}
           </dl>
+          <LocationMap lat={listing.lat} lng={listing.lng} title={listing.title} area={listing.locality.name} />
           {listing.verification && <VerificationReport report={listing.verification} isPlot={listing.type === "PLOT"} />}
           <h2 className="mt-12 text-2xl">About this property</h2>
           <p className="mt-3 max-w-3xl leading-relaxed text-muted">{listing.description}</p>
