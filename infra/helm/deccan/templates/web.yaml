@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: web }
+spec:
+  replicas: {{ .Values.web.replicas }}
+  selector: { matchLabels: { app: web } }
+  template:
+    metadata: { labels: { app: web } }
+    spec:
+      containers:
+        - name: web
+          image: {{ .Values.web.image }}
+          ports: [{ containerPort: 3000 }]
+          env:
+            - { name: API_URL, value: "http://api:4000" }
+{{- if .Values.listings.enabled }}
+            - { name: LISTINGS_URL, value: "http://listings:4100" }
+{{- end }}
+            - { name: AUTH_URL, value: "https://{{ .Values.host }}" }
+          envFrom: [{ secretRef: { name: {{ .Values.secretName }} } }]
+          readinessProbe: { httpGet: { path: /robots.txt, port: 3000 } }
+          resources: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 768Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: web }
+spec:
+  selector: { app: web }
+  ports: [{ port: 3000, targetPort: 3000 }]

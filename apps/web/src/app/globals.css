@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+/* Design tokens: midnight-navy stage, white type, soft glass cards, taupe accent panel, rounded pills.
+   Headlines are light weight with one bold emphasised word. */
+@theme inline {
+  --color-bg: #000000;
+  --color-card: #0b0c0d;
+  --color-card-hi: #17191a;
+  --color-taupe: #83776d;
+  --color-ink: #ffffff;
+  --color-body: #d0d4d4;
+  --color-muted: #a9aeae;
+  --color-line: rgb(255 255 255 / 0.12);
+  --color-surface: #0b0c0d;
+  --color-navy: #000000;
+  --color-navy-deep: #000000;
+  --color-paper: #ffffff;
+  --color-paper-ink: #052424;
+  --color-paper-card: #ebecec;
+  --color-gold: #b9ad9f;
+  --color-forest: #0a1c19;
+  --color-lime: #b6f400;
+  --font-sans: var(--font-inter-tight), "Suisse Intl", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif: var(--font-sans);
+  --font-accent: var(--font-instrument), Georgia, serif;
+}
+
+:root { color-scheme: dark; }
+
+@layer base {
+  html { background: var(--color-bg); scroll-behavior: smooth; }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-sans);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    color: var(--color-ink);
+  }
+  h1 { letter-spacing: -0.05em; line-height: 1.02; }
+  h3 { font-weight: 500; letter-spacing: -0.02em; }
+  /* One emphasised word per headline is set heavier, in the same typeface. */
+  h1 b, h2 b, h1 strong, h2 strong { font-weight: 500; }
+  .accent { font-weight: 500; }
+}
+
+/* Small UI label (nav, filters, buttons). Sentence case, not shouty. */
+.label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+}
+
+:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.maplibregl-ctrl-attrib { font-size: 10px; }
+.maplibregl-popup .maplibregl-popup-content { background: var(--color-card) !important; color: #fff !important; border: 1px solid rgb(255 255 255 / 0.18); border-radius: 12px; padding: 12px 16px; font-size: 14px; line-height: 1.35; box-shadow: 0 10px 30px rgb(0 0 0 / 0.5); }
+.maplibregl-popup-content a { color: #fff; text-decoration: none; }
+.maplibregl-popup-anchor-top .maplibregl-popup-tip, .maplibregl-popup-anchor-top-left .maplibregl-popup-tip, .maplibregl-popup-anchor-top-right .maplibregl-popup-tip { border-bottom-color: var(--color-card) !important; }
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip, .maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip, .maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip { border-top-color: var(--color-card) !important; }
+
+@keyframes ring-spin { to { transform: rotate(360deg); } }
+@keyframes ring-spin-rev { to { transform: rotate(-360deg); } }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes hero-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Scroll-in reveal: elements with [data-reveal] fade up when they enter the viewport (see Reveal). */
+[data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity 800ms ease, transform 800ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+[data-reveal].is-in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  [data-reveal] { opacity: 1; transform: none; }
+}
+
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+
+/* Full-bleed panels keep their text aligned to the 1320px page container. */
+@utility pad-l { padding-left: max(1.25rem, calc((100vw - 1320px) / 2)); }
+@utility pad-r { padding-right: max(1.25rem, calc((100vw - 1320px) / 2)); }
+
+/* Small mono caps label ("01 · PLOT"), used for chapter and card eyebrows. */
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@keyframes scroll-cue {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* Hero entrance: hidden only while the loader is up, so the page is never blank if scripts fail. */
+html[data-intro="loading"] .intro-rise { opacity: 0; transform: translateY(46px); }
+html[data-intro="done"] .intro-rise { animation: intro-rise 1100ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@keyframes intro-rise { from { opacity: 0; transform: translateY(46px); } to { opacity: 1; transform: none; } }
+@keyframes sweep { 0%, 100% { transform: translateX(-12%); } 50% { transform: translateX(14%); } }
+@keyframes sweep-x { 0% { transform: translateX(-100%); } 100% { transform: translateX(220%); } }
+
+@keyframes chip-in { from { opacity: 0; transform: translateY(12px) scale(0.92); } to { opacity: 1; transform: none; } }
+@keyframes bar-in { from { width: 0%; } to { width: 88%; } }
+
+.map-card { pointer-events: none; }
+.map-card.pinned { pointer-events: auto; }
+.map-card .mc-open { margin-top: 6px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #b6f400; }
+.map-card .maplibregl-popup-content { padding: 0 !important; overflow: hidden; width: 250px; }
+.map-card a { display: block; }
+.map-card img { display: block; width: 100%; height: 130px; object-fit: cover; }
+.map-card .mc-body { display: grid; gap: 3px; padding: 12px 14px 14px; }
+.map-card .mc-kind { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #b6f400; }
+.map-card strong { font-weight: 500; font-size: 15px; line-height: 1.25; }
+.map-card .mc-price { font-size: 17px; }
+.map-card .mc-size { font-size: 13px; color: rgb(255 255 255 / 0.7); }
+
+/* Google Maps info window dressed as the site's map card. */
+.gm-style .gm-style-iw-c { background: #0b0c0d !important; padding: 0 !important; border: 1px solid rgb(255 255 255 / 0.18); border-radius: 12px !important; box-shadow: 0 10px 30px rgb(0 0 0 / 0.5) !important; color: #fff; }
+.gm-style .gm-style-iw-d { overflow: hidden !important; max-height: none !important; }
+.gm-style .gm-style-iw-tc::after { background: #0b0c0d !important; }
+.gm-style .gm-ui-hover-effect { display: none !important; }

@@ -1,0 +1,23 @@
+[project]
+name = "hyd-ai"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.32",
+  "psycopg[binary,pool]>=3.2",
+  "pgvector>=0.3",
+  "fastembed>=0.4",
+  "llama-index-core>=0.12",
+  "llama-index-readers-file>=0.4",
+  "python-multipart>=0.0.12",
+  "httpx>=0.27",
+  "pydantic-settings>=2.6",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["."]

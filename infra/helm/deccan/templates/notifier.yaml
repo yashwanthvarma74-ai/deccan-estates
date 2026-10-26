@@ -1,0 +1,19 @@
+{{- if .Values.kafkaBrokers }}
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: notifier }
+spec:
+  replicas: {{ .Values.notifier.replicas }}
+  selector: { matchLabels: { app: notifier } }
+  template:
+    metadata: { labels: { app: notifier } }
+    spec:
+      containers:
+        - name: notifier
+          image: {{ .Values.notifier.image }}
+          env:
+            - { name: KAFKA_BROKERS, value: {{ .Values.kafkaBrokers | quote }} }
+            - name: NOTIFY_WEBHOOK_URL
+              valueFrom: { secretKeyRef: { name: {{ .Values.secretName }}, key: NOTIFY_WEBHOOK_URL, optional: true } }
+          resources: { requests: { cpu: 20m, memory: 32Mi }, limits: { memory: 128Mi } }
+{{- end }}

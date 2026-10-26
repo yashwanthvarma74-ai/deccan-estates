@@ -1,0 +1,19 @@
+{
+  "name": "hyderabad-realestate-platform",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel --filter './apps/*' --filter './services/*' dev",
+    "build": "pnpm --recursive build",
+    "lint": "pnpm --recursive lint",
+    "test": "pnpm --recursive test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
