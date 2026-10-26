@@ -22,14 +22,14 @@ export function pickModel(): LanguageModel | null {
 
 /**
  * Model for the site-wide assistant. Free options come first only when no paid key is set:
- * ANTHROPIC_API_KEY (newest Claude), GROQ_API_KEY (free Llama), GEMINI_API_KEY (free Gemini), then the older providers.
+ * ANTHROPIC_API_KEY (newest Claude), GROQ_API_KEY (free open models), GEMINI_API_KEY (free Gemini), then the older providers.
  * Groq and Gemini speak the OpenAI "chat completions" format, so the same provider package serves them.
  * Returns null when nothing is configured (the assistant then uses its built-in search).
  */
 export function pickChatModel(): LanguageModel | null {
   if (process.env.ANTHROPIC_API_KEY) return createAnthropic()(process.env.ASK_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-5-5");
   if (process.env.GROQ_API_KEY) {
-    return createOpenAI({ baseURL: "https://api.groq.com/openai/v1", apiKey: process.env.GROQ_API_KEY }).chat(process.env.ASK_MODEL ?? "llama-3.3-70b-versatile");
+    return createOpenAI({ baseURL: "https://api.groq.com/openai/v1", apiKey: process.env.GROQ_API_KEY }).chat(process.env.ASK_MODEL ?? "openai/gpt-oss-120b");
   }
   if (process.env.GEMINI_API_KEY) {
     return createOpenAI({ baseURL: "https://generativelanguage.googleapis.com/v1beta/openai", apiKey: process.env.GEMINI_API_KEY }).chat(process.env.ASK_MODEL ?? "gemini-2.5-flash");

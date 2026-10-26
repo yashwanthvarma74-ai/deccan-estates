@@ -24,12 +24,12 @@ describe("pickChatModel", () => {
     clear();
     expect(pickChatModel()).toBeNull();
   });
-  it("uses Groq's chat-completions endpoint with the free Llama model", async () => {
+  it("uses Groq's chat-completions endpoint with its current open model", async () => {
     clear(); process.env.GROQ_API_KEY = "gsk_test";
     const r = await probe();
     expect(r.url).toBe("https://api.groq.com/openai/v1/chat/completions");
     expect(r.auth).toBe("Bearer gsk_test");
-    expect(r.model).toBe("llama-3.3-70b-versatile");
+    expect(r.model).toBe("openai/gpt-oss-120b");
   });
   it("uses Gemini's OpenAI-compatible endpoint", async () => {
     clear(); process.env.GEMINI_API_KEY = "g_test";
@@ -38,7 +38,7 @@ describe("pickChatModel", () => {
     expect(r.model).toBe("gemini-2.5-flash");
   });
   it("lets ASK_MODEL choose another model", async () => {
-    clear(); process.env.GROQ_API_KEY = "gsk_test"; process.env.ASK_MODEL = "llama-3.1-8b-instant";
-    expect((await probe()).model).toBe("llama-3.1-8b-instant");
+    clear(); process.env.GROQ_API_KEY = "gsk_test"; process.env.ASK_MODEL = "qwen/qwen3.6-27b";
+    expect((await probe()).model).toBe("qwen/qwen3.6-27b");
   });
 });

@@ -88,7 +88,14 @@ export async function GET(req: Request) {
     return Response.json({ provider, aiReady: true, reply: r.text.trim().slice(0, 40) });
   } catch (e) {
     const err = e as { message?: string; statusCode?: number; responseBody?: string };
+    // A retired or misspelled model is the most common failure: list what this key can use so ASK_MODEL can be set to one.
+    let availableModels: string[] | undefined;
+    if (err.statusCode === 404 && provider === "groq") {
+      const r = await fetch("https://api.groq.com/openai/v1/models", { headers: { authorization: `Bearer ${process.env.GROQ_API_KEY}` } }).catch(() => null);
+      const list = r?.ok ? ((await r.json()) as { data?: { id: string }[] }).data : undefined;
+      availableModels = list?.map((m) => m.id).filter((id) => !/whisper|tts|guard|embed/i.test(id)).slice(0, 15);
+    }
     const scrub = (t: string) => t.replace(/(gsk_|AIza|sk-ant-|sk-)[A-Za-z0-9_-]+/g, "[key]").slice(0, 400);
-    return Response.json({ provider, aiReady: false, status: err.statusCode, error: scrub(err.message ?? "unknown error"), providerSaid: err.responseBody ? scrub(err.responseBody) : undefined });
+    return Response.json({ provider, aiReady: false, status: err.statusCode, error: scrub(err.message ?? "unknown error"), providerSaid: err.responseBody ? scrub(err.responseBody) : undefined, availableModels });
   }
 }
