@@ -8,6 +8,7 @@ RUN pnpm install --frozen-lockfile --filter web...
 
 FROM deps AS build
 COPY apps/web apps/web
+ENV DOCKER_BUILD=1
 ARG NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_LISTINGS_URL

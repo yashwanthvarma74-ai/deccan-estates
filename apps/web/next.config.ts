@@ -5,8 +5,8 @@ import type { NextConfig } from "next";
 const api = new URL(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000");
 
 const nextConfig: NextConfig = {
-  output: "standalone",
-  outputFileTracingRoot: path.join(__dirname, "../.."),
+  // Only the Docker image needs a self-contained server; Vercel builds the app its own way.
+  ...(process.env.DOCKER_BUILD ? { output: "standalone" as const, outputFileTracingRoot: path.join(__dirname, "../..") } : {}),
   cacheComponents: true,
   partialPrefetching: true,
   images: {
