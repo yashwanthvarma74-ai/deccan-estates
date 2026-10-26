@@ -58,7 +58,7 @@ export function AccountMenu() {
         <span aria-hidden className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-[#b6f400] text-[14px] font-semibold uppercase text-black">{name[0]}</span>
         <span className="hidden min-w-0 leading-[1.15] sm:block">
           <span className="block max-w-[150px] truncate text-[11px] text-white/70">{greeting || "Hello"},</span>
-          <span className="block max-w-[150px] truncate text-[13px] font-medium uppercase tracking-[0.1em]">{name}</span>
+          <span className="mono-label block max-w-[150px] truncate">{name}</span>
         </span>
         <ChevronDown className="hidden h-3.5 w-3.5 opacity-70 transition-transform group-hover:rotate-180 group-focus-within:rotate-180 sm:block" />
       </button>

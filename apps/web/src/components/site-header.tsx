@@ -47,7 +47,7 @@ export function SiteHeader() {
     { label: "Compare homes", href: "/compare" },
     session ? { label: "Log out", href: "#logout" } : { label: "Log in", href: "/login" },
   ];
-  const btn = "flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-5 text-[13px] font-medium uppercase tracking-[0.12em] transition-transform hover:scale-[1.03] active:scale-95";
+  const btn = "mono-label flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-5 transition-transform hover:scale-[1.03] active:scale-95";
 
   return (
     <>
