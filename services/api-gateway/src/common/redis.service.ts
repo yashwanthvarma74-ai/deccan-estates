@@ -9,7 +9,18 @@ export class RedisService implements OnModuleDestroy {
     lazyConnect: this.off,
     enableOfflineQueue: !this.off,
     maxRetriesPerRequest: 2,
+    // With no cache configured, never keep reconnecting.
+    retryStrategy: this.off ? () => null : undefined,
   });
+
+  constructor() {
+    // Without a handler, every failed reconnect prints an unhandled error. The cache is optional, so report once and carry on.
+    let reported = false;
+    this.client.on('error', (e) => {
+      if (!reported) console.warn(`[redis] cache unavailable, continuing without it: ${e.message}`);
+      reported = true;
+    });
+  }
 
   /** Read-through cache. Falls back to the loader if Redis is down. */
   async cached<T>(key: string, ttlSeconds: number, load: () => Promise<T>): Promise<T> {
