@@ -13,6 +13,7 @@ import { AgentsController } from './agents.controller';
 import { SavedController } from './saved/saved.controller';
 import { EnquiriesController } from './enquiries/enquiries.controller';
 import { EventsService } from './events/events.service';
+import { OutboxService } from './events/outbox.service';
 import { VerificationController } from './verification/verification.controller';
 import { VerificationService } from './verification/verification.service';
 
@@ -25,6 +26,7 @@ import { VerificationService } from './verification/verification.service';
     ListingsService,
     VerificationService,
     EventsService,
+    OutboxService,
     AuthGuard,
     { provide: APP_GUARD, useClass: RateLimitGuard },
   ],

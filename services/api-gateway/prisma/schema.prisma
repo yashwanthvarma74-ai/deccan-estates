@@ -154,3 +154,18 @@ model Enquiry {
 
   @@index([createdAt])
 }
+
+/// Events waiting to be published to Kafka. Written in the same transaction as the change they describe,
+/// so an event is never lost if the broker is down; a dispatcher publishes and marks them.
+model OutboxEvent {
+  id          String    @id @default(cuid())
+  topic       String
+  key         String
+  payload     Json
+  attempts    Int       @default(0)
+  lastError   String?
+  createdAt   DateTime  @default(now())
+  publishedAt DateTime?
+
+  @@index([publishedAt, createdAt])
+}

@@ -26,4 +26,4 @@ Source footage for the hero is kept outside the repo and is not needed at runtim
 
 ## Enquiry events (Phase 2)
 
-Set `KAFKA_BROKERS` on the API to publish `enquiry.created`, and run `services/notifier` (`KAFKA_BROKERS`, optional `NOTIFY_WEBHOOK_URL` for a Slack-style webhook). Compose runs a single-node Kafka and the notifier under `--profile app`; in Helm set `kafkaBrokers`. Leave `KAFKA_BROKERS` unset to turn events off. See ADR 0010. Not yet run against a real broker.
+Set `KAFKA_BROKERS` on the API to publish `enquiry.created`, and run `services/notifier` (`KAFKA_BROKERS`, optional `NOTIFY_WEBHOOK_URL` for a Slack-style webhook). Compose runs a single-node Kafka and the notifier under `--profile app`; in Helm set `kafkaBrokers`. Leave `KAFKA_BROKERS` unset to turn events off. Events are saved in the database first (outbox) and replayed if Kafka is down, so run `prisma migrate deploy` before upgrading. See ADR 0010. The broker path itself has not been run against a real Kafka.

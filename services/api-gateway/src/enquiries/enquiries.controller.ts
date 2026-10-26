@@ -3,7 +3,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { z } from 'zod';
 import { parse } from '../common/zod';
 import { PrismaService } from '../common/prisma.service';
-import { EventsService, TOPICS } from '../events/events.service';
+import { TOPICS } from '../events/events.service';
+import { OutboxService } from '../events/outbox.service';
 
 const phone = z.string().trim().regex(/^[+0-9][0-9 ()-]{7,17}$/, 'Enter a valid phone number');
 
@@ -22,31 +23,35 @@ export const enquiryBody = z.object({
 @ApiTags('enquiries')
 @Controller('enquiries')
 export class EnquiriesController {
-  constructor(private prisma: PrismaService, private events: EventsService) {}
+  constructor(private prisma: PrismaService, private outbox: OutboxService) {}
 
   @Post()
   @HttpCode(201)
   async create(@Body() body: unknown) {
     const d = parse(enquiryBody, body);
-    const row = await this.prisma.enquiry.create({
-      data: {
-        name: d.name,
-        phone: d.phone,
-        email: d.email,
-        propertyType: d.propertyType,
-        locality: d.locality,
-        expectedPriceInr: d.expectedPriceLakh ? BigInt(Math.round(d.expectedPriceLakh * 100000)) : undefined,
-        message: d.message,
-      },
+    // The enquiry and its event are saved together, so the event survives a Kafka outage.
+    await this.prisma.$transaction(async (tx) => {
+      const row = await tx.enquiry.create({
+        data: {
+          name: d.name,
+          phone: d.phone,
+          email: d.email,
+          propertyType: d.propertyType,
+          locality: d.locality,
+          expectedPriceInr: d.expectedPriceLakh ? BigInt(Math.round(d.expectedPriceLakh * 100000)) : undefined,
+          message: d.message,
+        },
+      });
+      // Contact details stay in the database; the event carries only what a consumer needs to look the enquiry up.
+      await this.outbox.enqueue(tx, TOPICS.enquiryCreated, row.id, {
+        id: row.id,
+        propertyType: row.propertyType,
+        locality: row.locality,
+        expectedPriceInr: row.expectedPriceInr === null ? null : Number(row.expectedPriceInr),
+        createdAt: row.createdAt.toISOString(),
+      });
     });
-    // Contact details stay in the database; the event carries only what a consumer needs to look the enquiry up.
-    void this.events.publish(TOPICS.enquiryCreated, row.id, {
-      id: row.id,
-      propertyType: row.propertyType,
-      locality: row.locality,
-      expectedPriceInr: row.expectedPriceInr === null ? null : Number(row.expectedPriceInr),
-      createdAt: row.createdAt.toISOString(),
-    });
+    void this.outbox.dispatch();
     return { ok: true };
   }
 }
