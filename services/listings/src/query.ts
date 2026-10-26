@@ -24,6 +24,8 @@ export const listingQuery = z.object({
   minPrice: z.coerce.number().int().nonnegative().optional(),
   maxPrice: z.coerce.number().int().positive().optional(),
   minBeds: z.coerce.number().int().min(0).max(10).optional(),
+  /** Exactly this many bedrooms; 5 means five or more. */
+  beds: z.coerce.number().int().min(1).max(10).optional(),
   minArea: z.coerce.number().int().nonnegative().optional(),
   maxArea: z.coerce.number().int().positive().optional(),
   agent: z.string().max(64).optional(),

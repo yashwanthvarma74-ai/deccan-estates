@@ -1,12 +1,16 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  // Only same-site paths are honoured, so a crafted link cannot send people to another website after sign-in.
+  const asked = useSearchParams().get("next") ?? "/";
+  const next = asked.startsWith("/") && !asked.startsWith("//") ? asked : "/";
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [error, setError] = useState<string | null>(null);
 
@@ -20,14 +24,14 @@ export default function LoginPage() {
         ? await authClient.signUp.email({ email, password, name: String(f.get("name") || email) })
         : await authClient.signIn.email({ email, password });
     if (res.error) return setError(res.error.message ?? "Something went wrong");
-    router.push("/");
+    router.push(next);
     router.refresh();
   }
 
   async function passkeySignIn() {
     const res = await authClient.signIn.passkey();
     if (res?.error) return setError(res.error.message ?? "Passkey sign-in failed");
-    router.push("/");
+    router.push(next);
     router.refresh();
   }
 
@@ -47,5 +51,13 @@ export default function LoginPage() {
         {mode === "signin" ? "New here? Create an account" : "Have an account? Sign in"}
       </button>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

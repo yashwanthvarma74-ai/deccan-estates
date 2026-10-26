@@ -48,7 +48,7 @@ export const FIELDS_BY_TYPE: Record<PropertyType | "ANY", FieldGroup[]> = {
 
 /** URL keys owned by each field group, used to drop filters that no longer apply when the type changes. */
 export const KEYS_BY_GROUP: Record<FieldGroup, string[]> = {
-  beds: ["minBeds"], baths: ["minBaths"], plotArea: ["minPlotArea", "maxPlotArea", "unit"], builtUp: ["minArea", "maxArea"],
+  beds: ["minBeds", "beds"], baths: ["minBaths"], plotArea: ["minPlotArea", "maxPlotArea", "unit"], builtUp: ["minArea", "maxArea"],
   carpet: ["minCarpet", "maxCarpet"], floor: ["minFloor", "maxFloor"], storeys: ["minStoreys"], furnishing: ["furnishing"],
   parking: ["minParking"], age: ["maxAge"], possession: ["possession"], facing: ["facing"], approval: ["approval"],
   corner: ["corner"], road: ["minRoad"], gated: ["gated"], amenities: ["amenities"], ppsf: ["minPpsf", "maxPpsf"],
@@ -97,9 +97,12 @@ export function pricePerUnit(l: Listing) {
 
 /** Label/value rows for the detail page, chosen by property type. */
 export function specsFor(l: Listing, formatPrice: (n: number) => string): [string, string][] {
-  const rows: [string, string | null][] = [["Price", formatPrice(l.priceInr)]];
+  const rental = l.dealType === "RENT" || l.dealType === "LEASE";
+  const rows: [string, string | null][] = rental
+    ? [[l.dealType === "RENT" ? "Rent a month" : "Lease a month", formatPrice(l.priceInr)], ["Deposit", l.depositInr ? formatPrice(l.depositInr) : null]]
+    : [["Price", formatPrice(l.priceInr)]];
   const per = pricePerUnit(l);
-  rows.push([`Per ${per.unit}`, `₹${per.value.toLocaleString("en-IN")}`]);
+  rows.push([rental ? `Per ${per.unit} a month` : `Per ${per.unit}`, `₹${per.value.toLocaleString("en-IN")}`]);
 
   if (l.plotAreaSqYd) {
     rows.push(["Plot area", `${formatArea(l.plotAreaSqYd)} (${formatArea(l.plotAreaSqYd, "sqft")})`]);

@@ -5,8 +5,8 @@ type Path = { type: string; mono: string; title: string; text: string; chips: [s
 
 const PATHS: Path[] = [
   { type: "PLOT", mono: "Plots", title: "I want land to build on", text: "Approved plots with clear titles, measured in sq yd or acres.", chips: [["DTCP approved", "approval=DTCP"], ["HMDA approved", "approval=HMDA"], ["Corner plots", "corner=1"], ["Verified only", "verified=1"]] },
-  { type: "APARTMENT", mono: "Flats", title: "I want a ready flat", text: "2, 3 and 4 BHK homes in towers with lifts, parking and amenities.", chips: [["2 BHK+", "minBeds=2"], ["3 BHK+", "minBeds=3"], ["Ready to move", "possession=READY"], ["Verified only", "verified=1"]] },
-  { type: "VILLA", mono: "Villas", title: "I want my own villa", text: "Independent houses on their own plot, built and ready to move in.", chips: [["4 bedrooms+", "minBeds=4"], ["Private garden", "amenities=PRIVATE_GARDEN"], ["Private pool", "amenities=PRIVATE_POOL"], ["Verified only", "verified=1"]] },
+  { type: "APARTMENT", mono: "Flats", title: "I want a ready flat", text: "2, 3 and 4 BHK homes in towers with lifts, parking and amenities.", chips: [["2 BHK", "beds=2"], ["3 BHK", "beds=3"], ["Ready to move", "possession=READY"], ["Verified only", "verified=1"]] },
+  { type: "VILLA", mono: "Villas", title: "I want my own villa", text: "Independent houses on their own plot, built and ready to move in.", chips: [["4 bedrooms", "beds=4"], ["Private garden", "amenities=PRIVATE_GARDEN"], ["Private pool", "amenities=PRIVATE_POOL"], ["Verified only", "verified=1"]] },
   { type: "GATED_COMMUNITY", mono: "Gated", title: "I want a secure community", text: "Villas inside gated layouts with clubhouse, parks and 24x7 security.", chips: [["Clubhouse", "amenities=CLUBHOUSE"], ["Swimming pool", "amenities=SWIMMING_POOL"], ["Ready to move", "possession=READY"], ["Verified only", "verified=1"]] },
   { type: "COMMERCIAL", mono: "Commercial", title: "I want an office", text: "Grade-A floors in towers across Hyderabad's business districts.", chips: [["Ready to move", "possession=READY"], ["With parking", "minParking=1"], ["Under 2,000 sq ft", "maxArea=2000"], ["Verified only", "verified=1"]] },
 ];

@@ -4,7 +4,7 @@ import {
   AMENITIES_BY_TYPE, AMENITY_LABELS, APPROVAL_LABELS, FACING_LABELS, FIELDS_BY_TYPE, FURNISHING_LABELS, POSSESSION_LABELS,
   SQFT_PER_SQYD, UNIT_LABEL, formatArea, keysForType, type AreaUnit, type FieldGroup, type PropertyType,
 } from "@/lib/listing-meta";
-import { cn, formatInr, maxOptions, minOptions, NO_CAP, PRICE_STEPS } from "@/lib/utils";
+import { budgetSteps, cn, formatInr, maxOptions, minOptions, NO_CAP } from "@/lib/utils";
 
 type Locality = { id: string; name: string; slug: string };
 export type FilterValues = Partial<Record<FilterKey, string>>;
@@ -17,7 +17,7 @@ const PPSYD = [10000, 25000, 50000, 75000, 100000, 150000, 200000];
 
 /** Clears filters that don't apply to the newly chosen property type, then sets the type. */
 export function withType(values: FilterValues, type: string): FilterValues {
-  const allowed = new Set([...keysForType(type || undefined), "q", "locality", "type", "minPrice", "maxPrice", "agent", "sort"]);
+  const allowed = new Set([...keysForType(type || undefined), "q", "locality", "type", "minPrice", "maxPrice", "agent", "sort", "deal"]);
   const next: FilterValues = {};
   for (const [k, v] of Object.entries(values)) if (v && allowed.has(k)) next[k as FilterKey] = v;
   if (type) next.type = type;
@@ -158,8 +158,8 @@ export function AdvancedFields({ values, onChange, localities, agents, dark = tr
             {localities.map((l) => <option key={l.id} value={l.slug}>{l.name}</option>)}
           </select>
         </Box>
-        {select("minPrice", "Min price", "Any", minOptions(PRICE_STEPS, formatInr))}
-        {select("maxPrice", "Max price", "Any", maxOptions(PRICE_STEPS, formatInr))}
+        {select("minPrice", values.deal ? "Min rent a month" : "Min price", "Any", minOptions(budgetSteps(values.deal), formatInr))}
+        {select("maxPrice", values.deal ? "Max rent a month" : "Max price", "Any", maxOptions(budgetSteps(values.deal), formatInr))}
         {has("ppsf") && select("minPpsf", `Min price per ${type === "PLOT" ? "sq yd" : "sq ft"}`, "Any", ppsfOpts(false))}
         {has("ppsf") && select("maxPpsf", `Max price per ${type === "PLOT" ? "sq yd" : "sq ft"}`, "Any", ppsfOpts(true))}
         {select("agent", "Listing agent", "Any agent", agents.map((a) => ({ value: a.id, label: `${a.name} (${a.listingCount})` })))}
@@ -177,7 +177,7 @@ export function AdvancedFields({ values, onChange, localities, agents, dark = tr
             {select("maxPlotArea", `Max plot area (${UNIT_LABEL[unit]})`, "Any", maxOptions(PLOT_SQYD, plot))}
           </>
         )}
-        {has("beds") && select("minBeds", "Bedrooms", "Any", [1, 2, 3, 4, 5].map(nPlus))}
+        {has("beds") && select("beds", "Bedrooms", "Any", [1, 2, 3, 4, 5].map((n) => ({ value: n, label: n === 5 ? "5+" : String(n) })))}
         {has("baths") && select("minBaths", "Bathrooms", "Any", [1, 2, 3, 4, 5].map(nPlus))}
         {has("carpet") && select("minCarpet", "Min carpet area (sq ft)", "Any", minOptions(CARPET, sqft))}
         {has("carpet") && select("maxCarpet", "Max carpet area (sq ft)", "Any", maxOptions(CARPET, sqft))}

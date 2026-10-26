@@ -43,11 +43,16 @@ async function Stage() {
 }
 
 async function Featured() {
-  const { items } = await getListings({ sort: "price_desc", page: "1", pageSize: "50" });
+  // Commercial spaces only: the best-priced offices and shops for sale, one per area, then a few on long lease.
+  const [sale, lease] = await Promise.all([
+    getListings({ type: "COMMERCIAL", sort: "price_desc", page: "1", pageSize: "50" }),
+    getListings({ type: "COMMERCIAL", deal: "LEASE", sort: "price_desc", page: "1", pageSize: "10" }),
+  ]);
   const seen = new Set<string>();
-  const featured = items.filter((l) => !seen.has(l.locality.slug) && seen.add(l.locality.slug)).slice(0, 8);
+  const forSale = sale.items.filter((l) => !seen.has(l.locality.slug) && seen.add(l.locality.slug)).slice(0, 5);
+  const featured = [...forSale, ...lease.items.slice(0, 3)];
   return (
-    <SnapRow center progress label="Featured homes">
+    <SnapRow center progress label="Featured commercial spaces">
       {featured.map((l, i) => <FeaturedCard key={l.id} listing={l} index={i} />)}
     </SnapRow>
   );
@@ -102,14 +107,14 @@ export default function Home() {
 
       <section className="bg-paper pb-24 text-paper-ink" aria-labelledby="featured-h">
         <Reveal className="mx-auto mb-12 max-w-[1320px] px-5 text-center sm:px-8">
-          <p className="text-[1.15rem] text-paper-ink/40">Popular homes</p>
-          <h2 id="featured-h" className="mx-auto mt-3 max-w-[18ch] text-[clamp(2.4rem,4.6vw,4rem)] font-normal leading-[1] tracking-[-0.055em] text-paper-ink">Homes people are looking at in Hyderabad</h2>
+          <p className="text-[1.15rem] text-paper-ink/60">Popular commercial spaces</p>
+          <h2 id="featured-h" className="mx-auto mt-3 max-w-[18ch] text-[clamp(2.4rem,4.6vw,4rem)] font-normal leading-[1] tracking-[-0.055em] text-paper-ink">Offices and shops people are looking at</h2>
         </Reveal>
         <Reveal>
           <Suspense fallback={<Skeleton className="mx-auto aspect-[4/3] w-[66%] rounded-sm" />}><Featured /></Suspense>
         </Reveal>
         <div className="mt-10 flex justify-center">
-          <Link href="/listings" className="mono-label inline-flex h-14 items-center gap-3 rounded-lg bg-paper-ink/[0.06] px-10 text-paper-ink transition-colors hover:bg-paper-ink hover:text-white">See all homes <ArrowUpRight className="h-4 w-4" /></Link>
+          <Link href="/listings?type=COMMERCIAL" className="mono-label inline-flex h-14 items-center gap-3 rounded-lg bg-paper-ink/[0.06] px-10 text-paper-ink transition-colors hover:bg-paper-ink hover:text-white">See all commercial spaces <ArrowUpRight className="h-4 w-4" /></Link>
         </div>
       </section>
 

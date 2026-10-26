@@ -59,7 +59,7 @@ export function SearchPanel({ localities, agents }: { localities: Locality[]; ag
   }, [advanced]);
   const change = (k: FilterKey, val: string) => setV((prev) => (k === "type" ? withType(prev, val) : { ...prev, [k]: val }));
   const set = (k: FilterKey) => (e: React.ChangeEvent<HTMLSelectElement>) => change(k, e.target.value);
-  const basic = new Set(["type", "locality", "maxPrice", "minBeds", "minPlotArea"]);
+  const basic = new Set(["type", "locality", "maxPrice", "minBeds", "beds", "minPlotArea"]);
   const activeAdvanced = Object.entries(v).filter(([k, val]) => val && !basic.has(k) && k !== "unit").length;
 
   function submit(e: React.FormEvent) {
@@ -100,9 +100,9 @@ export function SearchPanel({ localities, agents }: { localities: Locality[]; ag
           </Field>
         ) : (
           <Field icon={BedDouble} label="Bedrooms">
-            <select value={v.minBeds ?? ""} onChange={set("minBeds")} className={select} aria-label="Minimum bedrooms">
+            <select value={v.beds ?? ""} onChange={set("beds")} className={select} aria-label="Bedrooms">
               <option value="">Any</option>
-              {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}+ bedrooms</option>)}
+              {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n === 5 ? "5+" : n} bedrooms</option>)}
             </select>
           </Field>
         )}

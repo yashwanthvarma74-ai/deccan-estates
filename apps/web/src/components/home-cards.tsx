@@ -21,6 +21,7 @@ export function FeaturedCard({ listing, index }: { listing: Listing; index: numb
     onSuccess: () => qc.invalidateQueries({ queryKey: ["saved"] }),
   });
   const [price, unit] = formatInr(listing.priceInr).split(" ");
+  const monthly = listing.dealType !== "SALE";
 
   return (
     <article className="group relative aspect-[4/3] w-[84%] shrink-0 snap-center overflow-hidden rounded-[22px] bg-card sm:w-[68%] lg:w-[66%]">
@@ -38,7 +39,7 @@ export function FeaturedCard({ listing, index }: { listing: Listing; index: numb
       <div className="pointer-events-none absolute inset-x-6 bottom-6 flex items-end justify-between gap-4 text-white">
         <div>
           <p className="flex items-center gap-2 text-sm"><MapPin className="h-4 w-4" />{listing.locality.name}, Hyderabad</p>
-          <h3 className="mt-2 text-[clamp(1.8rem,3.6vw,3rem)] font-semibold leading-none">{listing.title.split(" in ")[0]}</h3>
+          <h3 className="mt-2 text-[clamp(1.8rem,3.6vw,3rem)] font-semibold leading-none">{listing.title.replace(" (sample)", "").split(" in ")[0]}</h3>
           <p className="mt-3 text-sm text-white/85">
             {typeLabels[listing.type]} • {listing.areaSqft} sq ft{listing.bedrooms ? ` • ${listing.bedrooms} bedrooms` : ""}
           </p>
@@ -47,7 +48,7 @@ export function FeaturedCard({ listing, index }: { listing: Listing; index: numb
           <p className="text-right leading-none">
             <span className="block text-[0.65rem] text-white/70">from</span>
             <span className="text-[clamp(1.8rem,3.4vw,3rem)] font-medium">{price}</span>
-            <span className="ml-1 align-top text-sm">{unit}</span>
+            <span className="ml-1 align-top text-sm">{unit}{monthly ? " / month" : ""}</span>
           </p>
           <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/70"><Info className="h-4 w-4" /></span>
         </div>

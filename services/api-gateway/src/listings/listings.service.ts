@@ -28,6 +28,8 @@ export const listingQuery = z.object({
   minPrice: z.coerce.number().int().nonnegative().optional(),
   maxPrice: z.coerce.number().int().positive().optional(),
   minBeds: z.coerce.number().int().min(0).max(10).optional(),
+  /** Exactly this many bedrooms; 5 means five or more. */
+  beds: z.coerce.number().int().min(1).max(10).optional(),
   minArea: z.coerce.number().int().nonnegative().optional(),
   maxArea: z.coerce.number().int().positive().optional(),
   agent: z.string().max(64).optional(),
@@ -91,7 +93,7 @@ export class ListingsService {
       type: query.type,
       locality: query.locality ? { slug: query.locality } : undefined,
       priceInr: { gte: query.minPrice, lte: query.maxPrice },
-      bedrooms: query.minBeds ? { gte: query.minBeds } : undefined,
+      bedrooms: query.beds ? (query.beds >= 5 ? { gte: 5 } : { equals: query.beds }) : query.minBeds ? { gte: query.minBeds } : undefined,
       areaSqft: { gte: query.minArea, lte: query.maxArea },
       agentId: query.agent,
       plotAreaSqYd: { gte: query.minPlotArea, lte: query.maxPlotArea },

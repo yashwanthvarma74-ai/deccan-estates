@@ -5,12 +5,12 @@ import { BedDouble, ChevronDown, Home, MapPin, Ruler, Search, SlidersHorizontal,
 import { AdvancedFields, withType, type FilterValues } from "@/components/advanced-fields";
 import { FILTER_KEYS, typeLabels, type Agent, type FilterKey } from "@/lib/api";
 import { formatArea } from "@/lib/listing-meta";
-import { cn, formatInr, maxOptions, PRICE_STEPS } from "@/lib/utils";
+import { budgetSteps, cn, DEAL_LABELS, formatInr, maxOptions } from "@/lib/utils";
 
 type Locality = { id: string; name: string; slug: string };
 
 const STORAGE_KEY = "last-search";
-const BASIC = new Set<string>(["type", "locality", "maxPrice", "minBeds", "minPlotArea", "unit"]);
+const BASIC = new Set<string>(["deal", "type", "locality", "maxPrice", "minBeds", "beds", "minPlotArea", "unit"]);
 
 function fromParams(sp: URLSearchParams): FilterValues {
   const v: FilterValues = {};
@@ -124,10 +124,31 @@ export function SearchStrip({ localities, agents }: { localities: Locality[]; ag
   const activeAdvanced = Object.entries(values).filter(([k, val]) => val && !BASIC.has(k)).length;
   const anyActive = Object.values(values).some(Boolean);
   const plot = values.type === "PLOT";
-  const priceOpts = maxOptions(PRICE_STEPS, formatInr);
+  const priceOpts = maxOptions(budgetSteps(values.deal), formatInr);
 
+  const deal = values.deal ?? "SALE";
+  // A different deal means a different price scale, so the old budget is dropped.
+  const pickDeal = (d: keyof typeof DEAL_LABELS) => {
+    const kept = Object.fromEntries(Object.entries(values).filter(([k]) => !["deal", "minPrice", "maxPrice"].includes(k))) as FilterValues;
+    const next: FilterValues = d === "SALE" ? kept : { ...kept, deal: d };
+    setValues(next);
+    if (onResults) go(next);
+  };
   const fields = (
     <>
+      <div role="group" aria-label="Buy, rent or commercial" className="col-span-2 flex shrink-0 items-center gap-1 rounded-xl bg-black/30 p-1 lg:col-span-1">
+        {(Object.keys(DEAL_LABELS) as (keyof typeof DEAL_LABELS)[]).map((d) => (
+          <button
+            key={d}
+            type="button"
+            aria-pressed={deal === d}
+            onClick={() => pickDeal(d)}
+            className={cn("mono-label h-10 flex-1 cursor-pointer rounded-lg px-4 text-[12px] transition-colors", deal === d ? "bg-[#b6f400] text-black" : "text-white/80 hover:text-white")}
+          >
+            {DEAL_LABELS[d]}
+          </button>
+        ))}
+      </div>
       <Segment icon={Home} label="Property type">
         <select value={v("type")} onChange={(e) => change("type", e.target.value)} className={selectCls} aria-label="Property type">
           <option value="">Any type</option>
@@ -155,23 +176,23 @@ export function SearchStrip({ localities, agents }: { localities: Locality[]; ag
         </Segment>
       ) : (
         <Segment icon={BedDouble} label="Bedrooms">
-          <select value={v("minBeds")} onChange={(e) => change("minBeds", e.target.value)} className={selectCls} aria-label="Minimum bedrooms">
+          <select value={v("beds")} onChange={(e) => change("beds", e.target.value)} className={selectCls} aria-label="Bedrooms">
             <option value="">Any</option>
-            {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}+ BHK</option>)}
+            {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n === 5 ? "5+" : n} BHK</option>)}
           </select>
         </Segment>
       )}
     </>
   );
 
-  if (pathname === "/login" || pathname === "/sell") return null;
+  if (["/login", "/sell", "/post", "/account", "/privacy", "/terms", "/credits"].includes(pathname)) return null;
   return (
     <div ref={root} className="sticky top-[98px] z-40 border-b border-white/10 bg-bg/85 backdrop-blur-xl">
       <form onSubmit={submit} role="search" aria-label="Change your search" className="mx-auto max-w-[1600px] px-4 py-3 sm:px-6 lg:px-[60px]">
         {/* Small screens: one line, tap to open the fields. */}
         <button type="button" onClick={() => setMobileOpen(!mobileOpen)} aria-expanded={mobileOpen} className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-white/15 bg-white/[0.07] px-4 py-3 text-left lg:hidden">
           <span className="flex items-center gap-3 text-[15px]"><Search className="h-5 w-5" />
-            {[v("type") && typeLabels[v("type") as keyof typeof typeLabels], localities.find((l) => l.slug === v("locality"))?.name].filter(Boolean).join(" · ") || "Change your search"}
+            {[deal !== "SALE" && DEAL_LABELS[deal as keyof typeof DEAL_LABELS], v("type") && typeLabels[v("type") as keyof typeof typeLabels], localities.find((l) => l.slug === v("locality"))?.name].filter(Boolean).join(" · ") || "Change your search"}
           </span>
           <ChevronDown className={cn("h-5 w-5 transition-transform", mobileOpen && "rotate-180")} />
         </button>

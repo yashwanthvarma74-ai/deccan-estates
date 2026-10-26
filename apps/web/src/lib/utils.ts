@@ -12,6 +12,19 @@ export function formatInr(value: number) {
   return `₹${value.toLocaleString("en-IN")}`;
 }
 
+export type Deal = "SALE" | "RENT" | "LEASE";
+export const DEAL_LABELS: Record<Deal, string> = { SALE: "Buy", RENT: "Rent", LEASE: "Commercial" };
+export const DEAL_TAGS: Record<Deal, string> = { SALE: "For sale", RENT: "For rent", LEASE: "Commercial lease" };
+
+/** Price as shown to people: rent and lease are monthly amounts. */
+export function priceLabel(l: { priceInr: number; dealType?: string }) {
+  return l.dealType === "RENT" || l.dealType === "LEASE" ? `${formatInr(l.priceInr)} / month` : formatInr(l.priceInr);
+}
+
+/** Monthly budget steps in rupees for rent and lease searches. */
+export const RENT_STEPS = [5_000, 10_000, 15_000, 25_000, 40_000, 60_000, 100_000, 200_000, 500_000];
+export const budgetSteps = (deal?: string) => (deal === "RENT" || deal === "LEASE" ? RENT_STEPS : PRICE_STEPS);
+
 /** Budget steps in rupees, 25 L up to 20 Cr. The top step reads "20 Cr+" when used as a minimum. */
 export const PRICE_STEPS = [2_500_000, 5_000_000, 7_500_000, 10_000_000, 15_000_000, 20_000_000, 30_000_000, 50_000_000, 75_000_000, 100_000_000, 150_000_000, 200_000_000];
 export const TOP_PRICE = PRICE_STEPS[PRICE_STEPS.length - 1];

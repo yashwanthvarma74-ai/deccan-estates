@@ -50,7 +50,13 @@ export const listingSchema = z.object({
   lat: z.number(),
   lng: z.number(),
   locality,
-  agent: z.object({ name: z.string(), phone: z.string(), reraId: z.string() }),
+  dealType: z.enum(["SALE", "RENT", "LEASE"]).default("SALE"),
+  depositInr: z.number().nullable().default(null),
+  images: z.array(z.string()).default([]),
+  /** Set when a person posted the listing themselves instead of an agent. */
+  owner: z.object({ name: z.string() }).nullable().default(null),
+  status: z.enum(["ACTIVE", "SOLD", "DRAFT"]).optional(),
+  agent: z.object({ name: z.string(), phone: z.string(), reraId: z.string() }).nullable(),
   verification: z
     .object({
       status: z.enum(["VERIFIED", "CAUTION", "RISK"]),
@@ -125,6 +131,7 @@ export const mapPointSchema = z.object({
   lng: z.number(),
   priceInr: z.number(),
   imageUrl: z.string(),
+  dealType: z.string().default("SALE"),
   type: z.string(),
   areaSqft: z.number(),
   plotAreaSqYd: z.number().nullable(),
@@ -146,10 +153,10 @@ export const fetchAgents = async (base = API_URL) =>
 
 /** Every filter the search supports, in one place so forms and URLs stay in sync. */
 export const FILTER_KEYS = [
-  "q", "locality", "type", "minPrice", "maxPrice", "minBeds", "minBaths",
+  "q", "locality", "type", "minPrice", "maxPrice", "minBeds", "beds", "minBaths",
   "minArea", "maxArea", "minPlotArea", "maxPlotArea", "minCarpet", "maxCarpet",
   "minFloor", "maxFloor", "minStoreys", "minParking", "maxAge", "minRoad", "minPpsf", "maxPpsf",
   "facing", "furnishing", "possession", "approval", "amenities", "corner", "gated", "verified",
-  "agent", "sort", "unit",
+  "agent", "sort", "unit", "deal",
 ] as const;
 export type FilterKey = (typeof FILTER_KEYS)[number];

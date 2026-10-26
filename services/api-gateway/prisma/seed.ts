@@ -44,7 +44,7 @@ async function main() {
     ),
   );
   const agents = await Promise.all(
-    ['Ravi Teja', 'Sneha Reddy', 'Imran Khan', 'Lakshmi Prasad'].map((name, i) =>
+    ['Ravi Teja', 'Akhil Yadav', 'Imran Khan', 'Mahesh'].map((name, i) =>
       prisma.agent.create({
         data: { name, phone: `+91 98480 0${1000 + i}`, reraId: `A5560${1000 + i}` },
       }),

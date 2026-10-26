@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { formatInr, cn } from "@/lib/utils";
+import { DEAL_TAGS, priceLabel, cn, type Deal } from "@/lib/utils";
 import { type Listing, typeLabels } from "@/lib/api";
 import { useCompare } from "@/stores/compare";
 import { areaSummary, pricePerUnit } from "@/lib/listing-meta";
@@ -37,7 +37,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
           className="aspect-[3/2] w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <span className="absolute left-3 top-3 rounded-md bg-bg/70 px-2 py-1 text-xs font-medium text-white backdrop-blur">
-          {typeLabels[listing.type]}
+          {listing.dealType !== "SALE" ? `${DEAL_TAGS[listing.dealType as Deal]} · ` : ""}{typeLabels[listing.type]}
         </span>
         <VerifyBadge report={listing.verification} className="absolute bottom-3 left-3" />
       </Link>
@@ -55,10 +55,10 @@ export function ListingCard({ listing }: { listing: Listing }) {
           <Link href={`/listings/${listing.id}`} className="hover:underline">{listing.title}</Link>
         </h3>
         <p className="text-sm text-muted">{listing.locality.name}, Hyderabad, Telangana</p>
-        <p className="mt-4 text-lg font-semibold tracking-tight">{formatInr(listing.priceInr)}</p>
+        <p className="mt-4 text-lg font-semibold tracking-tight">{priceLabel(listing)}</p>
         <p className="mt-1 text-sm text-muted">{areaSummary(listing)}</p>
-        <p className="mt-0.5 text-xs text-muted">₹{pricePerUnit(listing).value.toLocaleString("en-IN")} / {pricePerUnit(listing).unit}</p>
-        <p className="mt-auto pt-4 text-sm text-muted">Marketed by {listing.agent.name}</p>
+        <p className="mt-0.5 text-xs text-muted">₹{pricePerUnit(listing).value.toLocaleString("en-IN")} / {pricePerUnit(listing).unit}{listing.dealType !== "SALE" ? " a month" : ""}</p>
+        <p className="mt-auto pt-4 text-sm text-muted">{listing.agent ? `Marketed by ${listing.agent.name}` : `Posted by ${listing.owner?.name ?? "the owner"}`}</p>
         <button
           onClick={() => toggleCompare(listing.id)}
           aria-pressed={comparing}

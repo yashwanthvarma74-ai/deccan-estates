@@ -49,6 +49,20 @@ run('listings service', () => {
     expect((await call('listings.byId', { id: 'nope' })).statusCode).toBe(404);
   });
 
+  it('matches exact bedroom counts, with 5 meaning five or more', async () => {
+    for (const [beds, ok] of [['3', (n: number) => n === 3], ['5', (n: number) => n >= 5]] as const) {
+      const r = data(await call('listings.search', { beds, pageSize: '50' }));
+      for (const i of r.items) expect(ok(i.bedrooms)).toBe(true);
+    }
+  });
+
+  it('keeps rent, lease and sale listings apart', async () => {
+    for (const deal of ['SALE', 'RENT', 'LEASE']) {
+      const r = data(await call('listings.search', { deal, pageSize: '50' }));
+      expect(r.items.every((i: { dealType: string }) => i.dealType === deal)).toBe(true);
+    }
+  });
+
   it('rejects bad input', async () => {
     expect((await call('listings.search', { pageSize: '500' })).statusCode).toBe(400);
   });
@@ -63,6 +77,7 @@ run('listings service', () => {
   const queries: Record<string, string>[] = [
     {}, { pageSize: '50' }, { locality: 'kondapur' }, { type: 'PLOT', sort: 'price_desc' }, { minPrice: '20000000', maxPrice: '80000000' },
     { verified: '1' }, { gated: '1', minBeds: '3' }, { possession: 'READY', approval: 'RERA,HMDA' }, { q: 'villa' }, { facing: 'EAST,NORTH', sort: 'price_asc' }, { page: '2', pageSize: '5' },
+    { beds: '3' }, { beds: '5' }, { deal: 'RENT' }, { deal: 'LEASE', type: 'COMMERCIAL' }, { deal: 'RENT', beds: '2', sort: 'price_asc' },
   ];
   parity.each(queries)('matches the gateway for %j', async (q) => {
     const mine = data(await call('listings.search', q));

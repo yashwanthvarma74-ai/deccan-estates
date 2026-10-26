@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Minus, Plus, List, Star } from "lucide-react";
 import type { Map as MlMap, GeoJSONSource } from "maplibre-gl";
 import { PUBLIC_API_URL, fetchLocalities, fetchMapPoints, typeLabels, type Listing, type ListingFilters } from "@/lib/api";
-import { formatInr } from "@/lib/utils";
+import { priceLabel } from "@/lib/utils";
 
 const HYDERABAD: [number, number] = [78.4867, 17.385];
 const NAVY = "#070c26";
@@ -94,7 +94,7 @@ export function ResultsMap() {
             shown = String(p.id);
             hover
               .setLngLat((f.geometry as { coordinates: [number, number] }).coordinates)
-              .setHTML(`<a href="/listings/${esc(p.id)}"><img src="${esc(p.image)}" alt="" /><span class="mc-body"><span class="mc-kind">${esc(p.kind)} · ${esc(p.locality)}</span><strong>${esc(p.title)}</strong><span class="mc-price">${formatInr(Number(p.price))}</span><span class="mc-size">${esc(p.size)}</span></span></a>`)
+              .setHTML(`<a href="/listings/${esc(p.id)}"><img src="${esc(p.image)}" alt="" /><span class="mc-body"><span class="mc-kind">${esc(p.kind)} · ${esc(p.locality)}</span><strong>${esc(p.title)}</strong><span class="mc-price">${priceLabel({ priceInr: Number(p.price), dealType: String(p.deal) })}</span><span class="mc-size">${esc(p.size)}</span></span></a>`)
               .addTo(m);
           }
           document.getElementById(`listing-${p.id}`)?.classList.add("ring-1", "ring-[#b6f400]");
@@ -130,7 +130,7 @@ export function ResultsMap() {
       features: points.data.map((p) => ({
         type: "Feature",
         properties: {
-          id: p.id, title: p.title, price: p.priceInr, image: p.imageUrl, locality: p.locality,
+          id: p.id, title: p.title, price: p.priceInr, deal: p.dealType, image: p.imageUrl, locality: p.locality,
           kind: typeLabels[p.type as Listing["type"]] ?? p.type,
           size: p.type === "PLOT" ? `${p.plotAreaSqYd ?? Math.round(p.areaSqft / 9)} sq yd` : `${p.bedrooms ? `${p.bedrooms} BHK · ` : ""}${p.areaSqft.toLocaleString("en-IN")} sq ft`,
         },

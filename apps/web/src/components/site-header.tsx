@@ -12,6 +12,9 @@ const MENUS: { label: string; items?: Item[]; href?: string }[] = [
   {
     label: "Homes",
     items: [
+      { label: "All homes for sale", href: "/listings" },
+      { label: "Homes for rent", href: "/listings?deal=RENT" },
+      { label: "Commercial spaces", href: "/listings?deal=LEASE" },
       { label: "Plots", href: "/listings?type=PLOT" },
       { label: "Flats", href: "/listings?type=APARTMENT" },
       { label: "Villas", href: "/listings?type=VILLA" },
@@ -36,7 +39,9 @@ export function SiteHeader() {
   const { data: session } = authClient.useSession();
 
   const resources: Item[] = [
+    ...(session ? [{ label: "My listings", href: "/account" }] : []),
     { label: "Saved homes", href: session ? "/saved" : "/login" },
+    { label: "Sell with agent help", href: "/sell" },
     { label: "Compare homes", href: "/compare" },
     session ? { label: "Log out", href: "#logout" } : { label: "Log in", href: "/login" },
   ];
@@ -76,8 +81,10 @@ export function SiteHeader() {
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
-            <Link href="/listings" className={cn(btn, "bg-[#b6f400] text-black")}>Explore<br />homes</Link>
-            <Link href="/sell" className={cn(btn, "hidden bg-white text-black sm:flex")}>Sell<br />with us</Link>
+            <Link href="/post" className={cn(btn, "bg-[#b6f400] text-black")}>Post<br />property</Link>
+            {session
+              ? <Link href="/account" className={cn(btn, "hidden bg-white text-black sm:flex")}>My<br />listings</Link>
+              : <Link href="/login" className={cn(btn, "hidden bg-white text-black sm:flex")}>Log in<br />or sign up</Link>}
             <a href="tel:+919985079998" className={cn(btn, "hidden bg-[#d9dada] text-[#2b3030] min-[1180px]:flex")}>Contact<br />us</a>
             <button aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} onClick={() => setOpen((v) => !v)} className="ml-1 flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-white min-[1180px]:hidden">
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -88,7 +95,7 @@ export function SiteHeader() {
         {open && (
           <nav aria-label="Mobile" className="mx-auto mt-2 max-w-[1036px] rounded-xl bg-black/90 p-4 backdrop-blur-xl min-[1180px]:hidden">
             <ul className="grid gap-1 text-[16px]">
-              {[...MENUS[0].items!, { label: "Verified listings", href: "/listings?verified=1" }, { label: "Sell with us", href: "/sell" }, ...resources.filter((r) => r.href !== "#logout"), { label: "Guides", href: "/stories" }].map((it) => (
+              {[{ label: "Post your property", href: "/post" }, ...MENUS[0].items!, { label: "Verified listings", href: "/listings?verified=1" }, ...resources.filter((r) => r.href !== "#logout"), { label: "Guides", href: "/stories" }, ...(session ? [] : [{ label: "Log in or sign up", href: "/login" }])].map((it) => (
                 <li key={it.label}><Link href={it.href} onClick={() => setOpen(false)} className="block rounded-lg px-3 py-3 text-white/90 hover:bg-white/10">{it.label}</Link></li>
               ))}
             </ul>

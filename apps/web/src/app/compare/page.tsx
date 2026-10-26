@@ -4,7 +4,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { PUBLIC_API_URL, fetchListing, typeLabels } from "@/lib/api";
 import { areaSummary, pricePerUnit } from "@/lib/listing-meta";
-import { formatInr } from "@/lib/utils";
+import { priceLabel } from "@/lib/utils";
 import { useCompare } from "@/stores/compare";
 
 export default function ComparePage() {
@@ -26,7 +26,7 @@ export default function ComparePage() {
   const rows: [string, (l: (typeof listings)[number]) => string][] = [
     ["Type", (l) => typeLabels[l.type]],
     ["Locality", (l) => l.locality.name],
-    ["Price", (l) => formatInr(l.priceInr)],
+    ["Price", (l) => priceLabel(l)],
     ["Size", (l) => areaSummary(l)],
     ["Price per unit", (l) => `₹${pricePerUnit(l).value.toLocaleString("en-IN")} / ${pricePerUnit(l).unit}`],
     ["Locality avg ₹ / sq ft", (l) => `₹${l.locality.avgPricePerSqft.toLocaleString("en-IN")}`],

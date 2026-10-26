@@ -19,7 +19,7 @@ function conditions(q: ListingQuery): SQL | undefined {
     q.type ? eq(listing.type, q.type) : undefined,
     q.locality ? eq(locality.slug, q.locality) : undefined,
     ...range(listing.priceInr, q.minPrice, q.maxPrice),
-    q.minBeds ? gte(listing.bedrooms, q.minBeds) : undefined,
+    q.beds ? (q.beds >= 5 ? gte(listing.bedrooms, 5) : eq(listing.bedrooms, q.beds)) : q.minBeds ? gte(listing.bedrooms, q.minBeds) : undefined,
     ...range(listing.areaSqft, q.minArea, q.maxArea),
     q.agent ? eq(listing.agentId, q.agent) : undefined,
     ...range(listing.plotAreaSqYd, q.minPlotArea, q.maxPlotArea),

@@ -179,7 +179,7 @@ export function Hero({ counts }: { counts: TypeCounts }) {
               <span className="h-px w-10 bg-[#b6f400]" />Hyderabad · Plots · Villas · Flats · Commercial
             </p>
             <h1 className="intro-rise mt-4 max-w-none text-[clamp(2.3rem,5.4vw,5rem)] font-normal leading-[1] tracking-[-0.055em] text-white" style={{ animationDelay: "140ms" }}>
-              Build your place in <span className="font-light italic text-[#ffd9a3]">Hyderabad.</span>
+              Build your place in <span className="tracking-[-0.04em] text-[#ffd9a3]">Hyderabad.</span>
             </h1>
             <ul className="intro-rise mt-6 flex flex-wrap gap-2.5" aria-label="What are you looking for?" style={{ animationDelay: "300ms" }}>
               {TYPES.map(({ type, title }) => (
