@@ -3,6 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { z } from 'zod';
 import { parse } from '../common/zod';
 import { PrismaService } from '../common/prisma.service';
+import { EventsService, TOPICS } from '../events/events.service';
 
 const phone = z.string().trim().regex(/^[+0-9][0-9 ()-]{7,17}$/, 'Enter a valid phone number');
 
@@ -21,13 +22,13 @@ export const enquiryBody = z.object({
 @ApiTags('enquiries')
 @Controller('enquiries')
 export class EnquiriesController {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private events: EventsService) {}
 
   @Post()
   @HttpCode(201)
   async create(@Body() body: unknown) {
     const d = parse(enquiryBody, body);
-    await this.prisma.enquiry.create({
+    const row = await this.prisma.enquiry.create({
       data: {
         name: d.name,
         phone: d.phone,
@@ -37,6 +38,14 @@ export class EnquiriesController {
         expectedPriceInr: d.expectedPriceLakh ? BigInt(Math.round(d.expectedPriceLakh * 100000)) : undefined,
         message: d.message,
       },
+    });
+    // Contact details stay in the database; the event carries only what a consumer needs to look the enquiry up.
+    void this.events.publish(TOPICS.enquiryCreated, row.id, {
+      id: row.id,
+      propertyType: row.propertyType,
+      locality: row.locality,
+      expectedPriceInr: row.expectedPriceInr === null ? null : Number(row.expectedPriceInr),
+      createdAt: row.createdAt.toISOString(),
     });
     return { ok: true };
   }

@@ -12,6 +12,7 @@ import { LocalitiesController } from './localities/localities.controller';
 import { AgentsController } from './agents.controller';
 import { SavedController } from './saved/saved.controller';
 import { EnquiriesController } from './enquiries/enquiries.controller';
+import { EventsService } from './events/events.service';
 import { VerificationController } from './verification/verification.controller';
 import { VerificationService } from './verification/verification.service';
 
@@ -23,6 +24,7 @@ import { VerificationService } from './verification/verification.service';
     RedisService,
     ListingsService,
     VerificationService,
+    EventsService,
     AuthGuard,
     { provide: APP_GUARD, useClass: RateLimitGuard },
   ],

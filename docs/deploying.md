@@ -23,3 +23,7 @@ Source footage for the hero is kept outside the repo and is not needed at runtim
 ## Verification service (Phase 2)
 
 `services/verification` is a Go gRPC service on port 4200. Run it with `go run ./cmd/server` from that folder, or build `infra/docker/verification.Dockerfile`. Set `VERIFICATION_GRPC_ADDR=host:4200` on the API and `POST /listings/:id/verification` (signed in) creates a missing report through it, falling back to the built-in report if it is unreachable. The seed script still uses the built-in version. See ADR 0009.
+
+## Enquiry events (Phase 2)
+
+Set `KAFKA_BROKERS` on the API to publish `enquiry.created`, and run `services/notifier` (`KAFKA_BROKERS`, optional `NOTIFY_WEBHOOK_URL` for a Slack-style webhook). Compose runs a single-node Kafka and the notifier under `--profile app`; in Helm set `kafkaBrokers`. Leave `KAFKA_BROKERS` unset to turn events off. See ADR 0010. Not yet run against a real broker.

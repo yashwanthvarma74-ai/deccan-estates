@@ -28,6 +28,7 @@
     "@prisma/client": "^6.19.3",
     "ioredis": "^6.0.0",
     "jose": "^6.2.13",
+    "kafkajs": "^2.2.4",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "zod": "^4.6.7"

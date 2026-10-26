@@ -9,5 +9,10 @@ api:
 verification:
   image: ghcr.io/your-org/deccan-verification:latest
   replicas: 2
+notifier:
+  image: ghcr.io/your-org/deccan-notifier:latest
+  replicas: 1
+# Kafka bootstrap servers, e.g. managed Kafka or an in-cluster broker; leave empty to turn events off
+kafkaBrokers: ""
 secretName: deccan-secrets
 otlpEndpoint: ""
