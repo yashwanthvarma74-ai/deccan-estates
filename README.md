@@ -72,15 +72,15 @@ flowchart LR
     S[("S3-compatible<br/>photo storage")]
   end
   B --> W
-  W -->|REST| G
-  W -.->|"optional reads (parity-tested)"| L
-  W -->|tool calls| G
-  G -->|gRPC, with in-process fallback| V
+  W -->|"REST"| G
+  W -.->|"optional reads"| L
+  W -->|"tool calls"| G
+  G -->|"gRPC with fallback"| V
   G --> P
   L --> P
   G --> R
-  G -->|photos| S
-  G -->|outbox relay| K
+  G -->|"photos"| S
+  G -->|"outbox relay"| K
   K --> N
   W --> A
 ```
