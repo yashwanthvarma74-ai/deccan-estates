@@ -2,9 +2,10 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Minus, Plus, List, Star } from "lucide-react";
 import type { Map as MlMap, GeoJSONSource } from "maplibre-gl";
+import { GoogleResultsMap } from "@/components/google-results-map";
 import { PUBLIC_API_URL, fetchLocalities, fetchMapPoints, typeLabels, type Listing, type ListingFilters } from "@/lib/api";
 import { priceLabel } from "@/lib/utils";
 
@@ -33,7 +34,7 @@ function circle([lng, lat]: [number, number], km: number) {
   return { type: "Feature" as const, properties: {}, geometry: { type: "Polygon" as const, coordinates: [pts] } };
 }
 
-export function ResultsMap() {
+function OpenStreetMapResults() {
   const sp = useSearchParams();
   const router = useRouter();
   const routerRef = useRef(router);
@@ -217,4 +218,17 @@ export function ResultsMap() {
       </div>
     </div>
   );
+}
+
+const GOOGLE_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+/**
+ * The results map. Uses Google Maps when NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is set; if Google refuses to load
+ * (bad key, billing off, key limited to other addresses) it switches to the OpenStreetMap map so the page is never blank.
+ */
+export function ResultsMap() {
+  const [googleFailed, setGoogleFailed] = useState(false);
+  const fail = useCallback(() => setGoogleFailed(true), []);
+  if (GOOGLE_KEY && !googleFailed) return <GoogleResultsMap apiKey={GOOGLE_KEY} onFail={fail} />;
+  return <OpenStreetMapResults />;
 }
