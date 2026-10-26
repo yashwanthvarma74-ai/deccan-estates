@@ -196,6 +196,7 @@ export function AdvancedFields({ values, onChange, localities, agents, dark = tr
         {has("furnishing") && <Chips dark={dark} label="Furnishing" options={FURNISHING_LABELS} value={v("furnishing")} onChange={(x) => onChange("furnishing", x)} />}
         {has("parking") && select("minParking", "Car parking", "Any", [1, 2, 3].map((n) => ({ value: n, label: `${n}+ covered` })))}
         {has("age") && select("maxAge", "Age of property", "Any", [{ value: 0, label: "New / under construction" }, { value: 1, label: "Up to 1 year" }, { value: 3, label: "Up to 3 years" }, { value: 5, label: "Up to 5 years" }, { value: 10, label: "Up to 10 years" }])}
+        <Toggle dark={dark} label="Verified listings only" checked={v("verified") === "1"} onChange={(c) => onChange("verified", c ? "1" : "")} />
         {has("corner") && <Toggle dark={dark} label="Corner plot only" checked={v("corner") === "1"} onChange={(c) => onChange("corner", c ? "1" : "")} />}
         {has("gated") && <Toggle dark={dark} label={type === "PLOT" ? "Gated layout only" : "Gated community only"} checked={v("gated") === "1"} onChange={(c) => onChange("gated", c ? "1" : "")} />}
       </Section>

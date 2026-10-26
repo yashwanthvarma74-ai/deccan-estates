@@ -74,13 +74,16 @@ export function SearchStrip({ localities, agents }: { localities: Locality[]; ag
 
   // On the results page the URL is the source of truth; elsewhere restore the last search.
   useEffect(() => {
-    if (onResults) {
-      const next = fromParams(new URLSearchParams(urlQuery));
-      setValues(next);
-      try { sessionStorage.setItem(STORAGE_KEY, toQuery(next)); } catch {}
-    } else {
-      try { setValues(fromParams(new URLSearchParams(sessionStorage.getItem(STORAGE_KEY) ?? ""))); } catch { setValues({}); }
-    }
+    const id = window.setTimeout(() => {
+      if (onResults) {
+        const next = fromParams(new URLSearchParams(urlQuery));
+        setValues(next);
+        try { sessionStorage.setItem(STORAGE_KEY, toQuery(next)); } catch {}
+      } else {
+        try { setValues(fromParams(new URLSearchParams(sessionStorage.getItem(STORAGE_KEY) ?? ""))); } catch { setValues({}); }
+      }
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [onResults, urlQuery]);
 
   // Close the Advanced panel on outside click or Escape.
@@ -161,8 +164,9 @@ export function SearchStrip({ localities, agents }: { localities: Locality[]; ag
     </>
   );
 
+  if (pathname === "/login" || pathname === "/sell") return null;
   return (
-    <div ref={root} className="sticky top-[72px] z-40 border-b border-white/10 bg-bg/85 backdrop-blur-xl">
+    <div ref={root} className="sticky top-[98px] z-40 border-b border-white/10 bg-bg/85 backdrop-blur-xl">
       <form onSubmit={submit} role="search" aria-label="Change your search" className="mx-auto max-w-[1600px] px-4 py-3 sm:px-6 lg:px-[60px]">
         {/* Small screens: one line, tap to open the fields. */}
         <button type="button" onClick={() => setMobileOpen(!mobileOpen)} aria-expanded={mobileOpen} className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-white/15 bg-white/[0.07] px-4 py-3 text-left lg:hidden">

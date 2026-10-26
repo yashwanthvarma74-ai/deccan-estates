@@ -28,8 +28,8 @@ const COPY: Record<string, { label: string; title: string; text: string; cta?: {
   },
   apartment: {
     label: "04 — Flats",
-    title: "Or take a ready flat in a tower.",
-    text: "Seven floors, lifts, parking and amenities already in place. Move in, no construction to manage.",
+    title: "Or live in a gated community.",
+    text: "Three apartment blocks behind one gate, with a gatehouse, internal roads, lifts and parking. Move in, no construction to manage.",
     cta: { href: "/listings?type=APARTMENT", text: "Browse flats" },
   },
   commercial: {
@@ -58,7 +58,7 @@ const TYPES = [
  * Scroll-driven construction. The stage stays pinned while scrolling builds, in order: a plot, its fence,
  * a villa, an apartment tower and a commercial high-rise, each rising from the ground up on a canvas.
  */
-export function BuildStory({ counts }: { counts: TypeCounts }) {
+export function BuildStory({ counts, intro = true }: { counts: TypeCounts; intro?: boolean }) {
   const outer = useRef<HTMLElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [chapter, setChapter] = useState<string>("intro");
@@ -128,9 +128,10 @@ export function BuildStory({ counts }: { counts: TypeCounts }) {
       <div className="sticky top-0 h-screen overflow-hidden">
         <canvas ref={canvas} aria-hidden className="absolute inset-0 h-full w-full" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_80%,transparent_0%,rgb(0_0_0/0.55)_100%)]" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,#000_0%,#000_26%,transparent_44%)] md:hidden" />
 
         {/* Intro: one clear question and one-tap answers. */}
-        <div className={cn("absolute inset-0 flex flex-col justify-center px-5 pb-10 pt-24 transition-all duration-700 sm:px-8", chapter === "intro" ? "opacity-100" : "pointer-events-none -translate-y-6 opacity-0")}>
+        {intro && <div className={cn("absolute inset-0 flex flex-col justify-center px-5 pb-10 pt-24 transition-all duration-700 sm:px-8", chapter === "intro" ? "opacity-100" : "pointer-events-none -translate-y-6 opacity-0")}>
           <div className="mx-auto w-full max-w-[1320px]">
             <p className="mono-label text-white/60">Hyderabad · Plots · Villas · Flats · Commercial</p>
             <h1 className="mt-5 max-w-[14ch] text-[clamp(2.8rem,7vw,6.2rem)] font-normal text-white">Build your place in Hyderabad.</h1>
@@ -150,7 +151,7 @@ export function BuildStory({ counts }: { counts: TypeCounts }) {
             <span className="mono-label">Scroll to build</span>
             <span className="h-10 w-px overflow-hidden bg-white/20"><span className="block h-full w-full animate-[scroll-cue_2.4s_ease-in-out_infinite] bg-white" /></span>
           </div>
-        </div>
+        </div>}
 
         {/* Chapter copy */}
         {copy && chapter !== "intro" && (

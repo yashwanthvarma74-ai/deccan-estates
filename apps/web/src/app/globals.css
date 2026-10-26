@@ -8,8 +8,8 @@
   --color-card-hi: #17191a;
   --color-taupe: #83776d;
   --color-ink: #ffffff;
-  --color-body: #b4b8b8;
-  --color-muted: #7d8282;
+  --color-body: #d0d4d4;
+  --color-muted: #a9aeae;
   --color-line: rgb(255 255 255 / 0.12);
   --color-surface: #0b0c0d;
   --color-navy: #000000;
@@ -18,6 +18,8 @@
   --color-paper-ink: #052424;
   --color-paper-card: #ebecec;
   --color-gold: #b9ad9f;
+  --color-forest: #0a1c19;
+  --color-lime: #b6f400;
   --font-sans: var(--font-inter-tight), "Suisse Intl", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-serif: var(--font-sans);
@@ -65,8 +67,10 @@
 }
 
 .maplibregl-ctrl-attrib { font-size: 10px; }
-.maplibregl-popup-content { background: var(--color-card); color: #fff; border-radius: 12px; }
-.maplibregl-popup-tip { border-top-color: var(--color-card) !important; border-bottom-color: var(--color-card) !important; }
+.maplibregl-popup .maplibregl-popup-content { background: var(--color-card) !important; color: #fff !important; border: 1px solid rgb(255 255 255 / 0.18); border-radius: 12px; padding: 12px 16px; font-size: 14px; line-height: 1.35; box-shadow: 0 10px 30px rgb(0 0 0 / 0.5); }
+.maplibregl-popup-content a { color: #fff; text-decoration: none; }
+.maplibregl-popup-anchor-top .maplibregl-popup-tip, .maplibregl-popup-anchor-top-left .maplibregl-popup-tip, .maplibregl-popup-anchor-top-right .maplibregl-popup-tip { border-bottom-color: var(--color-card) !important; }
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip, .maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip, .maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip { border-top-color: var(--color-card) !important; }
 
 @keyframes ring-spin { to { transform: rotate(360deg); } }
 @keyframes ring-spin-rev { to { transform: rotate(-360deg); } }
@@ -112,3 +116,23 @@
   51% { transform: scaleY(1); transform-origin: bottom; }
   100% { transform: scaleY(0); transform-origin: bottom; }
 }
+
+/* Hero entrance: hidden only while the loader is up, so the page is never blank if scripts fail. */
+html[data-intro="loading"] .intro-rise { opacity: 0; transform: translateY(46px); }
+html[data-intro="done"] .intro-rise { animation: intro-rise 1100ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@keyframes intro-rise { from { opacity: 0; transform: translateY(46px); } to { opacity: 1; transform: none; } }
+@keyframes sweep { 0%, 100% { transform: translateX(-12%); } 50% { transform: translateX(14%); } }
+@keyframes sweep-x { 0% { transform: translateX(-100%); } 100% { transform: translateX(220%); } }
+
+@keyframes chip-in { from { opacity: 0; transform: translateY(12px) scale(0.92); } to { opacity: 1; transform: none; } }
+@keyframes bar-in { from { width: 0%; } to { width: 88%; } }
+
+.map-card { pointer-events: none; }
+.map-card .maplibregl-popup-content { padding: 0 !important; overflow: hidden; width: 250px; }
+.map-card a { display: block; }
+.map-card img { display: block; width: 100%; height: 130px; object-fit: cover; }
+.map-card .mc-body { display: grid; gap: 3px; padding: 12px 14px 14px; }
+.map-card .mc-kind { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #b6f400; }
+.map-card strong { font-weight: 500; font-size: 15px; line-height: 1.25; }
+.map-card .mc-price { font-size: 17px; }
+.map-card .mc-size { font-size: 13px; color: rgb(255 255 255 / 0.7); }

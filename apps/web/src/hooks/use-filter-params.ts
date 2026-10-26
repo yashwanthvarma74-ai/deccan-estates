@@ -8,7 +8,7 @@ export function useFilterParams() {
   const sp = useSearchParams();
   const set = (updates: Record<string, string | undefined>) => {
     const next = new URLSearchParams(sp.toString());
-    for (const [k, v] of Object.entries(updates)) (v ? next.set(k, v) : next.delete(k));
+    for (const [k, v] of Object.entries(updates)) { if (v) next.set(k, v); else next.delete(k); }
     next.delete("page");
     router.push(`${pathname === "/" ? "/listings" : pathname}?${next}`, { scroll: false });
   };

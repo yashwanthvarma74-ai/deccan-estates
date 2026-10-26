@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Geist_Mono, Inter_Tight } from "next/font/google";
 import "./globals.css";
@@ -11,9 +11,14 @@ const interTight = Inter_Tight({ variable: "--font-inter-tight", subsets: ["lati
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], weight: ["400", "500", "600"] });
 
 export const metadata: Metadata = {
-  title: "Deccan Estates — plots, villas and gated communities",
-  description: "Search RERA-registered plots, villas and gated communities in Hyderabad with an AI assistant.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  title: { default: "Deccan Estates: plots, flats, villas and offices in Hyderabad", template: "%s · Deccan Estates" },
+  description: "Search plots, flats, villas, gated communities and offices in Hyderabad. Every listing shows a verification score for its papers, approvals and title.",
+  openGraph: { type: "website", siteName: "Deccan Estates", title: "Deccan Estates: papers checked before you pay", description: "Plots, flats, villas and offices in Hyderabad with a verification score on every listing.", images: ["/stills/s1.jpg"] },
+  twitter: { card: "summary_large_image" },
 };
+
+export const viewport: Viewport = { themeColor: "#000000", colorScheme: "dark" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

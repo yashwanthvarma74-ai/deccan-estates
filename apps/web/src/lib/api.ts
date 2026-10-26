@@ -44,6 +44,17 @@ export const listingSchema = z.object({
   lng: z.number(),
   locality,
   agent: z.object({ name: z.string(), phone: z.string(), reraId: z.string() }),
+  verification: z
+    .object({
+      status: z.enum(["VERIFIED", "CAUTION", "RISK"]),
+      score: z.number(),
+      summary: z.string(),
+      demo: z.boolean(),
+      verifiedAt: z.string(),
+      checks: z.array(z.object({ key: z.string(), label: z.string(), result: z.enum(["PASS", "WARN", "FAIL"]), note: z.string(), source: z.string() })),
+    })
+    .nullable()
+    .optional(),
 });
 export type Listing = z.infer<typeof listingSchema>;
 
@@ -92,6 +103,11 @@ export const mapPointSchema = z.object({
   lng: z.number(),
   priceInr: z.number(),
   imageUrl: z.string(),
+  type: z.string(),
+  areaSqft: z.number(),
+  plotAreaSqYd: z.number().nullable(),
+  bedrooms: z.number().nullable(),
+  locality: z.string(),
 });
 export type MapPoint = z.infer<typeof mapPointSchema>;
 
@@ -108,7 +124,7 @@ export const FILTER_KEYS = [
   "q", "locality", "type", "minPrice", "maxPrice", "minBeds", "minBaths",
   "minArea", "maxArea", "minPlotArea", "maxPlotArea", "minCarpet", "maxCarpet",
   "minFloor", "maxFloor", "minStoreys", "minParking", "maxAge", "minRoad", "minPpsf", "maxPpsf",
-  "facing", "furnishing", "possession", "approval", "amenities", "corner", "gated",
+  "facing", "furnishing", "possession", "approval", "amenities", "corner", "gated", "verified",
   "agent", "sort", "unit",
 ] as const;
 export type FilterKey = (typeof FILTER_KEYS)[number];

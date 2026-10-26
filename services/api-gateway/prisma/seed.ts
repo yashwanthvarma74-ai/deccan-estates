@@ -1,3 +1,4 @@
+import { buildReport } from '../src/verification/verification';
 import { Approval, Facing, Furnishing, Possession, Prisma, PrismaClient, PropertyType } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -15,9 +16,20 @@ const localities = [
   { name: 'Uppal', zone: 'East', avg: 5200, lat: 17.405, lng: 78.559 },
 ];
 
+/** Real aerial photos of Hyderabad, matched to the kind of property (no random stock images). */
+const STILLS: Record<string, string[]> = {
+  PLOT: ['s5', 's6'],
+  VILLA: ['s5'],
+  GATED_COMMUNITY: ['s5', 's6'],
+  APARTMENT: ['s2', 's4', 's6'],
+  COMMERCIAL: ['s1', 's3', 's4'],
+};
+const photoFor = (type: string, n: number) => `/stills/${STILLS[type][n % STILLS[type].length]}.jpg`;
+
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
 async function main() {
+  await prisma.verificationReport.deleteMany();
   await prisma.savedListing.deleteMany();
   await prisma.listing.deleteMany();
   await prisma.agent.deleteMany();
@@ -71,7 +83,7 @@ async function main() {
         localityId: loc.id,
         agentId: agents[n % agents.length].id,
         reraNumber: `P0220000${n.toString().padStart(4, '0')}`,
-        imageUrl: `https://picsum.photos/seed/hyd-${n}/800/600`,
+        imageUrl: photoFor(type, n),
         lat: loc.lat + (((n * 37) % 100) - 50) / 3000,
         lng: loc.lng + (((n * 53) % 100) - 50) / 3000,
         facing: pick(facings, n),
@@ -175,7 +187,11 @@ async function main() {
           amenities: subset(community ? communityAmenities : villaAmenities, n, community ? 6 : 3),
         };
       }
-      await prisma.listing.create({ data });
+      const created = await prisma.listing.create({ data });
+      const report = buildReport({ type, possession: created.possession, approval: created.approval, locality: loc.name }, n);
+      await prisma.verificationReport.create({
+        data: { listingId: created.id, status: report.status, score: report.score, summary: report.summary, checks: report.checks, demo: true },
+      });
       n++;
     }
   }

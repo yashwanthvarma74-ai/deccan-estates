@@ -1,11 +1,16 @@
+import type { Metadata } from "next";
+import { PageHeader } from "@/components/page-header";
+import { SellForm } from "@/components/sell-form";
+
+export const metadata: Metadata = { title: "Sell with us", description: "Tell us about your plot, flat, villa or office and a RERA-registered agent will call you." };
+
 export default function SellPage() {
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="text-4xl md:text-5xl">Sell with us</h1>
-      <p className="mt-4 text-muted">
-        Listing management is handled in the agent dashboard, which is planned for a later phase of this project.
-        Until then, listings are added by our team.
-      </p>
-    </div>
+    <>
+      <PageHeader eyebrow="Sell with us" title="Tell us about your property.">An agent will call you, check your papers with you and list it with a verification score so serious buyers find it first.</PageHeader>
+      <section className="mx-auto max-w-[1320px] px-5 pb-24 sm:px-8">
+        <div className="max-w-[820px]"><SellForm /></div>
+      </section>
+    </>
   );
 }

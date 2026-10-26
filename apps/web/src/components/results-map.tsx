@@ -1,11 +1,11 @@
 "use client";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Minus, Plus, List, Star } from "lucide-react";
 import type { Map as MlMap, GeoJSONSource } from "maplibre-gl";
-import { PUBLIC_API_URL, fetchLocalities, fetchMapPoints, type ListingFilters } from "@/lib/api";
+import { PUBLIC_API_URL, fetchLocalities, fetchMapPoints, typeLabels, type Listing, type ListingFilters } from "@/lib/api";
 import { formatInr } from "@/lib/utils";
 
 const HYDERABAD: [number, number] = [78.4867, 17.385];
@@ -35,6 +35,9 @@ function circle([lng, lat]: [number, number], km: number) {
 
 export function ResultsMap() {
   const sp = useSearchParams();
+  const router = useRouter();
+  const routerRef = useRef(router);
+  useEffect(() => { routerRef.current = router; }, [router]);
   const el = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
   const [ready, setReady] = useState(false);
@@ -81,15 +84,27 @@ export function ResultsMap() {
           const zoom = await (m.getSource("listings") as GeoJSONSource).getClusterExpansionZoom(f.properties.cluster_id);
           m.easeTo({ center: (f.geometry as unknown as { coordinates: [number, number] }).coordinates, zoom });
         });
+        const esc = (v: unknown) => String(v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+        const hover = new maplibregl.Popup({ offset: 14, closeButton: false, closeOnClick: false, maxWidth: "260px", className: "map-card" });
+        let shown = "";
+        const open = (e: { features?: unknown[] }) => {
+          const f = e.features![0] as { properties: Record<string, string | number>; geometry: unknown };
+          const p = f.properties;
+          if (shown !== p.id) {
+            shown = String(p.id);
+            hover
+              .setLngLat((f.geometry as { coordinates: [number, number] }).coordinates)
+              .setHTML(`<a href="/listings/${esc(p.id)}"><img src="${esc(p.image)}" alt="" /><span class="mc-body"><span class="mc-kind">${esc(p.kind)} · ${esc(p.locality)}</span><strong>${esc(p.title)}</strong><span class="mc-price">${formatInr(Number(p.price))}</span><span class="mc-size">${esc(p.size)}</span></span></a>`)
+              .addTo(m);
+          }
+          document.getElementById(`listing-${p.id}`)?.classList.add("ring-1", "ring-[#b6f400]");
+        };
+        m.on("mouseenter", "point", open);
+        m.on("mousemove", "point", open);
+        m.on("mouseleave", "point", () => { shown = ""; hover.remove(); document.querySelectorAll("[id^=listing-].ring-1").forEach((n) => n.classList.remove("ring-1", "ring-[#b6f400]")); });
         m.on("click", "point", (e) => {
-          const f = e.features![0];
-          const p = f.properties as { id: string; title: string; price: number };
-          const card = document.getElementById(`listing-${p.id}`);
-          new maplibregl.Popup({ offset: 12, closeButton: false })
-            .setLngLat((f.geometry as unknown as { coordinates: [number, number] }).coordinates)
-            .setHTML(`<a href="/listings/${p.id}" style="color:#fff"><strong>${p.title.replace(/</g, "&lt;")}</strong><br>${formatInr(p.price)}</a>`)
-            .addTo(m);
-          card?.scrollIntoView({ behavior: "smooth", block: "center" });
+          const id = (e.features![0].properties as { id: string }).id;
+          routerRef.current.push(`/listings/${id}`);
         });
         for (const l of ["clusters", "point"]) {
           m.on("mouseenter", l, () => (m.getCanvas().style.cursor = "pointer"));
@@ -114,7 +129,11 @@ export function ResultsMap() {
       type: "FeatureCollection",
       features: points.data.map((p) => ({
         type: "Feature",
-        properties: { id: p.id, title: p.title, price: p.priceInr },
+        properties: {
+          id: p.id, title: p.title, price: p.priceInr, image: p.imageUrl, locality: p.locality,
+          kind: typeLabels[p.type as Listing["type"]] ?? p.type,
+          size: p.type === "PLOT" ? `${p.plotAreaSqYd ?? Math.round(p.areaSqft / 9)} sq yd` : `${p.bedrooms ? `${p.bedrooms} BHK · ` : ""}${p.areaSqft.toLocaleString("en-IN")} sq ft`,
+        },
         geometry: { type: "Point", coordinates: [p.lng, p.lat] },
       })),
     });

@@ -4,16 +4,19 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Assistant } from "@/components/assistant";
 import { SaveButton } from "@/components/save-button";
+import { VerificationReport } from "@/components/verification-report";
 import { typeLabels } from "@/lib/api";
 import { getListing } from "@/lib/data";
-import { AMENITY_LABELS, specsFor } from "@/lib/listing-meta";
+import { specsFor } from "@/lib/listing-meta";
 import { formatInr } from "@/lib/utils";
 
 async function Detail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const listing = await getListing(id).catch(() => null);
   if (!listing) notFound();
-  const extra = [1, 2].map((n) => listing.imageUrl.replace(/\/seed\/([^/]+)/, `/seed/$1-${n}`));
+  const gallery = ["s1", "s2", "s3", "s4", "s5", "s6"].map((s) => `/stills/${s}.jpg`).filter((u) => u !== listing.imageUrl);
+  const h = [...listing.id].reduce((a, c) => a + c.charCodeAt(0), 0);
+  const extra = [gallery[h % gallery.length], gallery[(h + 2) % gallery.length]];
   const specs = specsFor(listing, formatInr);
 
   return (
@@ -23,9 +26,9 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
         <Link href={`/listings?locality=${listing.locality.slug}`} className="hover:text-white">{listing.locality.name}</Link>
       </nav>
       <div className="grid gap-2 md:grid-cols-[2fr_1fr]">
-        <Image src={listing.imageUrl} alt={listing.title} width={1400} height={900} priority className="h-full max-h-[34rem] w-full rounded-xl object-cover" />
+        <Image src={listing.imageUrl} alt={listing.title} width={1400} height={900} priority sizes="(min-width:768px) 66vw, 100vw" className="h-full max-h-[34rem] w-full rounded-xl object-cover" />
         <div className="hidden gap-2 md:grid">
-          {extra.map((src) => <Image key={src} src={src} alt="" width={700} height={450} className="h-full max-h-[16.8rem] w-full rounded-xl object-cover" />)}
+          {extra.map((src) => <Image key={src} src={src} alt="" width={700} height={450} sizes="33vw" className="h-full max-h-[16.8rem] w-full rounded-xl object-cover" />)}
         </div>
       </div>
 
@@ -43,7 +46,8 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
               </div>
             ))}
           </dl>
-          <h2 className="mt-10 text-2xl">About this property</h2>
+          {listing.verification && <VerificationReport report={listing.verification} isPlot={listing.type === "PLOT"} />}
+          <h2 className="mt-12 text-2xl">About this property</h2>
           <p className="mt-3 max-w-3xl leading-relaxed text-muted">{listing.description}</p>
           <p className="label mt-8 text-muted">RERA No. {listing.reraNumber ?? "—"}</p>
           <div className="mt-8"><SaveButton listingId={listing.id} /></div>

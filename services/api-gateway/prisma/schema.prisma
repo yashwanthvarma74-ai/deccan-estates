@@ -38,6 +38,12 @@ enum Possession {
   NEW_LAUNCH
 }
 
+enum VerifyStatus {
+  VERIFIED
+  CAUTION
+  RISK
+}
+
 enum Approval {
   DTCP
   HMDA
@@ -105,6 +111,7 @@ model Listing {
   agent       Agent         @relation(fields: [agentId], references: [id])
   createdAt   DateTime      @default(now())
   saved       SavedListing[]
+  verification VerificationReport?
 
   @@index([localityId, priceInr])
   @@index([type, status])
@@ -118,4 +125,32 @@ model SavedListing {
   createdAt DateTime @default(now())
 
   @@id([userId, listingId])
+}
+
+/// Pre-listing due diligence: one report per listing, with the individual checks as JSON.
+/// `demo` marks reports generated from sample data rather than real document checks.
+model VerificationReport {
+  listingId  String       @id
+  listing    Listing      @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  status     VerifyStatus
+  score      Int
+  summary    String
+  checks     Json
+  demo       Boolean      @default(true)
+  verifiedAt DateTime     @default(now())
+}
+
+/// A lead from the Sell with us form: someone who wants an agent to call about their property.
+model Enquiry {
+  id               String        @id @default(cuid())
+  name             String
+  phone            String
+  email            String?
+  propertyType     PropertyType?
+  locality         String?
+  expectedPriceInr BigInt?
+  message          String?
+  createdAt        DateTime      @default(now())
+
+  @@index([createdAt])
 }

@@ -32,13 +32,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto my-16 max-w-sm space-y-4 rounded-2xl border border-line bg-card p-8">
-      <h1 className="text-4xl">{mode === "signin" ? "Sign in" : "Create account"}</h1>
+    <div className="mx-auto my-16 max-w-md space-y-5 rounded-3xl border border-white/12 bg-white/[0.03] p-8 sm:p-10">
+      <p className="mono-label flex items-center gap-3 text-white/60"><span className="h-px w-8 bg-[#b6f400]" />{mode === "signin" ? "Welcome back" : "Join Deccan Estates"}</p>
+      <h1 className="text-[2.6rem] tracking-[-0.05em]">{mode === "signin" ? "Sign in" : "Create account"}</h1>
       <form onSubmit={onSubmit} className="space-y-3">
         {mode === "signup" && <Input name="name" placeholder="Full name" required aria-label="Full name" />}
         <Input name="email" type="email" placeholder="Email" required aria-label="Email" />
         <Input name="password" type="password" placeholder="Password (8+ chars)" minLength={8} required aria-label="Password" />
-        {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+        {error && <p role="alert" className="rounded-lg border border-red-400/40 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
         <Button type="submit" className="w-full">{mode === "signin" ? "Sign in" : "Sign up"}</Button>
       </form>
       <Button variant="outline" className="w-full" onClick={passkeySignIn}>Sign in with a passkey</Button>

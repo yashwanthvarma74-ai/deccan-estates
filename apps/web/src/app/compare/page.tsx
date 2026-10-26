@@ -1,6 +1,7 @@
 "use client";
 import { useQueries } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { PageHeader } from "@/components/page-header";
 import { PUBLIC_API_URL, fetchListing, typeLabels } from "@/lib/api";
 import { areaSummary, pricePerUnit } from "@/lib/listing-meta";
 import { formatInr } from "@/lib/utils";
@@ -13,7 +14,14 @@ export default function ComparePage() {
   });
   const listings = results.flatMap((r) => (r.data ? [r.data] : []));
 
-  if (ids.length === 0) return <p className="p-10">Pick up to three listings with “Compare” to see them side by side.</p>;
+  if (ids.length === 0) {
+    return (
+      <>
+        <PageHeader eyebrow="Compare" title="Side by side.">Add homes with “Compare” on any listing card and they appear here.</PageHeader>
+        <section className="mx-auto max-w-[1320px] px-5 pb-24 sm:px-8"><Link href="/listings" className="mono-label inline-flex h-12 items-center rounded-lg bg-[#b6f400] px-7 text-black transition-transform hover:scale-[1.03]">Search homes</Link></section>
+      </>
+    );
+  }
 
   const rows: [string, (l: (typeof listings)[number]) => string][] = [
     ["Type", (l) => typeLabels[l.type]],
@@ -26,29 +34,24 @@ export default function ComparePage() {
   ];
 
   return (
-    <div className="mx-auto max-w-[1800px] space-y-4 px-6 py-10">
-      <div className="flex items-center justify-between">
-        <h1 className="text-4xl">Compare</h1>
-        <Button variant="outline" size="sm" onClick={clear}>Clear</Button>
-      </div>
-      <div className="overflow-x-auto rounded-2xl border border-line bg-card p-4">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr>
-              <th />
-              {listings.map((l) => <th key={l.id} className="p-2 text-lg font-semibold">{l.title}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(([label, fn]) => (
-              <tr key={label} className="border-t border-line">
-                <th scope="row" className="p-2 font-medium text-muted">{label}</th>
-                {listings.map((l) => <td key={l.id} className="p-2">{fn(l)}</td>)}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <>
+      <PageHeader eyebrow="Compare" title="Side by side." />
+      <section className="mx-auto max-w-[1320px] px-5 pb-24 sm:px-8">
+        <div className="mb-4 flex justify-end"><button onClick={clear} className="mono-label h-11 cursor-pointer rounded-lg border border-white/25 px-5 text-white/85 transition-colors hover:bg-white/10">Clear all</button></div>
+        <div className="overflow-x-auto rounded-2xl border border-white/12 bg-white/[0.03] p-4 sm:p-6">
+          <table className="w-full min-w-[34rem] text-left">
+            <thead><tr><th className="w-40" />{listings.map((l) => <th key={l.id} className="p-3 align-bottom text-[1.15rem] font-medium tracking-[-0.02em]"><Link href={`/listings/${l.id}`} className="hover:text-[#b6f400]">{l.title}</Link></th>)}</tr></thead>
+            <tbody>
+              {[...rows, ["Verification", (l: (typeof listings)[number]) => (l.verification ? `${l.verification.score} / 100 · ${l.verification.status === "VERIFIED" ? "Verified" : l.verification.status === "CAUTION" ? "Check details" : "High risk"}` : "—")] as [string, (l: (typeof listings)[number]) => string]].map(([label, fn]) => (
+                <tr key={label} className="border-t border-white/10">
+                  <th scope="row" className="mono-label p-3 font-medium text-white/50">{label}</th>
+                  {listings.map((l) => <td key={l.id} className="p-3 text-[1.02rem]">{fn(l)}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </>
   );
 }

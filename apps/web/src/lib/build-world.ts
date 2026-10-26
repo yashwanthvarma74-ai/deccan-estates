@@ -78,7 +78,7 @@ function rng(seed: number) {
 
 export const PLOTS = {
   A: { x0: -58, x1: -30, z0: -16, z1: 16 },
-  B: { x0: -14, x1: 14, z0: -16, z1: 16 },
+  B: { x0: -18, x1: 24, z0: -16, z1: 16 },
   C: { x0: 30, x1: 62, z0: -16, z1: 16 },
 } as const;
 
@@ -220,37 +220,52 @@ export function buildWorld(): World {
   rises.push({ ...V, y0: 0, top: wallsTop, t0: wallsWin.t0, t1: wallsWin.t1 });
   sprinkleLit(V, 0, wallsTop, fh, va1 - 0.01, va1 + 0.04, 10);
 
-  // ---- 04 Apartment on plot B: 7 floors with balconies ---------------------------------------------------
+  // ---- 04 Gated apartment community on plot B: boundary wall, gatehouse, internal roads, four blocks -------
   const [ap0, ap1] = TIMELINE.apartment;
   const B = PLOTS.B;
-  rectDraw(B, 0, ap0, ap0 + 0.035, 2);
-  const AP: Rect = { x0: -9, x1: 9, z0: -9, z1: 9 };
-  const aFloors = 7, afh = 3.4, aTop = aFloors * afh;
-  const aWin = { y0: 0, top: aTop, t0: ap0 + 0.03, t1: ap1 - 0.02 };
-  rectDraw({ x0: AP.x0 - 1, x1: AP.x1 + 1, z0: AP.z0 - 1, z1: AP.z1 + 1 }, 0, ap0 + 0.015, ap0 + 0.04, 1);
-  for (const c of corners(AP)) up(c, [c[0], aTop, c[2]], aWin, 2);
-  for (let f = 1; f <= aFloors; f++) rectUp(AP, f * afh, aWin, f === aFloors ? 2 : 1);
-  for (let k = 1; k < 5; k++) {
-    const x = lerp(AP.x0, AP.x1, k / 5);
-    const z = lerp(AP.z0, AP.z1, k / 5);
-    up([x, 0, AP.z0], [x, aTop, AP.z0], aWin, 0); up([x, 0, AP.z1], [x, aTop, AP.z1], aWin, 0);
-    up([AP.x0, 0, z], [AP.x0, aTop, z], aWin, 0); up([AP.x1, 0, z], [AP.x1, aTop, z], aWin, 0);
-  }
-  for (let f = 1; f <= aFloors; f++) {
-    const y = (f - 1) * afh + 0.2;
-    for (const [x0, x1] of [[-6.5, -1.5], [1.5, 6.5]] as const) {
-      const bl: Rect = { x0, x1, z0: AP.z1, z1: AP.z1 + 1.8 };
-      rectUp(bl, y, aWin, 0);
-      up([x0, y, bl.z1], [x0, y + 1.1, bl.z1], aWin, 0);
-      up([x1, y, bl.z1], [x1, y + 1.1, bl.z1], aWin, 0);
+  rectDraw(B, 0, ap0, ap0 + 0.03, 2);
+  const wallWin = { y0: 0, top: 2.2, t0: ap0 + 0.01, t1: ap0 + 0.045 };
+  rectUp(B, 2.2, wallWin, 1);
+  for (const c of corners(B)) up(c, [c[0], 3.2, c[2]], { ...wallWin, top: 3.2 }, 2);
+  // gatehouse beside the entrance on the front edge
+  const GH: Rect = { x0: 2, x1: 6, z0: B.z1 - 3.5, z1: B.z1 - 0.5 };
+  rectDraw(GH, 0, ap0 + 0.02, ap0 + 0.04, 1);
+  rectUp(GH, 3.2, { y0: 0, top: 3.2, t0: ap0 + 0.035, t1: ap0 + 0.06 }, 1);
+  for (const c of corners(GH)) up(c, [c[0], 3.2, c[2]], { y0: 0, top: 3.2, t0: ap0 + 0.035, t1: ap0 + 0.06 }, 1);
+  // internal roads
+  draw([B.x0 + 1, 0, 0], [B.x1 - 1, 0, 0], ap0 + 0.03, ap0 + 0.07, 0);
+  draw([(B.x0 + B.x1) / 2 + 1, 0, B.z0 + 1], [(B.x0 + B.x1) / 2 + 1, 0, B.z1], ap0 + 0.03, ap0 + 0.07, 0);
+  // swimming pool and lawn outlines between the blocks
+  rectDraw({ x0: -14, x1: -6, z0: -11, z1: -6 }, 0, ap0 + 0.04, ap0 + 0.08, 1);
+  const blocks = [
+    { cx: -8, cz: 10, floors: 9 }, { cx: 2, cz: 2, floors: 12 }, { cx: 12, cz: -6, floors: 8 },
+  ];
+  const afh = 3.4;
+  blocks.forEach((bk, i) => {
+    const R: Rect = { x0: bk.cx - 3.6, x1: bk.cx + 3.6, z0: bk.cz - 3.6, z1: bk.cz + 3.6 };
+    const top = bk.floors * afh;
+    const t0 = ap0 + 0.05 + i * 0.045;
+    const win2 = { y0: 0, top, t0, t1: t0 + 0.065 };
+    rectDraw(R, 0, t0 - 0.015, t0 + 0.01, 1);
+    for (const c of corners(R)) up(c, [c[0], top, c[2]], win2, 2);
+    for (let f = 1; f <= bk.floors; f++) rectUp(R, f * afh, win2, f === bk.floors ? 2 : 1);
+    for (let k = 1; k < 3; k++) {
+      const x = lerp(R.x0, R.x1, k / 3), z = lerp(R.z0, R.z1, k / 3);
+      up([x, 0, R.z0], [x, top, R.z0], win2, 0); up([x, 0, R.z1], [x, top, R.z1], win2, 0);
+      up([R.x0, 0, z], [R.x0, top, z], win2, 0); up([R.x1, 0, z], [R.x1, top, z], win2, 0);
     }
-  }
-  const aRoof = { y0: aTop, top: aTop + 2.4, t0: aWin.t1, t1: ap1 };
-  rectUp({ x0: AP.x0 + 0.6, x1: AP.x1 - 0.6, z0: AP.z0 + 0.6, z1: AP.z1 - 0.6 }, aTop + 0.9, aRoof, 1);
-  rectUp({ x0: -3, x1: 3, z0: -3, z1: 3 }, aTop + 2.4, aRoof, 1);
-  for (const c of [[-3, -3], [3, -3], [3, 3], [-3, 3]]) up([c[0], aTop, c[1]], [c[0], aTop + 2.4, c[1]], aRoof, 0);
-  rises.push({ ...AP, ...aWin });
-  sprinkleLit(AP, 0, aTop, afh, ap1 - 0.01, ap1 + 0.05, 26);
+    for (let f = 1; f <= bk.floors; f++) {
+      const y = (f - 1) * afh + 0.2;
+      for (const [x0, x1] of [[R.x0 + 0.7, R.x0 + 2.7], [R.x1 - 2.7, R.x1 - 0.7]] as const) {
+        const bl: Rect = { x0, x1, z0: R.z1, z1: R.z1 + 1.3 };
+        rectUp(bl, y, win2, 0);
+        up([x0, y, bl.z1], [x0, y + 1, bl.z1], win2, 0); up([x1, y, bl.z1], [x1, y + 1, bl.z1], win2, 0);
+      }
+    }
+    rectUp({ x0: R.x0 + 0.6, x1: R.x1 - 0.6, z0: R.z0 + 0.6, z1: R.z1 - 0.6 }, top + 0.9, { y0: top, top: top + 0.9, t0: win2.t1, t1: win2.t1 + 0.012 }, 1);
+    rises.push({ ...R, ...win2 });
+    sprinkleLit(R, 0, top, afh, ap1 - 0.01, ap1 + 0.05, 12);
+  });
 
   // ---- 05 Commercial tower on plot C: podium, 30 floors, setback crown, spire -----------------------------
   const [tw0, tw1] = TIMELINE.tower;
@@ -309,14 +324,14 @@ export function buildWorld(): World {
 export type Camera = { cx: number; s: number; yaw: number; shiftX: number };
 
 const KEYS: { p: number; cam: Camera }[] = [
-  { p: 0, cam: { cx: -44, s: 0.0108, yaw: 30, shiftX: 0.14 } },
-  { p: 0.33, cam: { cx: -44, s: 0.0108, yaw: 34, shiftX: 0.14 } },
-  { p: 0.5, cam: { cx: -44, s: 0.0098, yaw: 40, shiftX: 0.14 } },
-  { p: 0.56, cam: { cx: -4, s: 0.0074, yaw: 42, shiftX: 0.12 } },
-  { p: 0.72, cam: { cx: -2, s: 0.0068, yaw: 44, shiftX: 0.12 } },
-  { p: 0.78, cam: { cx: 26, s: 0.0047, yaw: 47, shiftX: 0.1 } },
-  { p: 0.94, cam: { cx: 14, s: 0.0020, yaw: 54, shiftX: 0.08 } },
-  { p: 1, cam: { cx: 6, s: 0.0019, yaw: 60, shiftX: 0.06 } },
+  { p: 0, cam: { cx: -44, s: 0.0134, yaw: 30, shiftX: 0.14 } },
+  { p: 0.33, cam: { cx: -44, s: 0.0134, yaw: 34, shiftX: 0.14 } },
+  { p: 0.5, cam: { cx: -44, s: 0.0122, yaw: 40, shiftX: 0.14 } },
+  { p: 0.56, cam: { cx: 3, s: 0.0080, yaw: 42, shiftX: 0.12 } },
+  { p: 0.72, cam: { cx: 3, s: 0.0074, yaw: 44, shiftX: 0.12 } },
+  { p: 0.78, cam: { cx: 26, s: 0.0058, yaw: 47, shiftX: 0.1 } },
+  { p: 0.94, cam: { cx: 14, s: 0.0025, yaw: 54, shiftX: 0.08 } },
+  { p: 1, cam: { cx: 6, s: 0.0024, yaw: 60, shiftX: 0.06 } },
 ];
 
 export function cameraAt(p: number): Camera {
@@ -336,76 +351,91 @@ const H_SCALE = 1.35;
 const COS30 = Math.cos(Math.PI / 6);
 
 /** Isometric-style projection with a slowly turning camera. */
-export function makeProjector(cam: Camera, w: number, h: number) {
-  const ref = Math.min(w, h * 1.5);
-  const scale = cam.s * ref;
+export function makeProjector(cam: Camera, w: number, h: number, p = 0) {
+  // On a tall phone screen the drawing is centred in the upper part of the stage and stretched upward,
+  // so buildings fill the height and the text underneath never overlaps them.
+  const portrait = h > w * 1.1;
+  const ref = portrait ? w * 1.15 : Math.min(w, h * 1.5);
+  // the gated-community stage is small on screen, so on phones it is drawn larger and taller; the skyscraper keeps the base size
+  const sm = (x: number) => { const t = Math.min(1, Math.max(0, x)); return t * t * (3 - 2 * t); };
+  const boost = portrait ? sm((p - 0.45) / 0.12) * (1 - 0.85 * sm((p - 0.72) / 0.1)) : 0;
+  const scale = cam.s * ref * (1 + 0.8 * boost);
+  const hs = H_SCALE * (portrait ? (1 + Math.min(1.4, h / w - 1.2) * 0.7) * (1 + 0.1 * boost) : 1);
   const yaw = (cam.yaw * Math.PI) / 180;
   const cos = Math.cos(yaw), sin = Math.sin(yaw);
   const rot = (x: number, z: number) => [x * cos - z * sin, x * sin + z * cos] as const;
   const [ox, oz] = rot(cam.cx, 0);
-  const baseX = w * (0.5 + cam.shiftX);
-  const baseY = h * 0.74;
+  const baseX = w * (portrait ? 0.5 : 0.5 + cam.shiftX);
+  const baseY = h * (portrait ? 0.6 : 0.74);
   return (x: number, y: number, z: number): [number, number] => {
     const [rx, rz] = rot(x, z);
     const dx = rx - ox, dz = rz - oz;
-    return [baseX + (dx - dz) * COS30 * scale, baseY + (dx + dz) * 0.5 * 0.62 * scale - y * H_SCALE * scale];
+    return [baseX + (dx - dz) * COS30 * scale, baseY + (dx + dz) * 0.5 * 0.62 * scale - y * hs * scale];
   };
 }
 
-const COLORS = ["rgba(150,180,215,0.30)", "rgba(205,225,255,0.62)", "rgba(255,255,255,0.95)"];
+const COLORS = ["rgba(140,175,215,0.34)", "rgba(200,222,250,0.72)", "rgba(255,255,255,1)"];
+const WIDTHS = [0.8, 1.25, 2];
 
 /** Draws the whole scene for progress `p`. */
 export function renderWorld(ctx: CanvasRenderingContext2D, world: World, w: number, h: number, p: number, time: number) {
   ctx.clearRect(0, 0, w, h);
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
   const cam = cameraAt(p);
-  const P = makeProjector(cam, w, h);
+  const P = makeProjector(cam, w, h, p);
 
-  // stars
-  for (const [sx, sy, sz] of world.stars) {
-    const a = 0.25 + 0.5 * (0.5 + 0.5 * Math.sin(time * 0.0006 + sz * 40));
-    ctx.fillStyle = `rgba(210,225,255,${(a * (0.3 + sz * 0.7)).toFixed(3)})`;
-    ctx.fillRect(sx * w, sy * h * 0.8, sz > 0.85 ? 1.6 : 1, sz > 0.85 ? 1.6 : 1);
-  }
-
-  // faint ground grid so the scene has a floor
-  ctx.strokeStyle = "rgba(120,150,190,0.07)";
+  // ground grid: fine lines that fade out with distance from the site, so the scene sits on a clean floor
+  const [gx, gy] = P(cam.cx, 0, 0);
   ctx.lineWidth = 1;
-  ctx.beginPath();
-  for (let x = -110; x <= 110; x += 8) { const [x1, y1] = P(x, 0, -50); const [x2, y2] = P(x, 0, 50); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); }
-  for (let z = -48; z <= 48; z += 8) { const [x1, y1] = P(-110, 0, z); const [x2, y2] = P(110, 0, z); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); }
-  ctx.stroke();
+  for (let x = -120; x <= 120; x += 8) {
+    const [x1, y1] = P(x, 0, -48), [x2, y2] = P(x, 0, 48);
+    const fade = 1 - Math.min(1, Math.abs(x - cam.cx) / 110);
+    ctx.strokeStyle = `rgba(130,160,200,${(0.1 * fade).toFixed(3)})`;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  }
+  for (let z = -48; z <= 48; z += 8) {
+    const [x1, y1] = P(-120, 0, z), [x2, y2] = P(120, 0, z);
+    const g = ctx.createLinearGradient(x1, y1, x2, y2);
+    g.addColorStop(0, "rgba(130,160,200,0)"); g.addColorStop(0.5, "rgba(130,160,200,0.1)"); g.addColorStop(1, "rgba(130,160,200,0)");
+    ctx.strokeStyle = g;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  }
+  void gx; void gy;
 
-  // segments, batched by brightness
+  // Earlier buildings recede once the next one is under way, so overlapping lines never muddy the current stage.
+  const sm = (x: number) => x * x * (3 - 2 * x);
+  const recede = [1 - 0.93 * sm(clamp01((p - 0.53) / 0.05)), 1 - 0.9 * sm(clamp01((p - 0.73) / 0.05)), 1];
+  const groupOf = (x: number) => (x < -25 ? 0 : x < 26 ? 1 : 2);
+
+  // segments, batched by weight and by stage
   const fr = world.segs.map((s) => visibleFraction(s, p));
+  const grp = world.segs.map((s) => groupOf((s.a[0] + s.b[0]) / 2));
   for (const weight of [0, 1, 2] as const) {
     ctx.strokeStyle = COLORS[weight];
-    ctx.lineWidth = weight === 2 ? 1.5 : weight === 1 ? 1 : 0.7;
-    ctx.beginPath();
-    world.segs.forEach((s, i) => {
-      const f = fr[i];
-      if (s.w !== weight || f <= 0) return;
-      const [x1, y1] = P(s.a[0], s.a[1], s.a[2]);
-      const [x2, y2] = P(lerpN(s.a[0], s.b[0], f), lerpN(s.a[1], s.b[1], f), lerpN(s.a[2], s.b[2], f));
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-    });
-    ctx.stroke();
+    ctx.lineWidth = WIDTHS[weight] * Math.min(1.5, Math.max(1, w / 1100));
+    for (const g of [0, 1, 2]) {
+      if (recede[g] < 0.02) continue;
+      ctx.globalAlpha = recede[g];
+      ctx.beginPath();
+      world.segs.forEach((s, i) => {
+        const f = fr[i];
+        if (s.w !== weight || f <= 0 || grp[i] !== g) return;
+        const [x1, y1] = P(s.a[0], s.a[1], s.a[2]);
+        const [x2, y2] = P(lerpN(s.a[0], s.b[0], f), lerpN(s.a[1], s.b[1], f), lerpN(s.a[2], s.b[2], f));
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+      });
+      ctx.stroke();
+    }
   }
-
-  // point cloud: the dots along each line, brighter near a rising front
-  ctx.fillStyle = "rgba(190,215,255,0.8)";
-  for (const pt of world.pts) {
-    const s = world.segs[pt.seg];
-    const f = fr[pt.seg];
-    if (f <= 0 || pt.u > f) continue;
-    const [x, y] = P(lerpN(s.a[0], s.b[0], pt.u) + pt.j[0], lerpN(s.a[1], s.b[1], pt.u) + pt.j[1], lerpN(s.a[2], s.b[2], pt.u) + pt.j[2]);
-    ctx.fillRect(x, y, 1.3, 1.3);
-  }
+  ctx.globalAlpha = 1;
 
   // soft glass faces up to the height a building has reached, so each one reads as a solid
   for (const r of world.rises) {
     if (p <= r.t0) continue;
     const hh = riseHeight(r, p);
+    ctx.globalAlpha = recede[groupOf((r.x0 + r.x1) / 2)];
     const faces = (rect: Rect, yA: number, yB: number) => {
       if (yB <= yA) return;
       const q = [[rect.x0, rect.z0], [rect.x1, rect.z0], [rect.x1, rect.z1], [rect.x0, rect.z1]];
@@ -418,12 +448,14 @@ export function renderWorld(ctx: CanvasRenderingContext2D, world: World, w: numb
       }
       ctx.fill();
     };
-    ctx.fillStyle = "rgba(110,160,230,0.05)";
+    ctx.fillStyle = "rgba(110,165,235,0.075)";
     if (r.step) {
       faces(r, 0, Math.min(hh, r.step.y));
       faces(r.step.rect, r.step.y, hh);
     } else faces(r, 0, hh);
   }
+
+  ctx.globalAlpha = 1;
 
   // scanning ring at the height a building has reached
   for (const r of world.rises) {
@@ -447,11 +479,37 @@ export function renderWorld(ctx: CanvasRenderingContext2D, world: World, w: numb
 
   // lit windows switch on once a building is finished
   for (const l of world.lit) {
-    const a = clamp01((p - l.t) / 0.02);
-    if (a <= 0) continue;
+    const a = clamp01((p - l.t) / 0.02) * recede[groupOf(l.p[0])];
+    if (a <= 0.01) continue;
     const [x, y] = P(l.p[0], l.p[1], l.p[2]);
     ctx.fillStyle = `rgba(255,214,150,${(0.85 * a * (0.75 + 0.25 * Math.sin(time * 0.002 + l.t * 90))).toFixed(3)})`;
-    ctx.fillRect(x - 1, y - 1, 2.4, 2.4);
+    ctx.fillRect(x - 1.2, y - 1.2, 3, 3);
+  }
+
+  drawLabels(ctx, P, p, w);
+}
+
+/** Small drafting-style labels that appear beside each building once it is up. */
+const LABELS: { text: string; at: V3; from: number; to: number }[] = [
+  { text: "PLOT  28 × 32 m", at: [-30, 0, 16], from: 0.12, to: 0.33 },
+  { text: "VILLA  G+1", at: [-37, 11.2, 8], from: 0.5, to: 0.58 },
+  { text: "GATED COMMUNITY  3 BLOCKS", at: [12, 28, -9.6], from: 0.7, to: 0.79 },
+  { text: "COMMERCIAL  30 FLOORS · 108 m", at: [55, 112, -9], from: 0.93, to: 1.1 },
+];
+function drawLabels(ctx: CanvasRenderingContext2D, P: ReturnType<typeof makeProjector>, p: number, w: number) {
+  const size = w < 700 ? 9 : 11;
+  ctx.font = `${size}px ui-monospace, "Geist Mono", monospace`;
+  ctx.textBaseline = "middle";
+  for (const l of LABELS) {
+    const a = clamp01((p - l.from) / 0.02) * (1 - clamp01((p - l.to) / 0.02));
+    if (a <= 0) continue;
+    const [x, y] = P(l.at[0], l.at[1], l.at[2]);
+    const tw = ctx.measureText(l.text).width;
+    ctx.strokeStyle = `rgba(255,255,255,${(0.7 * a).toFixed(3)})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 22, y - 22); ctx.lineTo(x + 30 + tw, y - 22); ctx.stroke();
+    ctx.fillStyle = `rgba(255,255,255,${(0.92 * a).toFixed(3)})`;
+    ctx.fillText(l.text, x + 28, y - 31);
   }
 }
 

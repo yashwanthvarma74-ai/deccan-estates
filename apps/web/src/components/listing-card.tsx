@@ -10,6 +10,7 @@ import { type Listing, typeLabels } from "@/lib/api";
 import { useCompare } from "@/stores/compare";
 import { areaSummary, pricePerUnit } from "@/lib/listing-meta";
 import { authedFetch, useSaved } from "@/components/save-button";
+import { VerifyBadge } from "@/components/verify-badge";
 
 export function ListingCard({ listing }: { listing: Listing }) {
   const comparing = useCompare((s) => s.ids.includes(listing.id));
@@ -32,11 +33,13 @@ export function ListingCard({ listing }: { listing: Listing }) {
           alt={listing.title}
           width={800}
           height={600}
+          sizes="(min-width:1280px) 25vw, (min-width:640px) 45vw, 100vw"
           className="aspect-[3/2] w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <span className="absolute left-3 top-3 rounded-md bg-bg/70 px-2 py-1 text-xs font-medium text-white backdrop-blur">
           {typeLabels[listing.type]}
         </span>
+        <VerifyBadge report={listing.verification} className="absolute bottom-3 left-3" />
       </Link>
       <div className="relative flex flex-1 flex-col p-5">
         <button

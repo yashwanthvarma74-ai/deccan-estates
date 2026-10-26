@@ -15,7 +15,7 @@ export class SavedController {
   async list(@Req() req: { user: { id: string } }) {
     const rows = await this.prisma.savedListing.findMany({
       where: { userId: req.user.id },
-      include: { listing: { include: { locality: true, agent: true } } },
+      include: { listing: { include: { locality: true, agent: true, verification: true } } },
       orderBy: { createdAt: 'desc' },
     });
     return rows.map((r) => toDto(r.listing));

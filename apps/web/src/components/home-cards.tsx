@@ -23,7 +23,7 @@ export function FeaturedCard({ listing, index }: { listing: Listing; index: numb
   const [price, unit] = formatInr(listing.priceInr).split(" ");
 
   return (
-    <article className="group relative aspect-[4/3] w-[84%] shrink-0 snap-center overflow-hidden rounded-sm bg-card sm:w-[68%] lg:w-[66%]">
+    <article className="group relative aspect-[4/3] w-[84%] shrink-0 snap-center overflow-hidden rounded-[22px] bg-card sm:w-[68%] lg:w-[66%]">
       <Image src={listing.imageUrl} alt={listing.title} fill priority={index === 0} sizes="(min-width:1024px) 66vw, 84vw" className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
       <button

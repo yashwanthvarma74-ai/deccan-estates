@@ -44,6 +44,7 @@ export const listingQuery = z.object({
   maxPpsf: z.coerce.number().int().positive().optional(),
   corner: flag,
   gated: flag,
+  verified: flag,
   facing: list(FACINGS),
   furnishing: list(FURNISHINGS),
   possession: list(POSSESSIONS),
@@ -56,11 +57,11 @@ export const listingQuery = z.object({
 });
 export type ListingQuery = z.infer<typeof listingQuery>;
 
-const include = { locality: true, agent: true } satisfies Prisma.ListingInclude;
+const include = { locality: true, agent: true, verification: true } satisfies Prisma.ListingInclude;
 type ListingRow = Prisma.ListingGetPayload<{ include: typeof include }>;
 
 export function toDto(l: ListingRow) {
-  return { ...l, priceInr: Number(l.priceInr) };
+  return { ...l, priceInr: Number(l.priceInr), verification: l.verification ?? null };
 }
 
 @Injectable()
@@ -87,6 +88,7 @@ export class ListingsService {
       pricePerSqft: { gte: query.minPpsf, lte: query.maxPpsf },
       cornerPlot: query.corner,
       gated: query.gated,
+      verification: query.verified ? { is: { status: 'VERIFIED' } } : undefined,
       facing: query.facing ? { in: query.facing } : undefined,
       furnishing: query.furnishing ? { in: query.furnishing } : undefined,
       possession: query.possession ? { in: query.possession } : undefined,
@@ -131,10 +133,10 @@ export class ListingsService {
     return this.redis.cached(`map:${JSON.stringify({ ...query, page: 1, sort: 'newest' })}`, 60, async () => {
       const rows = await this.prisma.listing.findMany({
         where: this.where(query),
-        select: { id: true, title: true, lat: true, lng: true, priceInr: true, imageUrl: true },
+        select: { id: true, title: true, lat: true, lng: true, priceInr: true, imageUrl: true, type: true, areaSqft: true, plotAreaSqYd: true, bedrooms: true, locality: { select: { name: true } } },
         take: 500,
       });
-      return rows.map((r) => ({ ...r, priceInr: Number(r.priceInr) }));
+      return rows.map(({ locality, ...r }) => ({ ...r, priceInr: Number(r.priceInr), locality: locality.name }));
     });
   }
 
