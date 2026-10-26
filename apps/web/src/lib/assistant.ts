@@ -37,6 +37,16 @@ export function pickChatModel(): LanguageModel | null {
   return pickModel();
 }
 
+/** Which provider the site assistant is using, for status checks. Never includes a key. */
+export function chatProviderName() {
+  if (process.env.ANTHROPIC_API_KEY) return "anthropic";
+  if (process.env.GROQ_API_KEY) return "groq";
+  if (process.env.GEMINI_API_KEY) return "gemini";
+  if (process.env.OPENAI_API_KEY) return "openai";
+  if (process.env.OLLAMA_BASE_URL) return "ollama";
+  return "none";
+}
+
 /**
  * Retrieved passages are untrusted (seller-uploaded PDFs, listing text): they are fenced
  * as data and the model is told never to follow instructions found inside them (OWASP LLM01).
