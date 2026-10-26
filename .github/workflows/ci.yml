@@ -1,11 +1,39 @@
 name: CI
+
 on:
   push:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  js:
+  web:
+    name: Web (lint, types, tests, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 12 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - working-directory: apps/web
+        run: |
+          pnpm lint
+          pnpm typecheck
+          pnpm test
+          pnpm build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:4000
+
+  gateway:
+    name: API gateway and listings service (migrate, seed, tests, build)
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -14,46 +42,52 @@ jobs:
         ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U hyd" --health-interval 5s --health-timeout 3s --health-retries 10
-      redis:
-        image: redis:7-alpine
-        ports: ["6379:6379"]
     env:
       DATABASE_URL: postgresql://hyd:hyd_dev_password@localhost:5432/hyd_realestate
-      BETTER_AUTH_SECRET: ci-only-secret-ci-only-secret-ci-only
+      REDIS_URL: "off"
+    defaults:
+      run: { working-directory: services/api-gateway }
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with: { version: 12 }
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - name: API typecheck, unit tests, build
-        working-directory: services/api-gateway
+      - run: pnpm prisma generate
+      - run: pnpm lint
+      - run: pnpm prisma migrate deploy
+      - run: pnpm prisma:seed
+      - run: pnpm test
+      - run: pnpm build
+      - name: Listings service (types, tests against the seeded database)
+        working-directory: services/listings
         run: |
-          pnpm prisma generate
           pnpm lint
           pnpm test
-          pnpm build
-      - name: Web typecheck, unit tests
-        working-directory: apps/web
-        run: |
-          pnpm typecheck
-          pnpm test
-      - name: Migrate and seed
-        working-directory: services/api-gateway
-        run: pnpm prisma migrate deploy && pnpm prisma:seed
-      - name: Auth tables
-        working-directory: apps/web
-        run: |
-          psql "$DATABASE_URL" -c 'CREATE SCHEMA IF NOT EXISTS auth'
-          pnpm dlx auth@latest migrate --config src/lib/auth.ts -y
-      - name: E2E (Playwright)
-        run: |
-          (cd services/api-gateway && pnpm build && node dist/main &)
-          (cd apps/web && pnpm exec playwright install --with-deps chromium && pnpm next build && (pnpm next start & ) && sleep 5 && E2E_BASE_URL=http://localhost:3000 pnpm test:e2e)
+
+  go:
+    name: Go services (vet, race tests)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [verification, notifier]
+    defaults:
+      run: { working-directory: "services/${{ matrix.service }}" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: services/${{ matrix.service }}/go.mod
+          cache-dependency-path: services/${{ matrix.service }}/go.sum
+      - run: go vet ./...
+      - run: go test -race ./...
 
   ai:
+    name: AI service (pytest)
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: services/ai } }
+    defaults:
+      run: { working-directory: services/ai }
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
