@@ -1,4 +1,5 @@
 import { buildReport } from '../src/verification/verification';
+import { placeImages } from './places';
 import { Approval, Facing, Furnishing, Possession, Prisma, PrismaClient, PropertyType } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -83,7 +84,8 @@ async function main() {
         localityId: loc.id,
         agentId: agents[n % agents.length].id,
         reraNumber: `P0220000${n.toString().padStart(4, '0')}`,
-        imageUrl: photoFor(type, n),
+        imageUrl: placeImages(slug(loc.name), type, n)[0],
+        images: placeImages(slug(loc.name), type, n),
         lat: loc.lat + (((n * 37) % 100) - 50) / 3000,
         lng: loc.lng + (((n * 53) % 100) - 50) / 3000,
         facing: pick(facings, n),

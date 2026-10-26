@@ -38,6 +38,7 @@
     "@nestjs/testing": "^11.2.7",
     "@swc/core": "^1.16.18",
     "@types/express": "^5.0.6",
+    "@types/multer": "^2.3.0",
     "@types/node": "^26.6.5",
     "@types/supertest": "^7.2.1",
     "prisma": "^6.19.3",

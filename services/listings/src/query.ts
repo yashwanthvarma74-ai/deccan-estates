@@ -18,6 +18,7 @@ const list = <T extends readonly [string, ...string[]]>(values: T) =>
 
 /** Same query the api-gateway accepts (values arrive as strings from the URL), so the web app can pass its filters straight through. */
 export const listingQuery = z.object({
+  deal: z.enum(['SALE', 'RENT', 'LEASE']).default('SALE'),
   locality: z.string().optional(),
   type: z.enum(['PLOT', 'VILLA', 'APARTMENT', 'GATED_COMMUNITY', 'COMMERCIAL']).optional(),
   minPrice: z.coerce.number().int().nonnegative().optional(),

@@ -44,7 +44,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-sm text-white/70">
-          <div className="flex flex-wrap gap-x-8 gap-y-2"><Link href="/privacy" className="hover:text-white">Privacy policy</Link><Link href="/terms" className="hover:text-white">Terms of service</Link><span>RERA registration: demo only</span></div>
+          <div className="flex flex-wrap gap-x-8 gap-y-2"><Link href="/privacy" className="hover:text-white">Privacy policy</Link><Link href="/terms" className="hover:text-white">Terms of service</Link><Link href="/credits" className="hover:text-white">Photo credits</Link><span>RERA registration: demo only</span></div>
           <p>© 2026 Deccan Estates · Developed by Yashwanth Varma Konduru</p>
         </div>
       </div>

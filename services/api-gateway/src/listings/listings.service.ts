@@ -21,6 +21,8 @@ const list = <T extends readonly [string, ...string[]]>(values: T) =>
     .pipe(z.array(z.enum(values)).min(1).optional());
 
 export const listingQuery = z.object({
+  /** What is on offer; defaults to homes for sale so rentals and leases do not mix into buying results. */
+  deal: z.enum(['SALE', 'RENT', 'LEASE']).default('SALE'),
   locality: z.string().optional(),
   type: z.enum(['PLOT', 'VILLA', 'APARTMENT', 'GATED_COMMUNITY', 'COMMERCIAL']).optional(),
   minPrice: z.coerce.number().int().nonnegative().optional(),
@@ -60,8 +62,22 @@ export type ListingQuery = z.infer<typeof listingQuery>;
 const include = { locality: true, agent: true, verification: true } satisfies Prisma.ListingInclude;
 type ListingRow = Prisma.ListingGetPayload<{ include: typeof include }>;
 
+const UPLOADS_BASE = () => (process.env.PUBLIC_UPLOADS_BASE ?? 'http://localhost:4000').replace(/\/$/, '');
+/** Uploaded photos are stored as "/uploads/<file>"; clients get a full address. */
+export const publicImage = (u: string) => (u.startsWith('/uploads/') ? `${UPLOADS_BASE()}${u}` : u);
+
 export function toDto(l: ListingRow) {
-  return { ...l, priceInr: Number(l.priceInr), verification: l.verification ?? null };
+  // Never expose the poster's account id or phone; the phone is revealed to signed-in users through /listings/:id/contact.
+  const { ownerId, contactName, contactPhone, depositInr, images, ...rest } = l;
+  return {
+    ...rest,
+    priceInr: Number(l.priceInr),
+    depositInr: depositInr === null ? null : Number(depositInr),
+    imageUrl: publicImage(l.imageUrl),
+    images: images.map(publicImage),
+    owner: ownerId ? { name: contactName ?? 'Owner' } : null,
+    verification: l.verification ?? null,
+  };
 }
 
 @Injectable()
@@ -71,6 +87,7 @@ export class ListingsService {
   private where(query: ListingQuery): Prisma.ListingWhereInput {
     return {
       status: 'ACTIVE',
+      dealType: query.deal,
       type: query.type,
       locality: query.locality ? { slug: query.locality } : undefined,
       priceInr: { gte: query.minPrice, lte: query.maxPrice },
@@ -132,10 +149,10 @@ export class ListingsService {
     return this.redis.cached(`map:${JSON.stringify({ ...query, page: 1, sort: 'newest' })}`, 60, async () => {
       const rows = await this.prisma.listing.findMany({
         where: this.where(query),
-        select: { id: true, title: true, lat: true, lng: true, priceInr: true, imageUrl: true, type: true, areaSqft: true, plotAreaSqYd: true, bedrooms: true, locality: { select: { name: true } } },
+        select: { id: true, title: true, lat: true, lng: true, priceInr: true, imageUrl: true, dealType: true, type: true, areaSqft: true, plotAreaSqYd: true, bedrooms: true, locality: { select: { name: true } } },
         take: 500,
       });
-      return rows.map(({ locality, ...r }) => ({ ...r, priceInr: Number(r.priceInr), locality: locality.name }));
+      return rows.map(({ locality, ...r }) => ({ ...r, priceInr: Number(r.priceInr), imageUrl: publicImage(r.imageUrl), locality: locality.name }));
     });
   }
 

@@ -2,6 +2,7 @@ import { bigint, boolean, doublePrecision, integer, jsonb, pgEnum, pgTable, text
 
 /** Mirrors the tables Prisma owns in the api-gateway; this service only reads them. Update it when a migration changes them. */
 export const propertyType = pgEnum('PropertyType', ['PLOT', 'VILLA', 'APARTMENT', 'GATED_COMMUNITY', 'COMMERCIAL']);
+export const dealType = pgEnum('DealType', ['SALE', 'RENT', 'LEASE']);
 export const listingStatus = pgEnum('ListingStatus', ['ACTIVE', 'SOLD', 'DRAFT']);
 export const facing = pgEnum('Facing', ['EAST', 'WEST', 'NORTH', 'SOUTH', 'NORTH_EAST', 'NORTH_WEST', 'SOUTH_EAST', 'SOUTH_WEST']);
 export const furnishing = pgEnum('Furnishing', ['UNFURNISHED', 'SEMI_FURNISHED', 'FURNISHED']);
@@ -56,7 +57,12 @@ export const listing = pgTable('Listing', {
   lat: doublePrecision().notNull(),
   lng: doublePrecision().notNull(),
   localityId: text().notNull(),
-  agentId: text().notNull(),
+  agentId: text(),
+  dealType: dealType().notNull(),
+  ownerId: text(),
+  contactName: text(),
+  depositInr: bigint({ mode: 'number' }),
+  images: text().array(),
   createdAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
 });
 

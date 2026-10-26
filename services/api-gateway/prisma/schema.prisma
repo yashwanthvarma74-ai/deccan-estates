@@ -50,6 +50,13 @@ enum Approval {
   RERA
 }
 
+/// What the listing offers: sold outright, rented month to month, or leased long term.
+enum DealType {
+  SALE
+  RENT
+  LEASE
+}
+
 enum ListingStatus {
   ACTIVE
   SOLD
@@ -107,14 +114,26 @@ model Listing {
   lng         Float
   localityId  String
   locality    Locality      @relation(fields: [localityId], references: [id])
-  agentId     String
-  agent       Agent         @relation(fields: [agentId], references: [id])
+  /// Agent listings have an agent; listings posted by a signed-in person have an owner instead.
+  agentId     String?
+  agent       Agent?        @relation(fields: [agentId], references: [id])
+  dealType    DealType      @default(SALE)
+  /// Better Auth user id of the person who posted it (null for agent listings).
+  ownerId     String?
+  contactName String?
+  contactPhone String?
+  /// Refundable deposit for rent and lease listings; priceInr is then the monthly amount.
+  depositInr  BigInt?
+  /// Uploaded photo paths ("/uploads/<file>"), first one is also imageUrl.
+  images      String[]      @default([])
   createdAt   DateTime      @default(now())
   saved       SavedListing[]
   verification VerificationReport?
 
   @@index([localityId, priceInr])
   @@index([type, status])
+  @@index([dealType, status])
+  @@index([ownerId])
 }
 
 // userId is the Better Auth user id (JWT `sub`); users live in the web app's auth tables.

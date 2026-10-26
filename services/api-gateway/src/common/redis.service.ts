@@ -21,6 +21,22 @@ export class RedisService implements OnModuleDestroy {
     return value;
   }
 
+  /** Drops cached listing pages, map points and single listings after one changes. Rate-limit counters are left alone. */
+  async invalidateListings() {
+    try {
+      for (const pattern of ['listings:*', 'map:*', 'listing:*']) {
+        let cursor = '0';
+        do {
+          const [next, keys] = await this.client.scan(cursor, 'MATCH', pattern, 'COUNT', 200);
+          cursor = next;
+          if (keys.length) await this.client.del(...keys);
+        } while (cursor !== '0');
+      }
+    } catch {
+      // the cache expires on its own within a minute or two
+    }
+  }
+
   onModuleDestroy() {
     this.client.disconnect();
   }

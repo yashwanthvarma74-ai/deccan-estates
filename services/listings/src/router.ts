@@ -15,6 +15,7 @@ const like = (v: string) => `%${v.replace(/[\\%_]/g, '\\$&')}%`;
 function conditions(q: ListingQuery): SQL | undefined {
   const c: (SQL | undefined)[] = [
     eq(listing.status, 'ACTIVE'),
+    eq(listing.dealType, q.deal),
     q.type ? eq(listing.type, q.type) : undefined,
     q.locality ? eq(locality.slug, q.locality) : undefined,
     ...range(listing.priceInr, q.minPrice, q.maxPrice),
@@ -46,14 +47,22 @@ function conditions(q: ListingQuery): SQL | undefined {
 /** Drizzle returns timestamps as "2026-10-26 09:00:00.123" (UTC); the API sends ISO strings. */
 const iso = (s: string) => new Date(`${s.replace(' ', 'T')}Z`).toISOString();
 
-type Row = { l: typeof listing.$inferSelect; loc: typeof locality.$inferSelect; a: typeof agent.$inferSelect; v: typeof verificationReport.$inferSelect | null };
+type Row = { l: typeof listing.$inferSelect; loc: typeof locality.$inferSelect; a: typeof agent.$inferSelect | null; v: typeof verificationReport.$inferSelect | null };
 
-/** Same JSON the api-gateway returns for a listing. */
+const uploadsBase = () => (process.env.PUBLIC_UPLOADS_BASE ?? 'http://localhost:4000').replace(/\/$/, '');
+/** Uploaded photos are stored as "/uploads/<file>"; clients get a full address. */
+const publicImage = (u: string) => (u.startsWith('/uploads/') ? `${uploadsBase()}${u}` : u);
+
+/** Same JSON the api-gateway returns for a listing. The poster's account id and phone never leave the database. */
 function toDto({ l, loc, a, v }: Row) {
+  const { ownerId, contactName, ...rest } = l;
   return {
-    ...l,
+    ...rest,
     createdAt: iso(l.createdAt),
     amenities: l.amenities ?? [],
+    imageUrl: publicImage(l.imageUrl),
+    images: (l.images ?? []).map(publicImage),
+    owner: ownerId ? { name: contactName ?? 'Owner' } : null,
     locality: loc,
     agent: a,
     verification: v ? { ...v, verifiedAt: iso(v.verifiedAt) } : null,
@@ -65,7 +74,7 @@ const from = (db: Db) =>
     .select({ l: listing, loc: locality, a: agent, v: verificationReport })
     .from(listing)
     .innerJoin(locality, eq(listing.localityId, locality.id))
-    .innerJoin(agent, eq(listing.agentId, agent.id))
+    .leftJoin(agent, eq(listing.agentId, agent.id))
     .leftJoin(verificationReport, eq(verificationReport.listingId, listing.id));
 
 export const appRouter = t.router({
@@ -96,14 +105,14 @@ export const appRouter = t.router({
       const rows = await ctx.db
         .select({
           id: listing.id, title: listing.title, lat: listing.lat, lng: listing.lng, priceInr: listing.priceInr, imageUrl: listing.imageUrl,
-          type: listing.type, areaSqft: listing.areaSqft, plotAreaSqYd: listing.plotAreaSqYd, bedrooms: listing.bedrooms, locality: locality.name,
+          dealType: listing.dealType, type: listing.type, areaSqft: listing.areaSqft, plotAreaSqYd: listing.plotAreaSqYd, bedrooms: listing.bedrooms, locality: locality.name,
         })
         .from(listing)
         .innerJoin(locality, eq(listing.localityId, locality.id))
         .leftJoin(verificationReport, eq(verificationReport.listingId, listing.id))
         .where(conditions(input))
         .limit(500);
-      return rows;
+      return rows.map((r) => ({ ...r, imageUrl: publicImage(r.imageUrl) }));
     }),
   }),
 
