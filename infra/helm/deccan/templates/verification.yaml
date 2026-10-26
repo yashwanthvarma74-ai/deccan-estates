@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: verification }
+spec:
+  replicas: {{ .Values.verification.replicas }}
+  selector: { matchLabels: { app: verification } }
+  template:
+    metadata: { labels: { app: verification } }
+    spec:
+      containers:
+        - name: verification
+          image: {{ .Values.verification.image }}
+          ports: [{ containerPort: 4200 }]
+          readinessProbe: { tcpSocket: { port: 4200 } }
+          livenessProbe: { tcpSocket: { port: 4200 }, initialDelaySeconds: 5 }
+          resources: { requests: { cpu: 50m, memory: 32Mi }, limits: { memory: 128Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: verification }
+spec:
+  selector: { app: verification }
+  ports: [{ port: 4200, targetPort: 4200 }]

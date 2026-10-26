@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PropertyType {
+  PLOT
+  VILLA
+  APARTMENT
+  GATED_COMMUNITY
+  COMMERCIAL
+}
+
+enum Facing {
+  EAST
+  WEST
+  NORTH
+  SOUTH
+  NORTH_EAST
+  NORTH_WEST
+  SOUTH_EAST
+  SOUTH_WEST
+}
+
+enum Furnishing {
+  UNFURNISHED
+  SEMI_FURNISHED
+  FURNISHED
+}
+
+enum Possession {
+  READY
+  UNDER_CONSTRUCTION
+  NEW_LAUNCH
+}
+
+enum VerifyStatus {
+  VERIFIED
+  CAUTION
+  RISK
+}
+
+enum Approval {
+  DTCP
+  HMDA
+  RERA
+}
+
+/// What the listing offers: sold outright, rented month to month, or leased long term.
+enum DealType {
+  SALE
+  RENT
+  LEASE
+}
+
+enum ListingStatus {
+  ACTIVE
+  SOLD
+  DRAFT
+}
+
+model Locality {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  zone      String
+  avgPricePerSqft Int
+  lat       Float
+  lng       Float
+  listings  Listing[]
+}
+
+model Agent {
+  id       String    @id @default(cuid())
+  name     String
+  phone    String
+  reraId   String    @unique
+  listings Listing[]
+}
+
+model Listing {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  type        PropertyType
+  status      ListingStatus @default(ACTIVE)
+  priceInr    BigInt
+  /// Primary area in sq ft: plot area for plots, built-up area for everything else.
+  areaSqft    Int
+  plotAreaSqYd Int?
+  carpetSqft  Int?
+  pricePerSqft Int        @default(0)
+  bathrooms   Int?
+  floor       Int?
+  totalFloors Int?
+  parking     Int         @default(0)
+  ageYears    Int?
+  facing      Facing?
+  furnishing  Furnishing?
+  possession  Possession  @default(READY)
+  approval    Approval?
+  cornerPlot  Boolean     @default(false)
+  roadWidthFt Int?
+  gated       Boolean     @default(false)
+  amenities   String[]
+  bedrooms    Int?
+  reraNumber  String?
+  imageUrl    String
+  lat         Float
+  lng         Float
+  localityId  String
+  locality    Locality      @relation(fields: [localityId], references: [id])
+  /// Agent listings have an agent; listings posted by a signed-in person have an owner instead.
+  agentId     String?
+  agent       Agent?        @relation(fields: [agentId], references: [id])
+  dealType    DealType      @default(SALE)
+  /// Better Auth user id of the person who posted it (null for agent listings).
+  ownerId     String?
+  contactName String?
+  contactPhone String?
+  /// Refundable deposit for rent and lease listings; priceInr is then the monthly amount.
+  depositInr  BigInt?
+  /// Uploaded photo paths ("/uploads/<file>"), first one is also imageUrl.
+  images      String[]      @default([])
+  createdAt   DateTime      @default(now())
+  saved       SavedListing[]
+  verification VerificationReport?
+
+  @@index([localityId, priceInr])
+  @@index([type, status])
+  @@index([dealType, status])
+  @@index([ownerId])
+}
+
+// userId is the Better Auth user id (JWT `sub`); users live in the web app's auth tables.
+model SavedListing {
+  userId    String
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, listingId])
+}
+
+/// Pre-listing due diligence: one report per listing, with the individual checks as JSON.
+/// `demo` marks reports generated from sample data rather than real document checks.
+model VerificationReport {
+  listingId  String       @id
+  listing    Listing      @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  status     VerifyStatus
+  score      Int
+  summary    String
+  checks     Json
+  demo       Boolean      @default(true)
+  verifiedAt DateTime     @default(now())
+}
+
+/// A lead from the Sell with us form: someone who wants an agent to call about their property.
+model Enquiry {
+  id               String        @id @default(cuid())
+  name             String
+  phone            String
+  email            String?
+  propertyType     PropertyType?
+  locality         String?
+  expectedPriceInr BigInt?
+  message          String?
+  createdAt        DateTime      @default(now())
+
+  @@index([createdAt])
+}
+
+/// Events waiting to be published to Kafka. Written in the same transaction as the change they describe,
+/// so an event is never lost if the broker is down; a dispatcher publishes and marks them.
+model OutboxEvent {
+  id          String    @id @default(cuid())
+  topic       String
+  key         String
+  payload     Json
+  attempts    Int       @default(0)
+  lastError   String?
+  createdAt   DateTime  @default(now())
+  publishedAt DateTime?
+
+  @@index([publishedAt, createdAt])
+}

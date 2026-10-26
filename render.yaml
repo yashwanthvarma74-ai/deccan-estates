@@ -1,0 +1,38 @@
+# Render blueprint for the API. Values marked `sync: false` are asked for when you create it, so no secret lives in git.
+services:
+  - type: web
+    name: deccan-api
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --filter @hyd/api-gateway... && pnpm --filter @hyd/api-gateway exec prisma generate && pnpm --filter @hyd/api-gateway build
+    startCommand: node services/api-gateway/dist/main
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DATABASE_URL
+        sync: false
+      # No cache on the free plan; the API reads straight from the database.
+      - key: REDIS_URL
+        value: "off"
+      # Your Vercel address, e.g. https://deccan-estates.vercel.app (set after the website is deployed).
+      - key: WEB_ORIGIN
+        sync: false
+      - key: AUTH_URL
+        sync: false
+      # Photo storage (Neon object storage, S3-compatible).
+      - key: PUBLIC_UPLOADS_BASE
+        value: https://br-flat-wind-aoxnstco.storage.c-2.ap-southeast-1.aws.neon.tech/uploads
+      - key: S3_BUCKET
+        value: uploads
+      - key: S3_ENDPOINT
+        value: https://br-flat-wind-aoxnstco.storage.c-2.ap-southeast-1.aws.neon.tech
+      - key: S3_REGION
+        value: ap-southeast-1
+      - key: S3_FORCE_PATH_STYLE
+        value: "1"
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false

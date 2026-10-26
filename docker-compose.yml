@@ -1,0 +1,109 @@
+# Postgres (+pgvector) and Redis for development.
+# `docker compose --profile app up --build` also runs the API and web app.
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hyd}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hyd_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-hyd_realestate}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hyd}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  kafka:
+    profiles: ["app"]
+    image: apache/kafka:3.9.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  notifier:
+    profiles: ["app"]
+    build: { context: ., dockerfile: infra/docker/notifier.Dockerfile }
+    environment:
+      KAFKA_BROKERS: kafka:9092
+      NOTIFY_WEBHOOK_URL: ${NOTIFY_WEBHOOK_URL:-}
+    depends_on:
+      kafka: { condition: service_healthy }
+
+  listings:
+    profiles: ["app"]
+    build: { context: ., dockerfile: infra/docker/listings.Dockerfile }
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hyd}:${POSTGRES_PASSWORD:-hyd_dev_password}@postgres:5432/${POSTGRES_DB:-hyd_realestate}
+      WEB_ORIGIN: http://localhost:3000
+    ports: ["4100:4100"]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  verification:
+    profiles: ["app"]
+    build: { context: ., dockerfile: infra/docker/verification.Dockerfile }
+    ports: ["4200:4200"]
+
+  api:
+    profiles: ["app"]
+    build: { context: ., dockerfile: infra/docker/api.Dockerfile }
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hyd}:${POSTGRES_PASSWORD:-hyd_dev_password}@postgres:5432/${POSTGRES_DB:-hyd_realestate}
+      REDIS_URL: redis://redis:6379
+      WEB_ORIGIN: http://localhost:3000
+      VERIFICATION_GRPC_ADDR: verification:4200
+      KAFKA_BROKERS: kafka:9092
+    ports: ["4000:4000"]
+    depends_on:
+      verification: { condition: service_started }
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  web:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: infra/docker/web.Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: http://localhost:3000
+        NEXT_PUBLIC_API_URL: http://localhost:4000
+        NEXT_PUBLIC_LISTINGS_URL: http://localhost:4100
+    environment:
+      API_URL: http://api:4000
+      LISTINGS_URL: http://listings:4100
+      AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-only-secret-change-me-please-32chars}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hyd}:${POSTGRES_PASSWORD:-hyd_dev_password}@postgres:5432/${POSTGRES_DB:-hyd_realestate}
+    ports: ["3000:3000"]
+    depends_on: [api, listings]
+
+volumes:
+  postgres_data:
+  redis_data:

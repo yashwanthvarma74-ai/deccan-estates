@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Web (lint, types, tests, build against a live API)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env: { POSTGRES_USER: hyd, POSTGRES_PASSWORD: hyd_dev_password, POSTGRES_DB: hyd_realestate }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hyd" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://hyd:hyd_dev_password@localhost:5432/hyd_realestate
+      REDIS_URL: "off"
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+      API_URL: http://localhost:4000
+      BETTER_AUTH_SECRET: ci-only-secret-ci-only-secret-ci-only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 12 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Start the API (the production build prerenders pages from it)
+        working-directory: services/api-gateway
+        run: |
+          pnpm prisma generate
+          pnpm prisma migrate deploy
+          pnpm prisma:seed
+          pnpm build
+          (PORT=4000 node dist/main > /tmp/api.log 2>&1 &)
+          for i in $(seq 1 30); do curl -fs localhost:4000/health && break; sleep 2; done
+      - working-directory: apps/web
+        run: |
+          pnpm lint
+          pnpm typecheck
+          pnpm test
+          pnpm build
+
+  gateway:
+    name: API gateway and listings service (migrate, seed, tests, build)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env: { POSTGRES_USER: hyd, POSTGRES_PASSWORD: hyd_dev_password, POSTGRES_DB: hyd_realestate }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hyd" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://hyd:hyd_dev_password@localhost:5432/hyd_realestate
+      REDIS_URL: "off"
+    defaults:
+      run: { working-directory: services/api-gateway }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 12 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm prisma generate
+      - run: pnpm lint
+      - run: pnpm prisma migrate deploy
+      - run: pnpm prisma:seed
+      - run: pnpm test
+      - run: pnpm build
+      - name: Listings service (types, tests against the seeded database)
+        working-directory: services/listings
+        run: |
+          pnpm lint
+          pnpm test
+
+  go:
+    name: Go services (vet, race tests)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [verification, notifier]
+    defaults:
+      run: { working-directory: "services/${{ matrix.service }}" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: services/${{ matrix.service }}/go.mod
+          cache-dependency-path: services/${{ matrix.service }}/go.sum
+      - run: go vet ./...
+      - run: go test -race ./...
+
+  ai:
+    name: AI service (pytest)
+    runs-on: ubuntu-latest
+    defaults:
+      run: { working-directory: services/ai }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest -q

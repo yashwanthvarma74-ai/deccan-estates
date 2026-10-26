@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package verification.v1;
+
+option go_package = "github.com/yashwanth/hyderabad-realestate-platform/services/verification/gen;verificationv1";
+
+service Verification {
+  // Builds the due-diligence report for one listing.
+  rpc GetReport(GetReportRequest) returns (Report);
+}
+
+message GetReportRequest {
+  string type = 1;        // PLOT, VILLA, APARTMENT, GATED_COMMUNITY or COMMERCIAL
+  string possession = 2;  // READY, UNDER_CONSTRUCTION or NEW_LAUNCH
+  string approval = 3;    // optional: DTCP, HMDA or RERA
+  string locality = 4;
+  int32 seed = 5;         // stable number for the listing, so the same listing gets the same report
+}
+
+enum CheckResult {
+  CHECK_RESULT_UNSPECIFIED = 0;
+  PASS = 1;
+  WARN = 2;
+  FAIL = 3;
+}
+
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  VERIFIED = 1;
+  CAUTION = 2;
+  RISK = 3;
+}
+
+message Check {
+  string key = 1;
+  string label = 2;
+  CheckResult result = 3;
+  string note = 4;
+  string source = 5;
+}
+
+message Report {
+  Status status = 1;
+  int32 score = 2;
+  string summary = 3;
+  repeated Check checks = 4;
+}
