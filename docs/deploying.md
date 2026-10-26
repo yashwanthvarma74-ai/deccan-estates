@@ -48,3 +48,5 @@ Vercel's free Hobby plan is for non-commercial use; use a paid plan for a busine
 ## Deccan AI chat
 
 The "Ask AI" button (every page) calls `/api/ask`. Add `ANTHROPIC_API_KEY` to the Vercel environment variables to switch it to the newest Claude model (`ASK_MODEL`, default `claude-sonnet-5-5`), which uses tools to search the live listings, open one listing, look up an area and work out an EMI. Without a key it uses a built-in search that understands phrases such as "2 BHK flat for rent in Kondapur under 40k". Each visitor is limited to 12 questions a minute, and keys are billed by usage, so set a spending limit in the Anthropic console.
+
+**Free AI:** instead of Anthropic, set `GROQ_API_KEY` (free key from console.groq.com; runs Llama 3.3 70B) or `GEMINI_API_KEY` (free key from aistudio.google.com/apikey; runs Gemini 2.5 Flash). The first one found is used in the order Anthropic, Groq, Gemini. Free tiers have daily and per-minute limits and may use questions to improve their models, so tell visitors not to type personal details. Without any key the chat still searches the listings.
