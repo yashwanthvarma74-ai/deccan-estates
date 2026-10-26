@@ -3,8 +3,11 @@ import Redis from 'ioredis';
 
 @Injectable()
 export class RedisService implements OnModuleDestroy {
-  readonly client = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
-    lazyConnect: false,
+  /** REDIS_URL=off runs without a cache: every call fails fast and the code falls back to the database. */
+  private readonly off = process.env.REDIS_URL === 'off';
+  readonly client = new Redis(this.off ? 'redis://localhost:6379' : (process.env.REDIS_URL ?? 'redis://localhost:6379'), {
+    lazyConnect: this.off,
+    enableOfflineQueue: !this.off,
     maxRetriesPerRequest: 2,
   });
 

@@ -9,6 +9,8 @@ export class HealthController {
   @Get()
   async check() {
     await this.prisma.$queryRaw`SELECT 1`;
-    return { status: 'ok', redis: await this.redis.client.ping() };
+    // The cache is optional: the API keeps working without it, so a missing Redis is reported but is not a failure.
+    const redis = await this.redis.client.ping().then(() => 'ok', () => 'unavailable');
+    return { status: 'ok', redis };
   }
 }
