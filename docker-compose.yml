@@ -1,4 +1,5 @@
-# Phase 1 infra: Postgres (+pgvector) and Redis.
+# Postgres (+pgvector) and Redis for development.
+# `docker compose --profile app up --build` also runs the API and web app.
 services:
   postgres:
     image: pgvector/pgvector:pg17
@@ -27,6 +28,34 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  api:
+    profiles: ["app"]
+    build: { context: ., dockerfile: infra/docker/api.Dockerfile }
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hyd}:${POSTGRES_PASSWORD:-hyd_dev_password}@postgres:5432/${POSTGRES_DB:-hyd_realestate}
+      REDIS_URL: redis://redis:6379
+      WEB_ORIGIN: http://localhost:3000
+    ports: ["4000:4000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  web:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: infra/docker/web.Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: http://localhost:3000
+        NEXT_PUBLIC_API_URL: http://localhost:4000
+    environment:
+      API_URL: http://api:4000
+      AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-only-secret-change-me-please-32chars}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hyd}:${POSTGRES_PASSWORD:-hyd_dev_password}@postgres:5432/${POSTGRES_DB:-hyd_realestate}
+    ports: ["3000:3000"]
+    depends_on: [api]
 
 volumes:
   postgres_data:

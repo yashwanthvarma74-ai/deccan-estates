@@ -1,0 +1,10 @@
+host: deccan.example.com
+web:
+  image: ghcr.io/your-org/deccan-web:latest
+  replicas: 2
+api:
+  image: ghcr.io/your-org/deccan-api:latest
+  replicas: 2
+# Name of an existing Secret holding DATABASE_URL, REDIS_URL, BETTER_AUTH_SECRET
+secretName: deccan-secrets
+otlpEndpoint: ""

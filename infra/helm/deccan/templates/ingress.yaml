@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: deccan
+  annotations: { cert-manager.io/cluster-issuer: letsencrypt }
+spec:
+  tls: [{ hosts: [{{ .Values.host | quote }}], secretName: deccan-tls }]
+  rules:
+    - host: {{ .Values.host | quote }}
+      http:
+        paths:
+          - { path: /api/auth, pathType: Prefix, backend: { service: { name: web, port: { number: 3000 } } } }
+          - { path: /, pathType: Prefix, backend: { service: { name: web, port: { number: 3000 } } } }
