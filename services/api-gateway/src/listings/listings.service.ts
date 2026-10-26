@@ -108,12 +108,11 @@ export class ListingsService {
   list(query: ListingQuery) {
     return this.redis.cached(`listings:${JSON.stringify(query)}`, 60, async () => {
       const where = this.where(query);
-      const orderBy: Prisma.ListingOrderByWithRelationInput =
-        query.sort === 'price_asc'
-          ? { priceInr: 'asc' }
-          : query.sort === 'price_desc'
-            ? { priceInr: 'desc' }
-            : { createdAt: 'desc' };
+      // `id` breaks ties so pages never repeat or skip a listing.
+      const orderBy: Prisma.ListingOrderByWithRelationInput[] = [
+        query.sort === 'price_asc' ? { priceInr: 'asc' } : query.sort === 'price_desc' ? { priceInr: 'desc' } : { createdAt: 'desc' },
+        { id: 'asc' },
+      ];
       const [items, total] = await this.prisma.$transaction([
         this.prisma.listing.findMany({
           where,

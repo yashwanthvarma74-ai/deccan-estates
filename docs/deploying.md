@@ -18,7 +18,7 @@ Source footage for the hero is kept outside the repo and is not needed at runtim
 
 ## Listings service (Phase 2)
 
-`services/listings` serves read-only listing queries over tRPC on port 4100 (`DATABASE_URL`, optional `LISTINGS_PORT`). Run it with `pnpm --filter @hyd/listings start`; test it with `DATABASE_URL=... pnpm --filter @hyd/listings test`. The web app does not call it yet. See ADR 0008.
+`services/listings` serves read-only listing queries over tRPC on port 4100 (`DATABASE_URL`, optional `LISTINGS_PORT`). Run it with `pnpm --filter @hyd/listings start`; test it with `DATABASE_URL=... pnpm --filter @hyd/listings test`. To make the web app use it, set `LISTINGS_URL` (server) and `NEXT_PUBLIC_LISTINGS_URL` (browser) and `WEB_ORIGIN` on the service; the web app falls back to the API if it is unreachable. See ADR 0008.
 
 ## Verification service (Phase 2)
 
