@@ -49,7 +49,7 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
           {listing.verification && <VerificationReport report={listing.verification} isPlot={listing.type === "PLOT"} />}
           <h2 className="mt-12 text-2xl">About this property</h2>
           <p className="mt-3 max-w-3xl leading-relaxed text-muted">{listing.description}</p>
-          <p className="label mt-8 text-muted">RERA No. {listing.reraNumber ?? "—"}</p>
+          <p className="label mt-8 text-muted">RERA No. {listing.reraNumber ?? "-"}</p>
           <div className="mt-8"><SaveButton listingId={listing.id} /></div>
         </div>
 
