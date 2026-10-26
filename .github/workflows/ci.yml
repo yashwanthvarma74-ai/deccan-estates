@@ -14,8 +14,21 @@ permissions:
 
 jobs:
   web:
-    name: Web (lint, types, tests, build)
+    name: Web (lint, types, tests, build against a live API)
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env: { POSTGRES_USER: hyd, POSTGRES_PASSWORD: hyd_dev_password, POSTGRES_DB: hyd_realestate }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hyd" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://hyd:hyd_dev_password@localhost:5432/hyd_realestate
+      REDIS_URL: "off"
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+      API_URL: http://localhost:4000
+      BETTER_AUTH_SECRET: ci-only-secret-ci-only-secret-ci-only
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -23,14 +36,21 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - name: Start the API (the production build prerenders pages from it)
+        working-directory: services/api-gateway
+        run: |
+          pnpm prisma generate
+          pnpm prisma migrate deploy
+          pnpm prisma:seed
+          pnpm build
+          (PORT=4000 node dist/main > /tmp/api.log 2>&1 &)
+          for i in $(seq 1 30); do curl -fs localhost:4000/health && break; sleep 2; done
       - working-directory: apps/web
         run: |
           pnpm lint
           pnpm typecheck
           pnpm test
           pnpm build
-        env:
-          NEXT_PUBLIC_API_URL: http://localhost:4000
 
   gateway:
     name: API gateway and listings service (migrate, seed, tests, build)
