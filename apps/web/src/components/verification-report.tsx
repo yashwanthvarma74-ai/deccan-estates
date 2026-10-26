@@ -28,11 +28,11 @@ export function VerificationReport({ report, isPlot }: { report: NonNullable<Lis
         {report.checks.map((c) => {
           const { icon: Icon, cls } = MARK[c.result];
           return (
-            <li key={c.key} className="grid grid-cols-[2rem_1fr] gap-4 py-4 md:grid-cols-[2rem_15rem_1fr_9rem]">
+            <li key={c.key} className="grid grid-cols-[2rem_1fr] gap-4 py-4 xl:grid-cols-[2rem_15rem_minmax(0,1fr)_9rem]">
               <span className={cn("mt-0.5 grid h-8 w-8 place-items-center rounded-full", cls)}><Icon className="h-4 w-4" aria-label={c.result} /></span>
               <p className="font-medium">{c.label}</p>
-              <p className="col-span-2 text-sm text-muted md:col-span-1">{c.note}</p>
-              <p className="col-span-2 text-xs uppercase tracking-wider text-muted md:col-span-1 md:text-right">{c.source}</p>
+              <p className="col-span-2 text-sm text-muted xl:col-span-1">{c.note}</p>
+              <p className="col-span-2 text-xs uppercase tracking-wider text-muted xl:col-span-1 xl:text-right">{c.source}</p>
             </li>
           );
         })}

@@ -41,6 +41,10 @@ export function ResultsMap() {
   const el = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
   const [ready, setReady] = useState(false);
+  /** Where the matching homes are, and whether the person has moved the map themselves. */
+  const bounds = useRef<[[number, number], [number, number]] | null>(null);
+  const userMoved = useRef(false);
+  const resizeObserver = useRef<ResizeObserver | null>(null);
   const [outline, setOutline] = useState(true);
   const [saved, setSaved] = useState(false);
 
@@ -62,7 +66,7 @@ export function ResultsMap() {
       map = created;
       created.on("load", () => {
         const m = created;
-        m.addSource("listings", { type: "geojson", data: { type: "FeatureCollection", features: [] }, cluster: true, clusterRadius: 48, clusterMaxZoom: 14 });
+        m.addSource("listings", { type: "geojson", data: { type: "FeatureCollection", features: [] }, cluster: true, clusterRadius: 38, clusterMaxZoom: 9 });
         m.addSource("outline", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
         m.addLayer({ id: "outline-fill", type: "fill", source: "outline", paint: { "fill-color": NAVY, "fill-opacity": 0.06 } });
         m.addLayer({ id: "outline-line", type: "line", source: "outline", paint: { "line-color": NAVY, "line-width": 2 } });
@@ -77,7 +81,7 @@ export function ResultsMap() {
         });
         m.addLayer({
           id: "point", type: "circle", source: "listings", filter: ["!", ["has", "point_count"]],
-          paint: { "circle-color": NAVY, "circle-radius": 8, "circle-stroke-color": "#fff", "circle-stroke-width": 2 },
+          paint: { "circle-color": NAVY, "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 6, 13, 10], "circle-stroke-color": "#b6f400", "circle-stroke-width": 2.5 },
         });
         m.on("click", "clusters", async (e) => {
           const f = m.queryRenderedFeatures(e.point, { layers: ["clusters"] })[0];
@@ -85,27 +89,42 @@ export function ResultsMap() {
           m.easeTo({ center: (f.geometry as unknown as { coordinates: [number, number] }).coordinates, zoom });
         });
         const esc = (v: unknown) => String(v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
-        const hover = new maplibregl.Popup({ offset: 14, closeButton: false, closeOnClick: false, maxWidth: "260px", className: "map-card" });
+        // One card: hovering previews it, a click or tap pins it so it can be read and opened (also works on touch screens).
+        const card = new maplibregl.Popup({ offset: 14, closeButton: false, closeOnClick: false, maxWidth: "260px", className: "map-card" });
         let shown = "";
-        const open = (e: { features?: unknown[] }) => {
-          const f = e.features![0] as { properties: Record<string, string | number>; geometry: unknown };
+        let pinned = false;
+        const showCard = (f: { properties: Record<string, string | number>; geometry: unknown }) => {
           const p = f.properties;
           if (shown !== p.id) {
             shown = String(p.id);
-            hover
+            card
               .setLngLat((f.geometry as { coordinates: [number, number] }).coordinates)
-              .setHTML(`<a href="/listings/${esc(p.id)}"><img src="${esc(p.image)}" alt="" /><span class="mc-body"><span class="mc-kind">${esc(p.kind)} · ${esc(p.locality)}</span><strong>${esc(p.title)}</strong><span class="mc-price">${priceLabel({ priceInr: Number(p.price), dealType: String(p.deal) })}</span><span class="mc-size">${esc(p.size)}</span></span></a>`)
+              .setHTML(`<a href="/listings/${esc(p.id)}"><img src="${esc(p.image)}" alt="" /><span class="mc-body"><span class="mc-kind">${esc(p.kind)} · ${esc(p.locality)}</span><strong>${esc(p.title)}</strong><span class="mc-price">${priceLabel({ priceInr: Number(p.price), dealType: String(p.deal) })}</span><span class="mc-size">${esc(p.size)}</span><span class="mc-open">View details &rarr;</span></span></a>`)
               .addTo(m);
           }
-          document.getElementById(`listing-${p.id}`)?.classList.add("ring-1", "ring-[#b6f400]");
         };
-        m.on("mouseenter", "point", open);
-        m.on("mousemove", "point", open);
-        m.on("mouseleave", "point", () => { shown = ""; hover.remove(); document.querySelectorAll("[id^=listing-].ring-1").forEach((n) => n.classList.remove("ring-1", "ring-[#b6f400]")); });
+        const hideCard = () => { shown = ""; pinned = false; card.removeClassName("pinned"); card.remove(); document.querySelectorAll("[id^=listing-].ring-1").forEach((n) => n.classList.remove("ring-1", "ring-[#b6f400]")); };
+        const lift = (id: unknown) => document.getElementById(`listing-${id}`)?.classList.add("ring-1", "ring-[#b6f400]");
+        const hoverCard = (e: { features?: unknown[] }) => {
+          if (pinned) return;
+          const f = e.features![0] as Parameters<typeof showCard>[0];
+          showCard(f);
+          lift(f.properties.id);
+        };
+        m.on("mouseenter", "point", hoverCard);
+        m.on("mousemove", "point", hoverCard);
+        m.on("mouseleave", "point", () => { if (!pinned) hideCard(); });
         m.on("click", "point", (e) => {
-          const id = (e.features![0].properties as { id: string }).id;
-          routerRef.current.push(`/listings/${id}`);
+          const f = e.features![0] as unknown as Parameters<typeof showCard>[0];
+          shown = "";
+          showCard(f);
+          pinned = true;
+          card.addClassName("pinned");
+          lift(f.properties.id);
+          document.getElementById(`listing-${f.properties.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
         });
+        // Clicking empty map closes a pinned card.
+        m.on("click", (e) => { if (!m.queryRenderedFeatures(e.point, { layers: ["point", "clusters"] }).length) hideCard(); });
         for (const l of ["clusters", "point"]) {
           m.on("mouseenter", l, () => (m.getCanvas().style.cursor = "pointer"));
           m.on("mouseleave", l, () => (m.getCanvas().style.cursor = ""));
@@ -113,9 +132,18 @@ export function ResultsMap() {
         setReady(true);
       });
       mapRef.current = created;
+      // The map can be created before its box has a size; re-fit when it gets one, unless the person already moved the map.
+      created.on("movestart", (e) => { if ((e as { originalEvent?: unknown }).originalEvent) userMoved.current = true; });
+      const ro = new ResizeObserver(() => {
+        created.resize();
+        if (!userMoved.current && bounds.current) created.fitBounds(bounds.current, { padding: 60, maxZoom: 13, duration: 0 });
+      });
+      if (el.current) ro.observe(el.current);
+      resizeObserver.current = ro;
     })();
     return () => {
       cancelled = true;
+      resizeObserver.current?.disconnect();
       map?.remove();
       mapRef.current = null;
       setReady(false);
@@ -140,7 +168,9 @@ export function ResultsMap() {
     if (points.data.length) {
       const lngs = points.data.map((p) => p.lng);
       const lats = points.data.map((p) => p.lat);
-      map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: 60, maxZoom: 13, duration: 600 });
+      bounds.current = [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]];
+      userMoved.current = false;
+      map.fitBounds(bounds.current, { padding: 60, maxZoom: 13, duration: 600 });
     }
   }, [ready, points.data]);
 

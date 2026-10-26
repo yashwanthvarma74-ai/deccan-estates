@@ -44,3 +44,7 @@ Set `KAFKA_BROKERS` on the API to publish `enquiry.created`, and run `services/n
 6. **Vercel** (web): import the repo, root directory `apps/web`, include files outside the root. Set `DATABASE_URL`, `BETTER_AUTH_SECRET`, `AUTH_URL`, `NEXT_PUBLIC_SITE_URL`, `API_URL`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_UPLOADS_URL`. Leave the listings-service variables empty.
 
 Vercel's free Hobby plan is for non-commercial use; use a paid plan for a business site.
+
+## Deccan AI chat
+
+The "Ask AI" button (every page) calls `/api/ask`. Add `ANTHROPIC_API_KEY` to the Vercel environment variables to switch it to the newest Claude model (`ASK_MODEL`, default `claude-sonnet-5-5`), which uses tools to search the live listings, open one listing, look up an area and work out an EMI. Without a key it uses a built-in search that understands phrases such as "2 BHK flat for rent in Kondapur under 40k". Each visitor is limited to 12 questions a minute, and keys are billed by usage, so set a spending limit in the Anthropic console.

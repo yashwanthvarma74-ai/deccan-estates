@@ -164,11 +164,11 @@ export function Hero({ counts }: { counts: TypeCounts }) {
         <div className="absolute inset-0 bg-black" style={{ opacity: fall }} />
         <div className="pointer-events-none absolute inset-0 grid place-items-center px-6 text-center">
           {[
-            [0.26, 0.42, "Every light is a home.", "14%"],
+            [0.26, 0.42, "Every light is a home.", "top-[27%] landscape:top-[21%]"],
             [0.58, 0.72, "Millions of them. One city."],
             [0.80, 0.9, "Let us begin at the ground."],
           ].map(([a2, b2, text, top]) => (
-            <p key={text as string} className="absolute max-w-[18ch] text-[clamp(1.8rem,4vw,3.4rem)] font-normal leading-[1.05] tracking-[-0.045em] text-white" style={{ opacity: cap(a2 as number, b2 as number), ...(top ? { top: top as string } : {}), transform: `translateY(${(1 - cap(a2 as number, b2 as number)) * 24}px)` }}>{text}</p>
+            <p key={text as string} className={`absolute max-w-[18ch] text-[clamp(1.8rem,4vw,3.4rem)] font-normal leading-[1.05] tracking-[-0.045em] text-white ${top ?? ""}`} style={{ opacity: cap(a2 as number, b2 as number), transform: `translateY(${(1 - cap(a2 as number, b2 as number)) * 24}px)` }}>{text}</p>
           ))}
         </div>
 
@@ -180,7 +180,12 @@ export function Hero({ counts }: { counts: TypeCounts }) {
             <h1 className="intro-rise mt-4 max-w-none text-[clamp(2.3rem,5.4vw,5rem)] font-normal leading-[1] tracking-[-0.055em] text-white" style={{ animationDelay: "140ms" }}>
               Build your place in <span className="tracking-[-0.04em] text-[#ffd9a3]">Hyderabad.</span>
             </h1>
-            <ul className="intro-rise mt-6 flex flex-wrap gap-2.5" aria-label="What are you looking for?" style={{ animationDelay: "300ms" }}>
+            <nav className="intro-rise mt-6 flex flex-wrap gap-2.5" aria-label="Buy, rent or commercial" style={{ animationDelay: "240ms" }}>
+              {[["Buy", "/listings", true], ["Rent", "/listings?deal=RENT", false], ["Commercial", "/listings?deal=LEASE", false]].map(([label, href, primary]) => (
+                <Link key={label as string} href={href as string} className={`mono-label flex h-12 items-center rounded-lg px-7 text-[13px] transition-transform hover:scale-[1.03] ${primary ? "bg-[#b6f400] text-black" : "bg-white text-black"}`}>{label}</Link>
+              ))}
+            </nav>
+            <ul className="intro-rise mt-4 flex flex-wrap gap-2.5" aria-label="What are you looking for?" style={{ animationDelay: "300ms" }}>
               {TYPES.map(({ type, title }) => (
                 <li key={type}>
                   <Link href={`/listings?type=${type}`} className="mono-label group flex min-h-11 items-center gap-3 rounded-full border border-white/25 bg-white/[0.06] px-5 text-white backdrop-blur transition-colors hover:border-white hover:bg-white hover:text-black">

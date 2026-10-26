@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -9,6 +8,7 @@ import { typeLabels } from "@/lib/api";
 import { getListing } from "@/lib/data";
 import { specsFor } from "@/lib/listing-meta";
 import { ContactBox } from "@/components/contact-box";
+import { PhotoGallery } from "@/components/photo-gallery";
 import { formatInr, priceLabel } from "@/lib/utils";
 
 async function Detail({ params }: { params: Promise<{ id: string }> }) {
@@ -19,7 +19,7 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
   const own = listing.images.filter((u) => u !== listing.imageUrl);
   const stills = ["s1", "s2", "s3", "s4", "s5", "s6"].map((s) => `/stills/${s}.jpg`).filter((u) => u !== listing.imageUrl && !own.includes(u));
   const h = [...listing.id].reduce((a, c) => a + c.charCodeAt(0), 0);
-  const extra = [...own, stills[h % stills.length], stills[(h + 2) % stills.length]].slice(0, 2);
+  const photos = [listing.imageUrl, ...own, ...(own.length < 2 ? [stills[h % stills.length], stills[(h + 2) % stills.length]].slice(0, 2 - own.length) : [])].slice(0, 12);
   const specs = specsFor(listing, formatInr);
 
   return (
@@ -28,12 +28,7 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
         <Link href={listing.dealType === "SALE" ? "/listings" : `/listings?deal=${listing.dealType}`} className="hover:text-white">{listing.dealType === "LEASE" ? "Commercial spaces" : listing.dealType === "RENT" ? "Homes to rent" : "Homes to buy"}</Link> /{" "}
         <Link href={`/listings?locality=${listing.locality.slug}`} className="hover:text-white">{listing.locality.name}</Link>
       </nav>
-      <div className="grid gap-2 md:grid-cols-[2fr_1fr]">
-        <Image src={listing.imageUrl} alt={listing.title} width={1400} height={900} priority sizes="(min-width:768px) 66vw, 100vw" className="h-full max-h-[34rem] w-full rounded-xl object-cover" />
-        <div className="hidden gap-2 md:grid">
-          {extra.map((src) => <Image key={src} src={src} alt="" width={700} height={450} sizes="33vw" className="h-full max-h-[16.8rem] w-full rounded-xl object-cover" />)}
-        </div>
-      </div>
+      <PhotoGallery photos={photos} alt={listing.title} />
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12 [&>*]:min-w-0">
         <div>

@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { Providers } from "@/components/providers";
 import { SearchStripLoader } from "@/components/search-strip-loader";
 import { SiteFooter } from "@/components/site-footer";
+import { AskAI } from "@/components/ask-ai";
 
 const interTight = Inter_Tight({ variable: "--font-inter-tight", subsets: ["latin"], weight: ["300", "400", "500", "600"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], weight: ["400", "500", "600"] });
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <SearchStripLoader />
           <main className="flex-1">{children}</main>
           <SiteFooter />
+          <AskAI />
         </Providers>
       </body>
     </html>

@@ -87,7 +87,9 @@ export function CosmosCanvas({ pRef }: { pRef: MutableRefObject<number> }) {
 
       // moon rises and then drifts away as the camera climbs
       if (night > 0.02 && ascend < 0.98) {
-        const mx = w * 0.2, my = h * (0.44 - 0.28 * night) + ascend * h * 1.1, mr = Math.min(w, h) * 0.075;
+        // The moon settles where it is fully visible and clear of the navigation bar and the caption: higher on tall screens, lower on wide ones.
+        const settle = h > w ? 0.19 : 0.27;
+        const mx = w * 0.2, my = h * (0.5 + (settle - 0.5) * night) + ascend * h * 1.1, mr = Math.min(w, h) * 0.075;
         const halo = ctx.createRadialGradient(mx, my, mr * 0.6, mx, my, mr * 5);
         halo.addColorStop(0, `rgba(210,225,255,${0.35 * night})`); halo.addColorStop(1, "rgba(210,225,255,0)");
         ctx.fillStyle = halo; ctx.fillRect(mx - mr * 5, my - mr * 5, mr * 10, mr * 10);

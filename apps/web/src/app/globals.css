@@ -128,6 +128,8 @@ html[data-intro="done"] .intro-rise { animation: intro-rise 1100ms cubic-bezier(
 @keyframes bar-in { from { width: 0%; } to { width: 88%; } }
 
 .map-card { pointer-events: none; }
+.map-card.pinned { pointer-events: auto; }
+.map-card .mc-open { margin-top: 6px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #b6f400; }
 .map-card .maplibregl-popup-content { padding: 0 !important; overflow: hidden; width: 250px; }
 .map-card a { display: block; }
 .map-card img { display: block; width: 100%; height: 130px; object-fit: cover; }

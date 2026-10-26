@@ -20,6 +20,12 @@ export function pickModel(): LanguageModel | null {
   return null;
 }
 
+/** The newest model for the site-wide assistant; falls back to other providers, or null (built-in search mode). */
+export function pickChatModel(): LanguageModel | null {
+  if (process.env.ANTHROPIC_API_KEY) return createAnthropic()(process.env.ASK_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-5-5");
+  return pickModel();
+}
+
 /**
  * Retrieved passages are untrusted (seller-uploaded PDFs, listing text): they are fenced
  * as data and the model is told never to follow instructions found inside them (OWASP LLM01).
