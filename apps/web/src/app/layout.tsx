@@ -31,7 +31,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <SearchStripLoader />
           <main className="flex-1">{children}</main>
           <SiteFooter />
-          <AskAI />
+          <Suspense fallback={null}>
+            <AskAI />
+          </Suspense>
         </Providers>
       </body>
     </html>
