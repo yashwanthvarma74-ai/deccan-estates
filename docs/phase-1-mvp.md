@@ -1,4 +1,4 @@
-# Phase 1 - MVP (6–8 weeks)
+# Phase 1: MVP (6 to 8 weeks)
 
 Buyer website + NestJS API + PostgreSQL + Redis + auth + RAG assistant + deploy.
 

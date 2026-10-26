@@ -9,31 +9,31 @@ export type TypeCounts = Record<"PLOT" | "APARTMENT" | "VILLA" | "GATED_COMMUNIT
 
 const COPY: Record<string, { label: string; title: string; text: string; cta?: { href: string; text: string } }> = {
   plot: {
-    label: "01 - Plot",
+    label: "01 · Plot",
     title: "Every home begins as land.",
     text: "Survey stakes go in, boundaries are marked, and a clear title makes it yours.",
     cta: { href: "/listings?type=PLOT", text: "Browse plots" },
   },
   fence: {
-    label: "02 - Fence",
+    label: "02 · Fence",
     title: "Secure it. Mark it. Own it.",
     text: "Boundary walls, a gate and an approved layout. Protected land is easier to build on and to resell.",
     cta: { href: "/listings?type=PLOT&gated=1", text: "See gated layouts" },
   },
   villa: {
-    label: "03 - Villa",
+    label: "03 · Villa",
     title: "Build the home you picture.",
     text: "Foundation, two floors, a roof over your head. Independent villas with your own plot.",
     cta: { href: "/listings?type=VILLA", text: "Browse villas" },
   },
   apartment: {
-    label: "04 - Flats",
+    label: "04 · Flats",
     title: "Or live in a gated community.",
     text: "Three apartment blocks behind one gate, with a gatehouse, internal roads, lifts and parking. Move in, no construction to manage.",
     cta: { href: "/listings?type=APARTMENT", text: "Browse flats" },
   },
   commercial: {
-    label: "05 - Commercial",
+    label: "05 · Commercial",
     title: "Go as high as your business.",
     text: "Grade-A office floors in towers across Hyderabad's business districts.",
     cta: { href: "/listings?type=COMMERCIAL", text: "Browse commercial" },

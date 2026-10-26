@@ -61,7 +61,7 @@ export function EmiCalculator() {
           <div className="mt-10">
             <label htmlFor="urg" className="text-[15px] text-paper-ink/80">How soon do you plan to buy?</label>
             <input id="urg" type="range" min={1} max={10} value={urgency} onChange={(e) => setUrgency(Number(e.target.value))} className="mt-5 h-1 w-full cursor-pointer appearance-none rounded bg-paper-ink/25 accent-paper-ink" />
-            <div className="mono-label mt-3 flex justify-between text-paper-ink/45"><span>1 - Exploring</span><span>{urgency === 5 ? "5 - Medium" : urgency}</span><span>10 - This month</span></div>
+            <div className="mono-label mt-3 flex justify-between text-paper-ink/45"><span>1 · Exploring</span><span>{urgency === 5 ? "5 · Medium" : urgency}</span><span>10 · This month</span></div>
           </div>
         </div>
 
