@@ -101,7 +101,7 @@
 @utility pad-l { padding-left: max(1.25rem, calc((100vw - 1320px) / 2)); }
 @utility pad-r { padding-right: max(1.25rem, calc((100vw - 1320px) / 2)); }
 
-/* Small mono caps label ("01 — PLOT"), used for chapter and card eyebrows. */
+/* Small mono caps label ("01 - PLOT"), used for chapter and card eyebrows. */
 .mono-label {
   font-family: var(--font-mono);
   font-size: 12px;

@@ -16,7 +16,7 @@ The assistant must answer questions from listings and uploaded PDFs (sale deeds,
 - Hosted embeddings: per-token cost and a network hop for no quality gain at this size.
 
 ## Consequences
-One database to run. Retrieval quality is bounded by a small embedding model; swap `EMBEDDING_MODEL`/`EMBEDDING_DIM` and re-ingest to change it. Heuristic screening is a speed bump, not a guarantee — fencing plus a no-tools assistant is the main control.
+One database to run. Retrieval quality is bounded by a small embedding model; swap `EMBEDDING_MODEL`/`EMBEDDING_DIM` and re-ingest to change it. Heuristic screening is a speed bump, not a guarantee - fencing plus a no-tools assistant is the main control.
 
 ## Interview answer (30 seconds)
 "pgvector keeps vectors next to relational data; I embed locally for zero marginal cost and treat every retrieved chunk as hostile input."

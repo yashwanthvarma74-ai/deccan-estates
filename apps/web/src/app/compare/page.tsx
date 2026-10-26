@@ -30,7 +30,7 @@ export default function ComparePage() {
     ["Size", (l) => areaSummary(l)],
     ["Price per unit", (l) => `₹${pricePerUnit(l).value.toLocaleString("en-IN")} / ${pricePerUnit(l).unit}`],
     ["Locality avg ₹ / sq ft", (l) => `₹${l.locality.avgPricePerSqft.toLocaleString("en-IN")}`],
-    ["RERA", (l) => l.reraNumber ?? "—"],
+    ["RERA", (l) => l.reraNumber ?? "-"],
   ];
 
   return (
@@ -42,7 +42,7 @@ export default function ComparePage() {
           <table className="w-full min-w-[34rem] text-left">
             <thead><tr><th className="w-40" />{listings.map((l) => <th key={l.id} className="p-3 align-bottom text-[1.15rem] font-medium tracking-[-0.02em]"><Link href={`/listings/${l.id}`} className="hover:text-[#b6f400]">{l.title}</Link></th>)}</tr></thead>
             <tbody>
-              {[...rows, ["Verification", (l: (typeof listings)[number]) => (l.verification ? `${l.verification.score} / 100 · ${l.verification.status === "VERIFIED" ? "Verified" : l.verification.status === "CAUTION" ? "Check details" : "High risk"}` : "—")] as [string, (l: (typeof listings)[number]) => string]].map(([label, fn]) => (
+              {[...rows, ["Verification", (l: (typeof listings)[number]) => (l.verification ? `${l.verification.score} / 100 · ${l.verification.status === "VERIFIED" ? "Verified" : l.verification.status === "CAUTION" ? "Check details" : "High risk"}` : "-")] as [string, (l: (typeof listings)[number]) => string]].map(([label, fn]) => (
                 <tr key={label} className="border-t border-white/10">
                   <th scope="row" className="mono-label p-3 font-medium text-white/50">{label}</th>
                   {listings.map((l) => <td key={l.id} className="p-3 text-[1.02rem]">{fn(l)}</td>)}
