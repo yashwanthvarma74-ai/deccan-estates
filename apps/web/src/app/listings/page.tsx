@@ -19,7 +19,7 @@ async function Results({ searchParams }: { searchParams: Promise<ListingFilters>
   return (
     <>
       <h1 className="text-3xl">
-        Viewing {items.length ? `${from + 1}–${from + items.length}` : 0} of {total} Homes {filters.deal === "RENT" ? "for Rent" : filters.deal === "LEASE" ? "for Commercial Lease" : "for Sale"} in {place}
+        Viewing {items.length ? `${from + 1} to ${from + items.length}` : 0} of {total} Homes {filters.deal === "RENT" ? "for Rent" : filters.deal === "LEASE" ? "for Commercial Lease" : "for Sale"} in {place}
       </h1>
       <p className="mt-2 text-muted">Showing listings marketed by all agents in the searched area.</p>
       <div className="mt-8 flex items-center justify-between">
