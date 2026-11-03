@@ -146,8 +146,6 @@ infra/                 Dockerfiles, Helm chart, Kubernetes manifests, Terraform
 docs/                  ADRs, deployment guide, tech-stack PDF, images
 ```
 
-Directories for `chat`, `edge`, `payments`, `price-scraper`, `search`, `dashboard`, `mobile` and `design-system` are placeholders for the roadmap below.
-
 ## Quick start
 
 Prerequisites: Node 22+, pnpm 12, Docker (for Postgres, Redis, Kafka), Go 1.27 (optional), uv (optional, for the AI service).
@@ -195,7 +193,7 @@ The reference deployment runs the web app on Vercel, the API on Render and the d
 - Sample data only; no real inventory, payments or KYC.
 - The verification checks are rule based demonstrations, not integrations with government registries.
 - The free tier API host sleeps when idle, so the first request after a pause can take about a minute.
-- Roadmap services (search, payments, price scraper, chat, edge) are not implemented yet.
+- Roadmap items (search, payments, price scraper, chat, mobile) are not implemented yet.
 
 ## Roadmap
 
