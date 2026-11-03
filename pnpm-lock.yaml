@@ -25,7 +25,7 @@ importers:
         version: 4.0.150(react@19.3.0)(zod@4.6.7)
       '@better-auth/passkey':
         specifier: ^1.7.11
-        version: 1.7.11(0a1e893000306df31d234b8454697143)
+        version: 1.7.11(911fc3628fc27fb218e4aa9f31f7490e)
       '@googlemaps/js-api-loader':
         specifier: ^2.1.3
         version: 2.1.3
@@ -40,7 +40,7 @@ importers:
         version: 7.0.146(zod@4.6.7)
       better-auth:
         specifier: ^1.7.11
-        version: 1.7.11(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3)))(next@16.4.2(@babel/core@7.29.7(supports-color@7.2.0))(@opentelemetry/api@1.10.0)(@playwright/test@1.64.1)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.0.5(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(jsdom@30.1.3(@noble/hashes@2.4.0))(msw@3.0.3(@types/node@20.19.43)(supports-color@7.2.0)(typescript@5.9.3)(vite@8.3.4(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.4(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
+        version: 1.7.11(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3)))(next@16.4.2(@babel/core@7.29.7(supports-color@7.2.0))(@opentelemetry/api@1.10.0)(@playwright/test@1.64.1)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.0.5(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(jsdom@30.1.3(@noble/hashes@2.4.0))(msw@3.0.3(@types/node@20.19.43)(supports-color@7.2.0)(typescript@5.9.3)(vite@8.3.4(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.4(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -169,8 +169,8 @@ importers:
         specifier: ^0.300.0
         version: 0.300.0(@opentelemetry/api@1.10.0)(supports-color@7.2.0)
       '@prisma/client':
-        specifier: ^6.19.3
-        version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
+        specifier: ^7.10.1
+        version: 7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
       ioredis:
         specifier: ^6.0.0
         version: 6.0.0(supports-color@7.2.0)
@@ -240,7 +240,7 @@ importers:
         version: 11.19.0(typescript@7.0.2)
       drizzle-orm:
         specifier: ^0.45.4
-        version: 0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@7.0.2))(typescript@7.0.2))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@7.0.2))
+        version: 0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@7.0.2))(typescript@7.0.2))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@7.0.2))
       fastify:
         specifier: ^5.12.7
         version: 5.12.7
@@ -2054,12 +2054,15 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
-  '@prisma/client@6.19.3':
-    resolution: {integrity: sha512-mKq3jQFhjvko5LTJFHGilsuQs+W+T3Gm451NzuTDGQxwCzwXHYnIu2zGkRoW+Exq3Rob7yp2MfzSrdIiZVhrBg==}
-    engines: {node: '>=18.18'}
+  '@prisma/client-runtime-utils@7.10.1':
+    resolution: {integrity: sha512-AzoATVIgmO3lcZfM443+9SI7+cyLMW2+Psw4op8WQHpHvHCX//CKxv8fwhiL0yGWF8DjdQrFewxrZo5McBdB8g==}
+
+  '@prisma/client@7.10.1':
+    resolution: {integrity: sha512-5tgAbFGh//zVOC6WPNVgziOErJHYkUE+wmqCwbIyq6IrTXUYtv9y2iBFGh/Owo99Mx0+cr0j1FOrxkYBMuyhaQ==}
+    engines: {node: ^20.19 || ^22.12 || >=24.0}
     peerDependencies:
       prisma: '*'
-      typescript: '>=5.1.0'
+      typescript: '>=5.4.0'
     peerDependenciesMeta:
       prisma:
         optional: true
@@ -6699,12 +6702,12 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.10.0
 
-  '@better-auth/drizzle-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3)))':
+  '@better-auth/drizzle-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3)))':
     dependencies:
       '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
       '@better-auth/utils': 0.5.0
     optionalDependencies:
-      drizzle-orm: 0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3))
+      drizzle-orm: 0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3))
 
   '@better-auth/kysely-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(kysely@0.29.7)':
     dependencies:
@@ -6723,24 +6726,24 @@ snapshots:
       '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
       '@better-auth/utils': 0.5.0
 
-  '@better-auth/passkey@1.7.11(0a1e893000306df31d234b8454697143)':
+  '@better-auth/passkey@1.7.11(911fc3628fc27fb218e4aa9f31f7490e)':
     dependencies:
       '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
       '@better-auth/utils': 0.5.0
       '@better-fetch/fetch': 1.3.2
       '@simplewebauthn/browser': 13.3.0
       '@simplewebauthn/server': 13.3.3
-      better-auth: 1.7.11(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3)))(next@16.4.2(@babel/core@7.29.7(supports-color@7.2.0))(@opentelemetry/api@1.10.0)(@playwright/test@1.64.1)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.0.5(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(jsdom@30.1.3(@noble/hashes@2.4.0))(msw@3.0.3(@types/node@20.19.43)(supports-color@7.2.0)(typescript@5.9.3)(vite@8.3.4(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.4(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
+      better-auth: 1.7.11(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3)))(next@16.4.2(@babel/core@7.29.7(supports-color@7.2.0))(@opentelemetry/api@1.10.0)(@playwright/test@1.64.1)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.0.5(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(jsdom@30.1.3(@noble/hashes@2.4.0))(msw@3.0.3(@types/node@20.19.43)(supports-color@7.2.0)(typescript@5.9.3)(vite@8.3.4(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.4(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))
       better-call: 1.4.2(zod@4.6.7)
       nanostores: 1.5.5
       zod: 4.6.7
 
-  '@better-auth/prisma-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(prisma@6.19.3(typescript@5.9.3))':
+  '@better-auth/prisma-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(prisma@6.19.3(typescript@5.9.3))':
     dependencies:
       '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
       '@better-auth/utils': 0.5.0
     optionalDependencies:
-      '@prisma/client': 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
+      '@prisma/client': 7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
       prisma: 6.19.3(typescript@5.9.3)
 
   '@better-auth/telemetry@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)':
@@ -8319,12 +8322,18 @@ snapshots:
     dependencies:
       playwright: 1.64.1
 
-  '@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)':
+  '@prisma/client-runtime-utils@7.10.1': {}
+
+  '@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)':
+    dependencies:
+      '@prisma/client-runtime-utils': 7.10.1
     optionalDependencies:
       prisma: 6.19.3(typescript@5.9.3)
       typescript: 5.9.3
 
-  '@prisma/client@6.19.3(prisma@6.19.3(typescript@7.0.2))(typescript@7.0.2)':
+  '@prisma/client@7.10.1(prisma@6.19.3(typescript@7.0.2))(typescript@7.0.2)':
+    dependencies:
+      '@prisma/client-runtime-utils': 7.10.1
     optionalDependencies:
       prisma: 6.19.3(typescript@7.0.2)
       typescript: 7.0.2
@@ -9353,14 +9362,14 @@ snapshots:
 
   baseline-browser-mapping@2.11.30: {}
 
-  better-auth@1.7.11(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3)))(next@16.4.2(@babel/core@7.29.7(supports-color@7.2.0))(@opentelemetry/api@1.10.0)(@playwright/test@1.64.1)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.0.5(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(jsdom@30.1.3(@noble/hashes@2.4.0))(msw@3.0.3(@types/node@20.19.43)(supports-color@7.2.0)(typescript@5.9.3)(vite@8.3.4(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.4(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))):
+  better-auth@1.7.11(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3)))(next@16.4.2(@babel/core@7.29.7(supports-color@7.2.0))(@opentelemetry/api@1.10.0)(@playwright/test@1.64.1)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.0.5(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(jsdom@30.1.3(@noble/hashes@2.4.0))(msw@3.0.3(@types/node@20.19.43)(supports-color@7.2.0)(typescript@5.9.3)(vite@8.3.4(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.4(@types/node@20.19.43)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))):
     dependencies:
       '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
-      '@better-auth/drizzle-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3)))
+      '@better-auth/drizzle-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3)))
       '@better-auth/kysely-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(kysely@0.29.7)
       '@better-auth/memory-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)
       '@better-auth/mongo-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)
-      '@better-auth/prisma-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(prisma@6.19.3(typescript@5.9.3))
+      '@better-auth/prisma-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(prisma@6.19.3(typescript@5.9.3))
       '@better-auth/telemetry': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)
       '@better-auth/utils': 0.5.0
       '@better-fetch/fetch': 1.3.2
@@ -9373,8 +9382,8 @@ snapshots:
       nanostores: 1.5.5
       zod: 4.6.7
     optionalDependencies:
-      '@prisma/client': 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
-      drizzle-orm: 0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3))
+      '@prisma/client': 7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
+      drizzle-orm: 0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3))
       next: 16.4.2(@babel/core@7.29.7(supports-color@7.2.0))(@opentelemetry/api@1.10.0)(@playwright/test@1.64.1)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       pg: 8.23.1
       prisma: 6.19.3(typescript@5.9.3)
@@ -9730,20 +9739,20 @@ snapshots:
 
   dotenv@17.4.1: {}
 
-  drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3)):
+  drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@5.9.3)):
     optionalDependencies:
       '@opentelemetry/api': 1.10.0
-      '@prisma/client': 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
+      '@prisma/client': 7.10.1(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
       '@types/pg': 8.23.1
       kysely: 0.29.7
       pg: 8.23.1
       prisma: 6.19.3(typescript@5.9.3)
     optional: true
 
-  drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@6.19.3(prisma@6.19.3(typescript@7.0.2))(typescript@7.0.2))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@7.0.2)):
+  drizzle-orm@0.45.4(@opentelemetry/api@1.10.0)(@prisma/client@7.10.1(prisma@6.19.3(typescript@7.0.2))(typescript@7.0.2))(@types/pg@8.23.1)(kysely@0.29.7)(pg@8.23.1)(prisma@6.19.3(typescript@7.0.2)):
     optionalDependencies:
       '@opentelemetry/api': 1.10.0
-      '@prisma/client': 6.19.3(prisma@6.19.3(typescript@7.0.2))(typescript@7.0.2)
+      '@prisma/client': 7.10.1(prisma@6.19.3(typescript@7.0.2))(typescript@7.0.2)
       '@types/pg': 8.23.1
       kysely: 0.29.7
       pg: 8.23.1
@@ -10770,7 +10779,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.19.43
+      '@types/node': 26.6.5
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
