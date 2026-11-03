@@ -30,7 +30,7 @@ jobs:
       API_URL: http://localhost:4000
       BETTER_AUTH_SECRET: ci-only-secret-ci-only-secret-ci-only
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
         with: { version: 12 }
       - uses: actions/setup-node@v4
@@ -68,7 +68,7 @@ jobs:
     defaults:
       run: { working-directory: services/api-gateway }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
         with: { version: 12 }
       - uses: actions/setup-node@v4
@@ -95,7 +95,7 @@ jobs:
     defaults:
       run: { working-directory: "services/${{ matrix.service }}" }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
         with:
           go-version-file: services/${{ matrix.service }}/go.mod
@@ -109,7 +109,7 @@ jobs:
     defaults:
       run: { working-directory: services/ai }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v5
       - run: uv sync
       - run: uv run pytest -q
