@@ -4,7 +4,7 @@
 
 **A full stack, polyglot real estate platform for Hyderabad: search, verified listings, owner posting, and an AI assistant that searches live inventory with tools.**
 
-[![CI](https://github.com/yashwanthvarma74-ai/deccan-estates/actions/workflows/ci.yml/badge.svg)](https://github.com/yashwanthvarma74-ai/deccan-estates/actions/workflows/ci.yml)
+[![CI](https://github.com/yashwanthvarmakonduru/deccan-estates/actions/workflows/ci.yml/badge.svg)](https://github.com/yashwanthvarmakonduru/deccan-estates/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-b6f400.svg)](LICENSE)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6)
 ![Go](https://img.shields.io/badge/Go-1.27-00add8)
@@ -151,7 +151,7 @@ docs/                  ADRs, deployment guide, tech-stack PDF, images
 Prerequisites: Node 22+, pnpm 12, Docker (for Postgres, Redis, Kafka), Go 1.27 (optional), uv (optional, for the AI service).
 
 ```bash
-git clone https://github.com/yashwanthvarma74-ai/deccan-estates.git
+git clone https://github.com/yashwanthvarmakonduru/deccan-estates.git
 cd deccan-estates
 pnpm install
 
