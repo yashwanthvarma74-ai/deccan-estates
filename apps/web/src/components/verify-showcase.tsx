@@ -32,9 +32,9 @@ const useTick = (on: boolean, ms: number, max: number) => {
   return n;
 };
 
-/** Counts from 0 to `to` over `ms` each time `on` turns true. */
+/** Starts at its final value so the first paint is never zero, then counts up from 0 over `ms` each time `on` turns true. */
 function useCount(on: boolean, to: number, ms = 1100) {
-  const [v, setV] = useState(0);
+  const [v, setV] = useState(to);
   useEffect(() => {
     if (!on) return;
     let raf = 0; const t0 = performance.now();
