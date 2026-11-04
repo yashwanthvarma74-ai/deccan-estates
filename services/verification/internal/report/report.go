@@ -169,7 +169,7 @@ func Build(s Subject, n int) Report {
 	switch {
 	case fails > 0:
 		status = "RISK"
-	case warns > 1 || score < 90:
+	case warns > 0 || score < 90:
 		status = "CAUTION"
 	}
 	var summary string

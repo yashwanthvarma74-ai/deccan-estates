@@ -104,7 +104,7 @@ export function buildReport(subject: Subject, n: number): Report {
   const score = Math.max(0, 100 - penalty);
   const fails = checks.filter((c) => c.result === 'FAIL').length;
   const warns = checks.filter((c) => c.result === 'WARN').length;
-  const status = fails > 0 ? 'RISK' : warns > 1 || score < 90 ? 'CAUTION' : 'VERIFIED';
+  const status = fails > 0 ? 'RISK' : warns > 0 || score < 90 ? 'CAUTION' : 'VERIFIED';
   const summary =
     status === 'VERIFIED'
       ? `All ${checks.length} checks passed. Clear to proceed with the usual agreement and registration.`
