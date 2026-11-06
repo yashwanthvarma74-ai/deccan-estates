@@ -26,9 +26,22 @@ Property portals in Indian cities mix plots, flats, villas and commercial space 
 - **Trust is a feature.** Every listing can carry a *verification report* (RERA, title, approvals, encumbrance, and so on) produced by a dedicated service, not a text field.
 - **Owners can post directly**, with photos, for sale, rent or commercial lease.
 - **Search is conversational as well as filtered.** An assistant answers questions by calling typed tools over the real inventory, and degrades gracefully to a deterministic search when no model is available.
-- **It is engineered like a system, not a page.** Several services in different languages communicate over HTTP, gRPC and Kafka, with explicit parity tests, an outbox for reliable events, and fallbacks at every network boundary.
+- **It is engineered like a system, not a page.** The repository explores a multi-service design (TypeScript, Go and Python services over HTTP, gRPC and Kafka) with parity tests and fallbacks at each boundary. The live demo runs a smaller subset; see [What is live](#what-is-live-and-what-is-only-in-the-repo).
 
-> **Scope note.** The listings are *sample data* seeded for demonstration (80 sale, 6 rent, 4 commercial lease, across Hyderabad localities). Contact details are placeholders. This is a portfolio and learning project that I designed, built and deployed myself, not a live marketplace.
+> **Scope note.** The listings are *sample data* seeded for demonstration (80 sale, 6 rent, 4 commercial lease, across Hyderabad localities). Contact details are placeholders. This is a portfolio and learning project, not a live marketplace.
+
+## What is live and what is only in the repo
+
+| Part | Live demo | Status |
+| --- | --- | --- |
+| Next.js web app (search, listings, posting, auth) | Yes, Vercel | Deployed |
+| NestJS API gateway + PostgreSQL | Yes, Render + Neon | Deployed; free tier sleeps when idle |
+| Deccan AI chat (tool calling) | Yes, Groq from the web app | Deployed |
+| Verification reports | Yes, computed by the gateway's built-in TypeScript implementation | The Go gRPC service is in the repo and tested in CI, not deployed |
+| Fastify + tRPC listings service | No | In the repo and tested in CI, not deployed |
+| FastAPI + pgvector RAG service | No | In the repo and tested in CI (pytest), not deployed |
+| Kafka enquiry events + Go notifier | No | Written and unit tested; never run against a real Kafka broker |
+| Docker images, Helm chart, Terraform | No | Written; never built or applied |
 
 ## Screenshots
 
@@ -41,9 +54,9 @@ Property portals in Indian cities mix plots, flats, villas and commercial space 
 ## Features
 
 - **Search and discovery:** buy / rent / commercial modes, area, budget, exact bedroom filter, advanced filters, pins and cards map (MapLibre / OpenStreetMap by default, Google Maps when a key is supplied) with automatic fallback.
-- **Verified listings:** a verification report per listing, computed by a Go gRPC service; the gateway falls back to an in process implementation if the service is unreachable.
+- **Verified listings:** a verification report per listing. The gateway can call a Go gRPC service and falls back to an in process TypeScript implementation if it is unreachable; the live demo uses the TypeScript implementation.
 - **Owner posting:** account sign up (email or passkey), post a plot, flat, villa or commercial space with photos; manage and edit your listings; profile and settings.
-- **Enquiries:** contact box writes the enquiry and publishes an event to Kafka through a transactional outbox, consumed by a Go notifier.
+- **Enquiries:** the contact box saves the enquiry. With `KAFKA_BROKERS` set, an event is also written to a transactional outbox and relayed to Kafka for a Go notifier (off in the live demo, and not yet run against a real broker).
 - **Deccan AI chat:** a tool using agent (hosted models such as Groq or Gemini through OpenAI compatible endpoints) that searches listings, compares areas and runs loan maths; with no model configured it answers from a built in parser and search.
 - **Motion design:** a scroll driven isometric build animation drawn on Canvas 2D from a custom wireframe engine, plus a loader, sticky sections and an interactive affordability calculator.
 - **Quality of life:** responsive down to phones, dark theme, photo viewer, saved listings, SEO metadata and sitemap, privacy and terms pages.
@@ -112,8 +125,8 @@ The reasoning behind the larger choices lives in [`docs/adr`](docs/adr) as Archi
 
 - **Parity testing across languages.** The Go verification service is checked against the TypeScript implementation with a **1,200-case golden file**; both must produce identical reports, so the fallback path is not a different product.
 - **Two implementations, one contract.** The Fastify/Drizzle listings service is tested against the gateway's responses (set `GATEWAY_URL` to run the parity suite).
-- **Reliable events.** Enquiries and their events are written in one database transaction; a relay publishes the outbox to Kafka and marks rows sent, so broker downtime delays but never drops a notification.
-- **Graceful degradation everywhere.** Redis, Kafka, the Go service, the AI model, Google Maps and object storage are each optional at runtime, with a tested fallback.
+- **Reliable events.** Enquiries and their events are written in one database transaction; a relay publishes the outbox to Kafka and marks rows sent, so broker downtime should delay rather than drop a notification. This is covered by unit tests; it has not been run against a real Kafka broker.
+- **Graceful degradation.** Redis, Kafka, the Go service, the AI model, Google Maps and object storage are each optional at runtime, with a fallback when they are absent.
 - **Upload hardening.** Photos are validated by magic bytes (not just the extension), size limited, and stored with generated names.
 - **Layout verified, not assumed.** A sweep renders the pages in iframes at nine viewport widths and flags horizontal overflow; several real bugs were found and fixed this way.
 - **CI that runs the system.** Pull requests execute web lint, type check, tests and a production build against a freshly migrated and seeded API; the gateway and listings tests run against Postgres; Go services run `vet` and `-race` tests; the AI service runs pytest.
@@ -128,7 +141,7 @@ The reasoning behind the larger choices lives in [`docs/adr`](docs/adr) as Archi
 | Services | Fastify 5 + tRPC 11 + Drizzle, Go 1.27 (gRPC verification, Kafka notifier) |
 | Auth | Better Auth: email, passkeys, JWT + JWKS |
 | Events | Kafka, kafkajs producer, transactional outbox |
-| Delivery | GitHub Actions, Docker, Helm, Terraform, Render (API), Vercel (web), Neon (database, storage) |
+| Delivery | GitHub Actions, Render (API), Vercel (web), Neon (database), S3-compatible object storage; Docker, Helm and Terraform definitions written but not yet built or applied |
 | Testing | Vitest, Go test (`-race`), pytest, golden file parity, Playwright |
 
 ## Repository layout
@@ -142,7 +155,7 @@ services/
   verification/        Go gRPC service (protobuf contract, golden-file tests)
   notifier/            Go Kafka consumer for enquiry events
   ai/                  FastAPI RAG service (pgvector)
-infra/                 Dockerfiles, Helm chart, Kubernetes manifests, Terraform
+infra/                 Dockerfiles, Helm chart, Terraform (not yet built or applied)
 docs/                  ADRs, deployment guide, tech-stack PDF, images
 ```
 
@@ -186,14 +199,15 @@ pnpm --filter web test                       # 40 unit tests
 
 ## Deployment
 
-The reference deployment runs the web app on Vercel, the API on Render and the database and object storage on Neon. Step by step instructions, including environment variables and the Render blueprint, are in [`docs/deploying.md`](docs/deploying.md). Docker, Helm and Terraform definitions are under [`infra`](infra).
+The live demo runs the web app on Vercel, the API on Render and the database on Neon, with photos in S3-compatible object storage. Step by step instructions, including environment variables, are in [`docs/deploying.md`](docs/deploying.md). Docker, Helm and Terraform definitions are under [`infra`](infra), but they have not been built or applied yet.
 
 ## Known limitations
 
 - Sample data only; no real inventory, payments or KYC.
 - The verification checks are rule based demonstrations, not integrations with government registries.
 - The free tier API host sleeps when idle, so the first request after a pause can take about a minute.
-- Roadmap items (search, payments, price scraper, chat, mobile) are not implemented yet.
+- Roadmap items (a dedicated search service, payments, price scraper, buyer and owner chat, mobile) are not implemented yet.
+- The listings, RAG, verification and notifier services run locally and in CI, but not in the live demo.
 
 ## Roadmap
 
