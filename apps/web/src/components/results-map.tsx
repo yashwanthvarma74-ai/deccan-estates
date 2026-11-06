@@ -194,6 +194,13 @@ function OpenStreetMapResults() {
           <button className={btn} onClick={() => setOutline(!outline)}>{outline ? "Remove outline" : "Show boundary"}</button>
         )}
       </div>
+      {(points.isPending || points.isError) && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6 text-center">
+          <p className="label rounded-lg border border-line bg-card px-4 py-3 text-white shadow-lg">
+            {points.isError ? "Could not load the map pins. Please refresh." : "Loading listings on the map… the server may take up to a minute to wake."}
+          </p>
+        </div>
+      )}
       <div className="absolute right-4 top-4 flex flex-col">
         <button aria-label="Zoom in" onClick={() => mapRef.current?.zoomIn()} className="flex h-10 w-10 cursor-pointer items-center justify-center border border-line bg-card text-white hover:bg-card-hi"><Plus className="h-5 w-5" /></button>
         <button aria-label="Zoom out" onClick={() => mapRef.current?.zoomOut()} className="flex h-10 w-10 cursor-pointer items-center justify-center border border-t-0 border-line bg-card text-white hover:bg-card-hi"><Minus className="h-5 w-5" /></button>
